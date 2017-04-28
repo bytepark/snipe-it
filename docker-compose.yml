@@ -1,0 +1,41 @@
+version: '2'
+
+services:
+  snipe-mysql:
+      image: mariadb
+      environment:
+        - MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}"
+        - MYSQL_DATABASE="${MYSQL_DATABASE}"
+        - MYSQL_USER="${MYSQL_USER}"
+        - MYSQL_PASSWORD="${MYSQL_PASSWORD}"
+
+  snipeit:
+    build: .
+    restart: always
+    ports:
+      - "8010:80"
+      - "4444:443"
+    environment:
+      # Mysql Parameters
+      - MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}"
+      - MYSQL_PORT_3306_TCP_ADDR="${MYSQL_PORT_3306_TCP_ADDR}"
+      - MYSQL_DATABASE="${MYSQL_DATABASE}"
+      - MYSQL_USER="${MYSQL_USER}"
+      - MYSQL_PASSWORD="${MYSQL_PASSWORD}"
+
+      # Email Parameters
+      - MAIL_PORT_587_TCP_ADDR="${MAIL_PORT_587_TCP_ADDR}"
+      - MAIL_PORT_587_TCP_PORT="${MAIL_PORT_587_TCP_PORT}"
+      - MAIL_ENV_FROM_ADDR="${MAIL_ENV_FROM_ADDR}"
+      - MAIL_ENV_FROM_NAME="${MAIL_ENV_FROM_NAME}"
+      - MAIL_ENV_ENCRYPTION="${MAIL_ENV_ENCRYPTION}"
+      - MAIL_ENV_USERNAME="${MAIL_ENV_USERNAME}"
+      - MAIL_ENV_PASSWORD="${MAIL_ENV_PASSWORD}"
+
+      # Snipe-IT Settings
+      - APP_ENV="${APP_ENV}"
+      - APP_DEBUG="${APP_DEBUG}"
+      - APP_KEY="${APP_KEY}"
+      - APP_URL="${APP_URL}"
+      - APP_TIMEZONE="${APP_TIMEZONE}"
+      - APP_LOCALE="${APP_LOCALE}"
