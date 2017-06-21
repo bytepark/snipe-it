@@ -454,7 +454,20 @@ class AssetsController extends Controller
 
         if ($asset->save()) {
             // Redirect to the new asset page
-            \Session::flash('success', trans('admin/hardware/message.update.success'));
+
+                $logaction = new Actionlog();
+                $logaction->item_type = Asset::class;
+                $logaction->item_id = $asset->id;
+                $logaction->created_at =  date("Y-m-d H:i:s");
+                if (Input::has('rtd_location_id')) {
+                    $logaction->location_id = e(Input::get('rtd_location_id'));
+                }
+                $logaction->user_id = Auth::user()->id;
+                $log = $logaction->logaction('update');
+
+                
+                
+                \Session::flash('success', trans('admin/hardware/message.update.success'));
             return response()->json(['redirect_url' => route("view/hardware", $assetId)]);
         }
         \Input::flash();
@@ -487,6 +500,13 @@ class AssetsController extends Controller
 
 
         $asset->delete();
+
+        $logaction = new Actionlog();
+        $logaction->item_type = Asset::class;
+        $logaction->item_id = $asset->id;
+        $logaction->created_at =  date("Y-m-d H:i:s");
+        $logaction->user_id = Auth::user()->id;
+        $log = $logaction->logaction('deleted');
 
         // Redirect to the asset management page
         return redirect()->to('hardware')->with('success', trans('admin/hardware/message.delete.success'));
@@ -769,7 +789,7 @@ class AssetsController extends Controller
         if ($settings->qr_code == '1') {
             $asset = Asset::find($assetId);
             $size = Helper::barcodeDimensions($settings->barcode_type);
-            $qr_file = public_path().'/uploads/barcodes/qr-'.str_slug($asset->asset_tag).'.png';
+            $qr_file = public_path().'/uploads/barcodes/qr-'.str_slug($asset->asset_tag).'-'.str_slug($asset->id).'.png';
 
             if (isset($asset->id,$asset->asset_tag)) {
 
@@ -1782,7 +1802,7 @@ class AssetsController extends Controller
                 }
 
             } else {
-                if (Gate::allows('assets.checkin')) {
+                if (($asset->assigned_to!='') && (Gate::allows('assets.checkin'))) {
                     $inout = '<a href="' . route('checkin/hardware',
                             $asset->id) . '" class="btn btn-primary btn-sm" title="Checkin this asset" data-toggle="tooltip">' . trans('general.checkin') . '</a>';
                 }
