@@ -54,8 +54,13 @@
 <p><blockquote>{!! $eula !!}</blockquote></p>
 
 @if ($require_acceptance==1)
-<p><strong><a href="{{ config('app.url') }}/account/accept-asset/{{ $log_id }}">{{ trans('mail.i_have_read') }}</a></strong></p>
+<p><strong><a href="{{ url('/') }}/account/accept-asset/{{ $log_id }}">{{ trans('mail.i_have_read') }}</a></strong></p>
 @endif
 
-<p>{{ $snipeSettings->site_name }}</p>
+@if ($snipeSettings->show_url_in_emails=='1')
+	<p><a href="{{ url('/') }}">{{ $snipeSettings->site_name }}</a></p>
+@else
+	<p>{{ $snipeSettings->site_name }}</p>
+@endif
+
 @stop

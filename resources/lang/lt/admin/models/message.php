@@ -28,4 +28,9 @@ return array(
         'success' 		=> 'Modelis sėkmingai atkurtas.'
     ),
 
+    'bulkedit' => array(
+        'error'   		=> 'Nebuvo pakeista jokių laukų, todėl niekas nebuvo atnaujintas.',
+        'success' 		=> 'Modeliai atnaujinti.'
+    ),
+
 );

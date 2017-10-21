@@ -2,24 +2,31 @@
 
 return array(
 
-    'does_not_exist' => 'Status Label does not exist.',
-    'assoc_assets'	 => 'This Status Label is currently associated with at least one Asset and cannot be deleted. Please update your assets to no longer reference this status and try again. ',
+    'does_not_exist' => 'Η ετικέτα κατάστασης δεν υπάρχει.',
+    'assoc_assets'	 => 'Αυτή η ετικέτα κατάστασης συσχετίζεται επί του παρόντος με ένα τουλάχιστον στοιχείο και δεν μπορεί να διαγραφεί. Ενημερώστε τα στοιχεία σας ώστε να μην αναφέρονται πλέον στην κατάσταση αυτή και να προσπαθήσετε ξανά.',
 
 
     'create' => array(
-        'error'   => 'Status Label was not created, please try again.',
-        'success' => 'Status Label created successfully.'
+        'error'   => 'Δεν δημιουργήθηκε η ετικέτα κατάστασης, δοκιμάστε ξανά.',
+        'success' => 'Η ετικέτα κατάστασης δημιουργήθηκε με επιτυχία.'
     ),
 
     'update' => array(
-        'error'   => 'Status Label was not updated, please try again',
-        'success' => 'Status Label updated successfully.'
+        'error'   => 'Η Ετικέτα κατάστασης δεν ενημερώθηκε, παρακαλώ προσπαθήστε ξανά',
+        'success' => 'Η ετικέτα κατάστασης ενημερώθηκε με επιτυχία.'
     ),
 
     'delete' => array(
-        'confirm'   => 'Are you sure you wish to delete this Status Label?',
-        'error'   => 'There was an issue deleting the Status Label. Please try again.',
-        'success' => 'The Status Label was deleted successfully.'
-    )
+        'confirm'   => 'Είστε σίγουροι ότι θέλετε να διαγράψετε αυτή την ετικέτα κατάστασης;',
+        'error'   => 'Υπήρξε ένα ζήτημα διαγράφοντας την ετικέτα κατάστασης. Παρακαλώ δοκιμάστε ξανά.',
+        'success' => 'Η ετικέτα κατάστασης διαγράφηκε με επιτυχία.'
+    ),
+
+    'help' => array(
+        'undeployable'   => 'Αυτά τα στοιχεία ενεργητικού δεν μπορούν να αποδοθούν σε κανέναν.',
+        'deployable'   => 'Αυτά τα περιουσιακά στοιχεία μπορούν να ελεγχθούν. Μόλις οριστούν, θα αναλάβουν μετα-κατάσταση <i class="fa fa-circle text-blue"></i> <strong>Deployed</strong>.',
+        'archived'   => 'Αυτά τα στοιχεία δεν μπορούν να εξακριβωθούν και θα εμφανιστούν μόνο στην προβολή Αρχειοθετημένη. Αυτό είναι χρήσιμο για τη διατήρηση πληροφοριών σχετικά με τα περιουσιακά στοιχεία για την κατάρτιση προϋπολογισμού / ιστορικούς σκοπούς, αλλά για τη διατήρησή τους εκτός της καθημερινής λίστας στοιχείων.',
+        'pending'   => 'Αυτά τα στοιχεία ενεργητικού δεν μπορούν να αποδοθούν σε κανέναν, συχνά χρησιμοποιούμενα για αντικείμενα που πρόκειται να επισκευαστούν, αλλά αναμένεται να επιστρέψουν στην κυκλοφορία.',
+    ),
 
 );

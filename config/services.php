@@ -35,4 +35,16 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
+    'stunning' => [
+        'enabled' => env('ENABLE_STUNNING', false),
+        'app_key'  => env('STUNNING_APP_KEY'),
+        'stripe_id'    => env('STUNNING_STRIPE_ID'),
+    ],
+
+    'rollbar' => [
+        'access_token' => env('ROLLBAR_TOKEN'),
+        'level' => env('ROLLBAR_LEVEL', 'error'),
+    ],
+
+
 ];

@@ -11,6 +11,10 @@
             'error'   => 'Não foi possível criar a manutenção do artigo. Por favor, tente novamente.',
             'success' => 'Manutenção do artigo criada com sucesso.'
         ],
+        'edit'                       => [
+            'error'   => 'Manutenção de ativos não foi editada, tente novamente.',
+            'success' => 'Manutenção de ativos editada com sucesso.'
+        ],
         'asset_maintenance_incomplete' => 'Incompleto',
         'warranty'                     => 'Garantia',
         'not_warranty'                 => 'Sem Garantia',

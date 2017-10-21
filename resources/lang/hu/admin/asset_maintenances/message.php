@@ -11,6 +11,10 @@
             'error'   => 'Eszköz karbantartás nem jött létre, próbálja meg újra.',
             'success' => 'Eszköz karbantartás sikeresen létrejött.'
         ],
+        'edit'                       => [
+            'error'   => 'Az Eszközkarbantartást nem szerkesztették, próbálkozzon újra.',
+            'success' => 'Az Eszközkarbantartás sikeresen szerkesztett.'
+        ],
         'asset_maintenance_incomplete' => 'Nincs kitöltve teljesen',
         'warranty'                     => 'Garancia',
         'not_warranty'                 => 'Nem garancia',

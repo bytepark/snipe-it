@@ -3,6 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Gate;
+use Watson\Validating\ValidatingTrait;
 
 class CustomFieldset extends Model
 {
@@ -11,6 +12,17 @@ class CustomFieldset extends Model
     public $rules=[
     "name" => "required|unique:custom_fieldsets"
     ];
+
+    /**
+     * Whether the model should inject it's identifier to the unique
+     * validation rules before attempting validation. If this property
+     * is not set in the model it will default to true.
+     *
+     * @var boolean
+     */
+    protected $injectUniqueIdentifier = true;
+    use ValidatingTrait;
+    
 
     public function fields()
     {
@@ -34,12 +46,8 @@ class CustomFieldset extends Model
             $rule = [];
 
             if (($field->field_encrypted!='1') ||
-                  (($field->field_encrypted =='1')  && (Gate::allows('admin')) ))
-                  {
-
-                if ($field->pivot->required) {
-                    $rule[]="required";
-                }
+                  (($field->field_encrypted =='1')  && (Gate::allows('admin')) )) {
+                    $rule[] = ($field->pivot->required=='1') ? "required" : "nullable";
             }
 
             array_push($rule, $field->attributes['format']);
@@ -47,5 +55,4 @@ class CustomFieldset extends Model
         }
         return $rules;
     }
-
 }

@@ -23,6 +23,12 @@ return array(
         'success' 		=> '资产恢复成功。'
     ),
 
+    'audit' => array(
+        'error'   		=> '尝试一下',
+        'success' 		=> '资产审计已成功记录。'
+    ),
+
+
     'deletefile' => array(
         'error'   => '文件删除失败，请重试',
         'success' => '文件已成功删除。',
@@ -47,6 +53,7 @@ return array(
     'delete' => array(
         'confirm'   	=> '你确定要删除这个资产吗？',
         'error'   		=> '删除资产的过程中出现了一点儿问题，请重试。',
+        'nothing_updated'   => '没有选择任何资产，所以没有删除任何资产。',
         'success' 		=> '资产成功被删除。'
     ),
 

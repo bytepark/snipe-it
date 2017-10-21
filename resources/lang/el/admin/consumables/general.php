@@ -1,13 +1,13 @@
 <?php
 
 return array(
-    'about_consumables_title' 			=> 'About Consumables',
-    'about_consumables_text'  			=> 'Consumables are anything purchased that will be used up over time. For example, printer ink or copier paper.',
-    'checkout'                          => 'Checkout Consumable to User',
-    'consumable_name'                   => 'Consumable Name',
-    'create'                            => 'Create Consumable',
-    'item_no'                           => 'Item No.',
-    'remaining' 			            => 'Remaining',
-    'total' 			                => 'Total',
-    'update'                            => 'Update Consumable',
+    'about_consumables_title' 			=> 'Σχετικά με τα αναλώσιμα',
+    'about_consumables_text'  			=> 'Τα αναλώσιμα είναι οτιδήποτε αγοράζονται και θα χρησιμοποιηθούν με την πάροδο του χρόνου. Για παράδειγμα, μελάνι εκτυπωτή ή χαρτί φωτοαντιγραφικού.',
+    'checkout'                          => 'Έλεγχος κατανάλωσης σε χρήστη',
+    'consumable_name'                   => 'Όνομα αναλώσιμου',
+    'create'                            => 'Δημιουργία αναλώσιμου',
+    'item_no'                           => 'Αριθμός Αντικειμένου.',
+    'remaining' 			            => 'Απομένουν',
+    'total' 			                => 'Σύνολο',
+    'update'                            => 'Ενημέρωση αναλώσιμων',
 );

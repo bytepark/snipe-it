@@ -1,12 +1,16 @@
 <?php
 
 return array(
-    'about_manufacturers_title'     => 'About manufacturers',
-    'about_manufacturers_text'           => 'Manufacturers make all the magic items we consume.',
+    'about_manufacturers_title'    => 'Om produsenter',
+    'about_manufacturers_text'  => 'Produsenter er firmaer som lager dine eiendeler. Du kan lagre viktig kundestøtte kontaktinformasjon om dem her, som vises på sidene om asset-detaljer.',
     'asset_manufacturers'	=> 'Eiendelsprodusenter',
     'create'				=> 'Opprett produsent',
     'id'   					=> 'ID',
-    'name'      			=> 'Produsentnavn',
+    'name'      			=> 'Navn',
+    'support_email'   		=> 'Støtte epost',
+    'support_phone'   		=> 'Støttetelefon',
+    'support_url'   		=> 'Support URL',
     'update'				=> 'Endre produsent',
+    'url'   				=> 'URL',
 
 );

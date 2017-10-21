@@ -2,24 +2,31 @@
 
 return array(
 
-    'does_not_exist' => 'Status Label does not exist.',
-    'assoc_assets'	 => 'This Status Label is currently associated with at least one Asset and cannot be deleted. Please update your assets to no longer reference this status and try again. ',
+    'does_not_exist' => 'Tilamerkintää ei löydy.',
+    'assoc_assets'	 => 'Tilamerkintä on määritetty käyttöön yhdelle tai useammalle laitteelle joten sitä ei voida poistaa. Poista tilamerkintä käytöstä kaikilta laitteilta ja yritä uudelleen. ',
 
 
     'create' => array(
-        'error'   => 'Status Label was not created, please try again.',
-        'success' => 'Status Label created successfully.'
+        'error'   => 'Tilamerkintää ei luotu, yritä uudelleen.',
+        'success' => 'Tilamerkintä luotiin onnistuneesti.'
     ),
 
     'update' => array(
-        'error'   => 'Status Label was not updated, please try again',
-        'success' => 'Status Label updated successfully.'
+        'error'   => 'Tilamerkintää ei päivitetty, yritä uudelleen',
+        'success' => 'Tilamerkintä päivitettiin onnistuneesti.'
     ),
 
     'delete' => array(
-        'confirm'   => 'Are you sure you wish to delete this Status Label?',
-        'error'   => 'There was an issue deleting the Status Label. Please try again.',
-        'success' => 'The Status Label was deleted successfully.'
-    )
+        'confirm'   => 'Oletko varma että haluat poistaa tämän tilamerkinnän?',
+        'error'   => 'Tilamerkinnän poistamisessa tapahtui virhe. Yritä uudelleen.',
+        'success' => 'Tilamerkintä poistettiin onnistuneesti.'
+    ),
+
+    'help' => array(
+        'undeployable'   => 'Näitä varoja ei voida siirtää kenellekään.',
+        'deployable'   => 'Nämä varat voidaan tarkistaa. Kun ne on määritetty, ne ottavat meta-tilan <i class="fa fa-circle text-blue"></i> <strong>Deployed</strong>.',
+        'archived'   => 'Näitä varoja ei voi tarkistaa, ja ne näkyvät vain Arkistoitu-näkymässä. Tämä on hyödyllistä, kun säilytetään tietoja varoista budjetointiin / historiallisiin tarkoituksiin, mutta säilytetään ne päivittäisestä omaisuusluettelosta.',
+        'pending'   => 'Näitä varoja ei voida vielä antaa kenellekään, jota käytetään usein kohteisiin, jotka ovat korjaamattomia, mutta joiden odotetaan palaavan liikkeeseen.',
+    ),
 
 );

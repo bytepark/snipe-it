@@ -28,4 +28,9 @@ return array(
         'success' 		=> 'Model is met succes hersteld.'
     ),
 
+    'bulkedit' => array(
+        'error'   		=> 'Er was geen veld geselecteerd dus is er niks gewijzigd.',
+        'success' 		=> 'Modellen bijgewerkt.'
+    ),
+
 );

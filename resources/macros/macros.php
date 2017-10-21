@@ -15,6 +15,7 @@ Form::macro('locales', function ($name = "locale", $selected = null, $class = nu
       ''=> " ",
       'en'=> "English, US",
       'en-GB'=> "English, UK",
+      'af'=> "Afrikaans",
       'ar'=> "Arabic",
       'bg'=> "Bulgarian",
       'zh-CN'=> "Chinese Simplified",
@@ -24,6 +25,7 @@ Form::macro('locales', function ($name = "locale", $selected = null, $class = nu
       'da'=> "Danish",
       'nl'=> "Dutch",
       'en-ID'=> "English, Indonesia",
+      'et'=> "Estonian",
       'fi'=> "Finnish",
       'fr'=> "French",
       'de'=> "German",
@@ -31,12 +33,17 @@ Form::macro('locales', function ($name = "locale", $selected = null, $class = nu
       'he'=> "Hebrew",
       'hu'=> "Hungarian",
       'id'=> "Indonesian",
+      'ga-IE'=> "Irish",
       'it'=> "Italian",
       'ja'=> "Japanese",
       'ko'=> "Korean",
+      'lv'=>'Latvian',
       'lt'=> "Lithuanian",
       'ms'=> "Malay",
+      'mi'=> "Maori",
+      'mn'=> "Mongolian",
       'no'=> "Norwegian",
+      'fa'=> "Persian",
       'pl'=> "Polish",
       'pt-PT'=> "Portuguese",
       'pt-BR'=> "Portuguese, Brazilian",
@@ -45,9 +52,11 @@ Form::macro('locales', function ($name = "locale", $selected = null, $class = nu
       'es-ES'=> "Spanish",
       'es-CO'=> "Spanish, Colombia",
       'sv-SE'=> "Swedish",
+      'ta'=> "Tamil",
       'th'=> "Thai",
       'tr'=> "Turkish",
       'vi'=> "Vietnamese",
+      'zu'=> "Zulu",
     );
 
     $idclause='';
@@ -341,78 +350,60 @@ Form::macro('countries', function ($name = "country", $selected = null, $class =
 });
 
 
+
+Form::macro('date_display_format', function ($name = "date_display_format", $selected = null, $class = null) {
+
+    $formats = [
+        'Y-m-d',
+        'Y-m-d',
+        'D M d, Y',
+        'M j, Y',
+        'd M, Y',
+        'm/d/Y',
+        'n/d/y',
+        'm/j/Y',
+        'd.m.Y',
+    ];
+
+    foreach ($formats as $format) {
+        $date_display_formats[$format] = Carbon::now()->format($format);
+    }
+    $select = '<select name="'.$name.'" class="'.$class.'" style="min-width:250px">';
+    foreach ($date_display_formats as $format => $date_display_format) {
+        $select .= '<option value="'.$format.'"'.($selected == $format ? ' selected="selected"' : '').'>'.$date_display_format.'</option> ';
+    }
+
+    $select .= '</select>';
+    return $select;
+
+});
+
+
+Form::macro('time_display_format', function ($name = "time_display_format", $selected = null, $class = null) {
+
+    $formats = [
+        'g:iA',
+        'h:iA',
+        'H:i',
+    ];
+
+    foreach ($formats as $format) {
+        $time_display_formats[$format] = Carbon::now()->format($format);
+    }
+    $select = '<select name="'.$name.'" class="'.$class.'" style="min-width:150px">';
+    foreach ($time_display_formats as $format => $time_display_format) {
+        $select .= '<option value="'.$format.'"'.($selected == $format ? ' selected="selected"' : '').'>'.$time_display_format.'</option> ';
+    }
+
+    $select .= '</select>';
+    return $select;
+
+});
+
 /**
 * Barcode macro
-* Generates the dropdown menu of available barcodes
+* Generates the dropdown menu of available 1D barcodes
 */
-Form::macro('barcode_types', function ($name = "barcode_type", $selected = null, $class = null) {
-
-    $barcode_types = array(
-    'QRCODE'=>"QR Code",
-    'PDF417'=>'PDF417',
-    'DATAMATRIX'=>'DATAMATRIX',
-    'C128'=>'Code 128'
-    );
-
-    $select = '<select name="'.$name.'" class="'.$class.'">';
-
-    foreach ($barcode_types as $code => $codename) {
-        $select .= '<option value="'.$code.'"'.($selected == $code ? ' selected="selected"' : '').'>'.$codename.'</option> ';
-    }
-
-    $select .= '</select>';
-
-    return $select;
-
-});
-
-
-/**
-* Currency macro
-* Generates the dropdown menu of world currencies
-*/
-Form::macro('currencies', function ($name = "currency", $selected = null, $class = null) {
-
-      $currencies =  array(
-        'USD' => array('name'=>'US/Canadian/etc Dollar', 'symbol'=>'$','symbol_html'=>'$'),
-        'GBP' => array('name'=>'GBP - British Pounds', 'symbol'=>'£','symbol_html'=>'&pound;'),
-        'EUR' => array('name'=>'EUR - Euros', 'symbol'=>'€','symbol_html'=>'&euro;'),
-        'BGN' => array('name'=>'BGN - Bulgarian lev', 'symbol'=>'лв.','symbol_html'=>'лв.'),
-        'BRL' => array('name'=>'BRL - Brazilian Real', 'symbol'=>'R$','symbol_html'=>'R$'),
-        'CZK' => array('name'=>'CZK - Czech koruny', 'symbol'=>'Kč','symbol_html'=>'CZK'),
-        'DKK' => array('name'=>'DKK - Danish Kroner', 'symbol'=>'kr','symbol_html'=>'kr'),
-        'HUF' => array('name'=>'HUF - Hungarian Forints', 'symbol'=>'Ft','symbol_html'=>'Ft'),
-        'ILS' => array('name'=>'ILS - Israeli Shekels', 'symbol'=>'₪','symbol_html'=>'&#8362;'),
-        'JPY' => array('name'=>'JPY - Japanese Yen', 'symbol'=>'¥','symbol_html'=>'&#165;'),
-        'MYR' => array('name'=>'MYR - Malaysian Ringgits', 'symbol'=>'RM','symbol_html'=>'RM'),
-        'NOK' => array('name'=>'NOK - Norwegian Kroner', 'symbol'=>'kr','symbol_html'=>'kr'),
-        'PHP' => array('name'=>'PHP - Philippine Pesos', 'symbol'=>'Php','symbol_html'=>'Php'),
-        'PLN' => array('name'=>'PLN - Polish zloty', 'symbol'=>'zł','symbol_html'=>'PLN'),
-        'INR' => array('name'=>'INR - Indian Rupee', 'symbol'=>'Rs','symbol_html'=>'&#8360;'),
-        'RUB' => array('name'=>'RUB - Russian Rubles', 'symbol'=>'₽','symbol_html'=>'&#8381;'),
-        'SEK' => array('name'=>'SEK - Swedish Kronor', 'symbol'=>'kr','symbol_html'=>'kr'),
-        'CHF' => array('name'=>'CHF - Swiss Francs', 'symbol'=>'CHF','symbol_html'=>'CHF'),
-        'THB' => array('name'=>'THB - Thai Baht', 'symbol'=>'฿','symbol_html'=>' &#3647;'),
-        'TRY' => array('name'=>'TRY - Turkish Liras', 'symbol'=>'TL','symbol_html'=>' &#3647;'),
-        'UAH' => array('name'=>'UAH - Ukrainian Hryvnias', 'symbol'=>'₴','symbol_html'=>'&#8372;'),
-        'ZAR' => array('name'=>'ZAR - South African Rand', 'symbol'=>'R','symbol_html'=>'R'),
-        'AED' => array('name'=>'AED - United Arab Emirates Dirham', 'symbol'=>'AED','symbol_html'=>'AED'),
-        'CNY' => array('name'=>'CNY - Chinese Yuan', 'symbol'=>'¥','symbol_html'=>'&#165;'),
-  	);
-
-    $select = '<select name="'.$name.'" class="'.$class.'">';
-    foreach ($currencies as $currency) {
-        $select .= '<option value="'.$currency['symbol'].'"'.($selected == $currency['symbol'] ? ' selected="selected"' : '').'>'.$currency['name'].' ('.$currency['symbol'].')</option> ';
-    }
-
-    $select .= '</select>';
-
-    return $select;
-
-});
-
-
-
 Form::macro('alt_barcode_types', function ($name = "alt_barcode", $selected = null, $class = null) {
 
     $barcode_types = array(
@@ -435,6 +426,10 @@ Form::macro('alt_barcode_types', function ($name = "alt_barcode", $selected = nu
 });
 
 
+/**
+* Barcode macro
+* Generates the dropdown menu of available 2D barcodes
+*/
 Form::macro('barcode_types', function ($name = "barcode_type", $selected = null, $class = null) {
 
     $barcode_types = array(

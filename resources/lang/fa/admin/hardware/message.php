@@ -23,6 +23,12 @@ return array(
         'success' 		=> 'دارایی با موفقیت بازیابی شد.'
     ),
 
+    'audit' => array(
+        'error'   		=> 'ممیزی دارایی ناموفق بود. لطفا دوباره تلاش کنید.',
+        'success' 		=> 'حسابرسی املاک با موفقیت وارد شد'
+    ),
+
+
     'deletefile' => array(
         'error'   => 'فایل حذف نمی شود. لطفا دوباره تلاش کنید.',
         'success' => 'فایل با موفقیت حذف شده است.',
@@ -36,17 +42,18 @@ return array(
     ),
 
     'import' => array(
-        'error'                 => 'Some items did not import correctly.',
-        'errorDetail'           => 'The following Items were not imported because of errors.',
-        'success'               => "Your file has been imported",
-        'file_delete_success'   => "Your file has been been successfully deleted",
-        'file_delete_error'      => "The file was unable to be deleted",
+        'error'                 => 'بعضی از موارد به درستی وارد نشدند.',
+        'errorDetail'           => 'موارد زیر به علت خطا وارد نشده است.',
+        'success'               => "فایل شما وارد شده است",
+        'file_delete_success'   => "فایل شما با موفقیت حذف شده است",
+        'file_delete_error'      => "فایل قابل حذف نشد",
     ),
 
 
     'delete' => array(
         'confirm'   	=> 'آیا شما مطمئن هستید که می خواهید این تنظیمات دارایی را حذف کنید؟',
         'error'   		=> 'اشکال در حذف دارایی.لطفا دوباره تلاش کنید.',
+        'nothing_updated'   => 'هیچ دارایی انتخاب نشده بود، بنابراین هیچ چیز حذف نشد.',
         'success' 		=> 'دارایی با موفقیت حذف شد.'
     ),
 
@@ -54,7 +61,7 @@ return array(
         'error'   		=> 'دارایی در بررسی نیست، لطفا دوباره امتحان کنید',
         'success' 		=> 'دارایی را بررسی کنید موفقیت.',
         'user_does_not_exist' => 'کاربر نامعتبر است لطفا دوباره امتحان کنید.',
-        'not_available' => 'That asset is not available for checkout!'
+        'not_available' => 'این دارایی برای پرداخت در دسترس نیست!'
     ),
 
     'checkin' => array(
@@ -68,7 +75,7 @@ return array(
     'requests' => array(
         'error'   		=> 'دارایی شد درخواست نمی کند، لطفا دوباره امتحان کنید',
         'success' 		=> 'دارایی موفقیت درخواست شده است.',
-        'canceled'      => 'Checkout request successfully canceled'
+        'canceled'      => 'درخواست پرداخت با موفقیت لغو شد'
     )
 
 );

@@ -28,4 +28,9 @@ return array(
         'success' 		=> 'Modèle d\'actif restauré correctement.'
     ),
 
+    'bulkedit' => array(
+        'error'   		=> 'Aucun champ n\'a été changé, donc rien n\'a été mis à jour.',
+        'success' 		=> 'Modèles mis à jour.'
+    ),
+
 );

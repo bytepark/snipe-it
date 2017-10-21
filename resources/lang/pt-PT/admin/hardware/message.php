@@ -24,6 +24,12 @@ return array(
         'success' 		=> 'Artigo restaurado com sucesso.'
     ),
 
+    'audit' => array(
+        'error'   		=> 'A auditoria de ativos não teve êxito. Por favor, tente novamente.',
+        'success' 		=> 'Auditoria de ativos logada com sucesso.'
+    ),
+
+
     'deletefile' => array(
         'error'   => 'Ficheiro não removido. Por favor, tente novamente.',
         'success' => 'Ficheiro removido com sucesso.',
@@ -48,6 +54,7 @@ return array(
     'delete' => array(
         'confirm'   	=> 'Tem a certeza de que pretende eliminar este artigo?',
         'error'   		=> 'Ocorreu um problema ao remover o artigo. Por favor, tente novamente.',
+        'nothing_updated'   => 'Nenhum recurso foi selecionado, então nada foi excluído.',
         'success' 		=> 'O artigo foi removido com sucesso.'
     ),
 

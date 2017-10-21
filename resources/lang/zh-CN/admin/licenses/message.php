@@ -7,6 +7,7 @@ return array(
     'asset_does_not_exist' 	=> '您正在授权的资产不存在。',
     'owner_doesnt_match_asset' => '您正在授权的资产已经被占用，请选择其他人。',
     'assoc_users'	 => '此许可证已经分配给某个用户，目前不能被删除，请检查资产信息，然后再尝试删除。',
+    'select_asset_or_person' => '您必须选择资产或用户，但不能同时选择两者。',
 
 
     'create' => array(
@@ -23,7 +24,7 @@ return array(
         'error'   => '文件上传失败，请重试。',
         'success' => '文件上传成功。',
         'nofiles' => '尚未选择要上传的文件，或上传的文件过大。',
-        'invalidfiles' => 'One or more of your files is too large or is a filetype that is not allowed. Allowed filetypes are png, gif, jpg, jpeg, doc, docx, pdf, txt, zip, rar, rtf, xml, and lic.',
+        'invalidfiles' => '一个或多个文件过大或文件类型不被允许。允许上传的文件类型有PNG，Gif，Jpg，Jpeg，Doc，Docx，Pdf，Txt，Zip，Rar，Rtf，Xml和LIC。',
     ),
 
     'update' => array(

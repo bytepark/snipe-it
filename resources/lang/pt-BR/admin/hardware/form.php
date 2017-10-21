@@ -1,7 +1,7 @@
 <?php
 
 return array(
-	'bulk_delete'		=> 'Confirm Bulk Delete Assets',
+	'bulk_delete'		=> 'Confirma a exclusão de Ativos em Massa',
   'bulk_delete_help'	=> 'Reveja os ativos selecionados para deletar. Depois de deletados, estes ativos podem ser restaurados, mas não estarão associados aos usuários.',
   'bulk_delete_warn'	=> 'Você está prestes a excluir.',
 	'bulk_update'		=> 'Ativos da Atualização em Massa',
@@ -14,6 +14,7 @@ return array(
     'cost'				=> 'Custo da Compra',
     'create'			=> 'Criar Ativo',
     'date'				=> 'Data da Compra',
+    'depreciation'	    => 'Depreciação',
     'depreciates_on'	=> 'Deprecia em',
     'default_location'	=> 'Local Padrão',
     'eol_date'			=> 'Date de EOL',

@@ -28,4 +28,9 @@ return array(
         'success' 		=> 'Vellykket gjenoppretting av modell.'
     ),
 
+    'bulkedit' => array(
+        'error'   		=> 'Ingen felt ble endret, så ingenting ble oppdatert.',
+        'success' 		=> 'Modeller oppdatert.'
+    ),
+
 );

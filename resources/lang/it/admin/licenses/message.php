@@ -7,6 +7,7 @@ return array(
     'asset_does_not_exist' 	=> 'Il bene che si sta cercando di associare a questa licenza non esiste.',
     'owner_doesnt_match_asset' => 'Il bene che si sta cercando di associare a questa licenza è di proprietà di una persona diversa dal soggetto selezionato nel menù a discesa.',
     'assoc_users'	 => 'Questo bene è stato assegnato ad un Utente e non può essere cancellato. Per favore Riassegnalo in magazzino,e dopo riprova a cancellarlo. ',
+    'select_asset_or_person' => 'È necessario selezionare un\'attività o un utente, ma non entrambi.',
 
 
     'create' => array(
@@ -23,7 +24,7 @@ return array(
         'error'   => 'File non caricato/i. Riprova.',
         'success' => 'File caricato/i con successo.',
         'nofiles' => 'Non hai selezionato nessun file per il caricamento, oppure il file selezionato è troppo grande',
-        'invalidfiles' => 'One or more of your files is too large or is a filetype that is not allowed. Allowed filetypes are png, gif, jpg, jpeg, doc, docx, pdf, txt, zip, rar, rtf, xml, and lic.',
+        'invalidfiles' => 'Uno o più file sono troppo grandi o il formato del file non è consentito. I tipi di file consentiti sono png, gif, jpg, jpeg, doc, docx, pdf, txt, zip, rar, rtf, xml, e lic.',
     ),
 
     'update' => array(

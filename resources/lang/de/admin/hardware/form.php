@@ -1,7 +1,7 @@
 <?php
 
 return array(
-	'bulk_delete'		=> 'Confirm Bulk Delete Assets',
+	'bulk_delete'		=> 'Massenlöschung von Assets bestätigen',
   'bulk_delete_help'	=> 'Überprüfen Sie die nachfolgenden Assets für die Massenlöschung. Sobald diese gelöscht sind, können diese zwar wiederhergestellt werden, sind aber dem aktuellen Nutzer nicht mehr zugeordnet.',
   'bulk_delete_warn'	=> 'Sie sind im Begriff :asset_count Assets zu löschen.',
 	'bulk_update'		=> 'Massenaktualisierung von Assets',
@@ -14,6 +14,7 @@ return array(
     'cost'				=> 'Einkaufspreis',
     'create'			=> 'Asset erstellen',
     'date'				=> 'Kaufdatum',
+    'depreciation'	    => 'Abschreibung',
     'depreciates_on'	=> 'Abschreiben auf',
     'default_location'	=> 'Standard Lagerort',
     'eol_date'			=> 'End of Live Datum (Ende der Nutzungsdauer)',

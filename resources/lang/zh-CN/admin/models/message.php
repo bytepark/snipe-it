@@ -28,4 +28,9 @@ return array(
         'success' 		=> '型号恢复成功。'
     ),
 
+    'bulkedit' => array(
+        'error'   		=> '没有字段被更改，因此没有更新任何内容。',
+        'success' 		=> '模板已更新。'
+    ),
+
 );

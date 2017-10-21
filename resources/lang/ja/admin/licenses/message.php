@@ -7,6 +7,7 @@ return array(
     'asset_does_not_exist' 	=> 'このライセンスに関連付けられている資産が存在しません。',
     'owner_doesnt_match_asset' => 'ドロップダウンで割り当てられた以上の利用者にライセンスを関連付けようとしています。',
     'assoc_users'	 => 'このライセンスは利用者にチェックされているため削除できません。ライセンスをチェック後、もう一度、やり直して下さい。 ',
+    'select_asset_or_person' => 'アセットまたはユーザーを選択する必要がありますが、両方を選択する必要はありません。',
 
 
     'create' => array(
@@ -23,7 +24,7 @@ return array(
         'error'   => 'ファイルがアップロードできませんでした。もう一度、やり直して下さい。',
         'success' => 'ファイルがアップロードされました。',
         'nofiles' => 'アップロードするファイルが選択されていないか、アップロードしようとしているファイルが大き過ぎます。',
-        'invalidfiles' => 'One or more of your files is too large or is a filetype that is not allowed. Allowed filetypes are png, gif, jpg, jpeg, doc, docx, pdf, txt, zip, rar, rtf, xml, and lic.',
+        'invalidfiles' => 'ファイルサイズが大きすぎるか、許可されていない形式です。(png, gif, jpg, jpeg, doc, docx, pdf, txt, zip, rar, rtf, xml, lic)',
     ),
 
     'update' => array(

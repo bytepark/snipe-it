@@ -13,59 +13,91 @@ return array(
     |
     */
 
-    "accepted"         => "The :attribute must be accepted.",
-    "active_url"       => "The :attribute is not a valid URL.",
-    "after"            => "The :attribute must be a date after :date.",
-    "alpha"            => "The :attribute may only contain letters.",
-    "alpha_dash"       => "The :attribute may only contain letters, numbers, and dashes.",
-    "alpha_num"        => "The :attribute may only contain letters and numbers.",
-    "before"           => "The :attribute must be a date before :date.",
-    "between"          => array(
-        "numeric" => "The :attribute must be between :min - :max.",
-        "file"    => "The :attribute must be between :min - :max kilobytes.",
-        "string"  => "The :attribute must be between :min - :max characters.",
-    ),
-    "confirmed"        => "The :attribute confirmation does not match.",
-    "date"             => "The :attribute is not a valid date.",
-    "date_format"      => "The :attribute does not match the format :format.",
-    "different"        => "The :attribute and :other must be different.",
-    "digits"           => "The :attribute must be :digits digits.",
-    "digits_between"   => "The :attribute must be between :min and :max digits.",
-    "email"            => "The :attribute format is invalid.",
-    "exists"           => "The selected :attribute is invalid.",
-    "email_array"      => "One or more email addresses is invalid.",
-    "image"            => "The :attribute must be an image.",
-    "in"               => "The selected :attribute is invalid.",
-    "integer"          => "The :attribute must be an integer.",
-    "ip"               => "The :attribute must be a valid IP address.",
-    "max"              => array(
-        "numeric" => "The :attribute may not be greater than :max.",
-        "file"    => "The :attribute may not be greater than :max kilobytes.",
-        "string"  => "The :attribute may not be greater than :max characters.",
-    ),
-    "mimes"            => "The :attribute must be a file of type: :values.",
-    "min"              => array(
-        "numeric" => "The :attribute must be at least :min.",
-        "file"    => "The :attribute must be at least :min kilobytes.",
-        "string"  => "The :attribute must be at least :min characters.",
-    ),
-    "not_in"           => "The selected :attribute is invalid.",
-    "numeric"          => "The :attribute must be a number.",
-    "regex"            => "The :attribute format is invalid.",
-    "required"         => "The :attribute field is required.",
-    "required_if"      => "The :attribute field is required when :other is :value.",
-    "required_with"    => "The :attribute field is required when :values is present.",
-    "required_without" => "The :attribute field is required when :values is not present.",
-    "same"             => "The :attribute and :other must match.",
-    "size"             => array(
-        "numeric" => "The :attribute must be :size.",
-        "file"    => "The :attribute must be :size kilobytes.",
-        "string"  => "The :attribute must be :size characters.",
-    ),
-    "unique"           => "The :attribute has already been taken.",
-    "url"              => "The :attribute format is invalid.",
-    "statuslabel_type" => "You must select a valid status label type",
-    "unique_undeleted" => "The :attribute must be unique.",
+    'accepted'             => 'Attributet måste godkännas.',
+    'active_url'           => 'Attributet är inte en giltig URL.',
+    'after'                => 'Attributet måste vara ett datum efter: datum.',
+    'after_or_equal'       => 'Attributet måste vara ett datum efter eller lika med: datum.',
+    'alpha'                => 'Attributet får bara innehålla bokstäver.',
+    'alpha_dash'           => 'Attributet får bara innehålla bokstäver, siffror och bindestreck.',
+    'alpha_num'            => 'Attributet får bara innehålla bokstäver och siffror.',
+    'array'                => 'Attributet måste vara en matris.',
+    'before'               => 'Attributet måste vara ett datum före: datum.',
+    'before_or_equal'      => 'Attributet måste vara ett datum före eller lika med: datum.',
+    'between'              => [
+        'numeric' => 'Attributet måste vara mellan: min och: max.',
+        'file'    => 'Attributet måste vara mellan: min och: max kilobytes.',
+        'string'  => 'Attributet måste vara mellan: min och: max tecken.',
+        'array'   => 'Attributet måste ha mellan: min och: max objekt.',
+    ],
+    'boolean'              => 'Attributfältet måste vara sant eller felaktigt.',
+    'confirmed'            => 'Den: Attributbekräftelsen matchar inte.',
+    'date'                 => 'Attributet är inte ett giltigt datum.',
+    'date_format'          => 'Attributet matchar inte formatet: format.',
+    'different'            => 'Attributet: Andet måste vara annorlunda.',
+    'digits'               => 'Attributet måste vara: siffror siffror.',
+    'digits_between'       => 'Attributet måste vara mellan: min och: max siffror.',
+    'dimensions'           => 'Attributet har ogiltiga bilddimensioner.',
+    'distinct'             => 'Attributfältet har ett duplikatvärde.',
+    'email'                => 'Attributet måste vara en giltig e-postadress.',
+    'exists'               => 'Det valda: attributet är ogiltigt.',
+    'file'                 => 'Attributet måste vara en fil.',
+    'filled'               => 'Attributfältet måste ha ett värde.',
+    'image'                => 'Attributet måste vara en bild.',
+    'in'                   => 'Det valda: attributet är ogiltigt.',
+    'in_array'             => 'Attributfältet existerar inte i: andra.',
+    'integer'              => 'Attributet måste vara ett heltal.',
+    'ip'                   => 'Attributet måste vara en giltig IP-adress.',
+    'ipv4'                 => 'Attributet måste vara en giltig IPv4-adress.',
+    'ipv6'                 => 'Attributet måste vara en giltig IPv6-adress.',
+    'json'                 => 'Attributet måste vara en giltig JSON-sträng.',
+    'max'                  => [
+        'numeric' => 'Attributet får inte vara större än: max.',
+        'file'    => 'Attributet får inte vara större än: max kilobytes.',
+        'string'  => 'Attributet får inte vara större än: Max tecken.',
+        'array'   => 'Attributet får inte ha mer än: Max objekt.',
+    ],
+    'mimes'                => 'Attributet måste vara en fil av typen:: värden.',
+    'mimetypes'            => 'Attributet måste vara en fil av typen:: värden.',
+    'min'                  => [
+        'numeric' => 'Attributet måste vara minst: min.',
+        'file'    => 'Attributet måste vara minst: min kilobytes.',
+        'string'  => 'Attributet måste vara minst: mina tecken.',
+        'array'   => 'Attributet måste ha minst: mina saker.',
+    ],
+    'not_in'               => 'Det valda: attributet är ogiltigt.',
+    'numeric'              => 'Attributet måste vara ett nummer.',
+    'present'              => 'Attributfältet måste vara närvarande.',
+    'regex'                => 'Attributet formatet är ogiltigt.',
+    'required'             => 'Fältet: Attribut är obligatoriskt.',
+    'required_if'          => 'Attributfältet krävs när: annat är: värde.',
+    'required_unless'      => 'Fältet: Attribut är obligatoriskt om inte annat är i: värden.',
+    'required_with'        => 'Fältet: Attribut är obligatoriskt när: värdena är närvarande.',
+    'required_with_all'    => 'Fältet: Attribut är obligatoriskt när: värdena är närvarande.',
+    'required_without'     => 'Fältet: Attribut är obligatoriskt när: värden inte är närvarande.',
+    'required_without_all' => 'Attributfältet krävs när ingen av: värdena är närvarande.',
+    'same'                 => 'Den: attributet och: andra måste matcha.',
+    'size'                 => [
+        'numeric' => 'Attributet måste vara: storlek.',
+        'file'    => 'Attributet måste vara: storlek kilobytes.',
+        'string'  => 'Attributet måste vara: Storlekstecken.',
+        'array'   => 'Attributet måste innehålla: storlekar.',
+    ],
+    'string'               => 'Attributet måste vara en sträng.',
+    'timezone'             => 'Attributet måste vara en giltig zon.',
+    'unique'               => 'Attributet har redan tagits.',
+    'uploaded'             => 'Attributet misslyckades att ladda upp.',
+    'url'                  => 'Attributet formatet är ogiltigt.',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Validation Language Lines
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify custom validation messages for attributes using the
+    | convention "attribute.rule" to name the lines. This makes it quick to
+    | specify a specific custom language line for a given attribute rule.
+    |
+    */
 
 
     /*
@@ -79,8 +111,14 @@ return array(
     |
     */
 
-    'custom' => array(),
-    'alpha_space' => "The :attribute field contains a character that is not allowed.",
+    'custom' => [
+        'alpha_space' => "Attributfältet innehåller ett tecken som inte är tillåtet.",
+        "email_array"      => "En eller flera e-postadresser är ogiltiga.",
+        "hashed_pass"      => "Ditt nuvarande lösenord är felaktigt",
+        'dumbpwd'          => 'Det lösenordet är för vanligt.',
+        "statuslabel_type" => "Du måste välja en giltig status etikett typ",
+        "unique_undeleted" => "Attributet måste vara unikt.",
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -93,6 +131,6 @@ return array(
     |
     */
 
-    'attributes' => array(),
+    'attributes' => [],
 
 );

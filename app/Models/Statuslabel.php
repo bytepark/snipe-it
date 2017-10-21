@@ -16,11 +16,12 @@ class Statuslabel extends SnipeModel
     protected $injectUniqueIdentifier = true;
     protected $dates = ['deleted_at'];
     protected $table = 'status_labels';
+    protected $hidden = ['user_id','deleted_at'];
 
 
     protected $rules = array(
         'name'  => 'required|string|unique_undeleted',
-        'notes'   => 'string',
+        'notes'   => 'string|nullable',
         'deployable' => 'required',
         'pending' => 'required',
         'archived' => 'required',
@@ -28,16 +29,6 @@ class Statuslabel extends SnipeModel
 
     protected $fillable = ['name', 'deployable', 'pending', 'archived'];
 
-    /**
-     * Show count of assets with status label
-     *
-     * @todo Remove this. It's dumb.
-     * @return \Illuminate\Support\Collection
-     */
-    public function has_assets()
-    {
-        return $this->hasMany('\App\Models\Asset', 'status_id')->count();
-    }
 
     /**
      * Get assets with associated status label
@@ -62,6 +53,28 @@ class Statuslabel extends SnipeModel
             return 'deployable';
         }
     }
+
+    public function scopePending()
+    {
+        return $this->where('pending', '=', 1)
+                    ->where('archived', '=', 0)
+                    ->where('deployable', '=', 0);
+    }
+
+    public function scopeArchived()
+    {
+        return $this->where('pending', '=', 0)
+            ->where('archived', '=', 1)
+            ->where('deployable', '=', 0);
+    }
+
+    public function scopeDeployable()
+    {
+        return $this->where('pending', '=', 0)
+            ->where('archived', '=', 0)
+            ->where('deployable', '=', 1);
+    }
+
 
     public static function getStatuslabelTypesForDB($type)
     {

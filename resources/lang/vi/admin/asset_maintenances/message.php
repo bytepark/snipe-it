@@ -11,6 +11,10 @@
             'error'   => 'Tài sản đang bảo trì chưa được tạo, xin vui lòng thử lại.',
             'success' => 'Tài sản đang bảo trì được tạo thành công.'
         ],
+        'edit'                       => [
+            'error'   => 'Bảo trì Tài sản không được chỉnh sửa, vui lòng thử lại.',
+            'success' => 'Bảo trì Tài sản đã được chỉnh sửa thành công.'
+        ],
         'asset_maintenance_incomplete' => 'Chưa hoàn thành',
         'warranty'                     => 'Bảo hành',
         'not_warranty'                 => 'Không có bảo hành',

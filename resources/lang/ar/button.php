@@ -1,16 +1,15 @@
 <?php
 
 return array(
-
     'actions' 	                => 'الإجراءات',
-    'add'    	                => 'Add New',
-    'cancel'                    => 'Cancel',
-    'checkin_and_delete'  	    => 'Checkin & Delete User',
+    'add'    	                => 'إضافة جديد',
+    'cancel'                    => 'إلغاء',
+    'checkin_and_delete'  	    => 'فحص وحذف المستخدم',
     'delete'  	                => 'حذف',
     'edit'    	                => 'تعديل',
     'restore' 	                => 'إستعادة',
-    'request'                   => 'Request',
+    'request'                   => 'طلب',
     'submit'  	                => 'إرسال',
-    'upload'                    => 'Upload',
-
+    'upload'                    => 'رفع',
+	'select_file'				=> 'حدد ملف ...',
 );

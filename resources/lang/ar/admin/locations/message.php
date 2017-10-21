@@ -2,26 +2,26 @@
 
 return array(
 
-    'does_not_exist' => 'Location does not exist.',
-    'assoc_users'	 => 'This location is currently associated with at least one user and cannot be deleted. Please update your users to no longer reference this location and try again. ',
-    'assoc_assets'	 => 'This location is currently associated with at least one asset and cannot be deleted. Please update your assets to no longer reference this location and try again. ',
-    'assoc_child_loc'	 => 'This location is currently the parent of at least one child location and cannot be deleted. Please update your locations to no longer reference this location and try again. ',
+    'does_not_exist' => 'الموقع غير موجود.',
+    'assoc_users'	 => 'هذا الموقع مقترن حاليا بمستخدم واحد على الأقل ولا يمكن حذفه. يرجى تحديث المستخدمين لم يعد يشيروا إلى هذا الموقع ثم أعد المحاولة.',
+    'assoc_assets'	 => 'هذا الموقع مقترن حاليا بمادة عرض واحدة على الأقل ولا يمكن حذفها. يرجى تحديث مواد العرض لم تعد تشير إلى هذا الموقع ثم أعد المحاولة.',
+    'assoc_child_loc'	 => 'هذا الموقع هو حاليا أحد الوالدين لموقع طفل واحد على الأقل ولا يمكن حذفه. يرجى تحديث مواقعك لم تعد تشير إلى هذا الموقع ثم أعد المحاولة.',
 
 
     'create' => array(
-        'error'   => 'Location was not created, please try again.',
-        'success' => 'Location created successfully.'
+        'error'   => 'لم يتم إنشاء الموقع، الرجاء المحاولة مرة أخرى.',
+        'success' => 'تم إنشاء الموقع بنجاح.'
     ),
 
     'update' => array(
-        'error'   => 'Location was not updated, please try again',
-        'success' => 'Location updated successfully.'
+        'error'   => 'لم يتم تحديث الموقع، الرجاء المحاولة مرة أخرى',
+        'success' => 'تم تحديث الموقع بنجاح.'
     ),
 
     'delete' => array(
-        'confirm'   	=> 'Are you sure you wish to delete this location?',
-        'error'   => 'There was an issue deleting the location. Please try again.',
-        'success' => 'The location was deleted successfully.'
+        'confirm'   	=> 'هل تريد بالتأكيد حذف هذا الموقع؟',
+        'error'   => 'حدثت مشكلة أثناء حذف الموقع. حاول مرة اخرى.',
+        'success' => 'تم حذف الموقع بنجاح.'
     )
 
 );

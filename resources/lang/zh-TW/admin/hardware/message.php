@@ -23,6 +23,12 @@ return array(
         'success' 		=> '恢復資產成功。'
     ),
 
+    'audit' => array(
+        'error'   		=> '資產稽核失敗。請再試一次。',
+        'success' 		=> '資產稽核成功登錄。'
+    ),
+
+
     'deletefile' => array(
         'error'   => '刪除檔案失敗，請重試。',
         'success' => '刪除檔案成功。',
@@ -47,6 +53,7 @@ return array(
     'delete' => array(
         'confirm'   	=> '您確定要刪除此資產嗎？',
         'error'   		=> '刪除資產時發生問題，請重試。',
+        'nothing_updated'   => '沒有資產被選擇，因此沒有更新任何內容。',
         'success' 		=> '刪除資產成功。'
     ),
 

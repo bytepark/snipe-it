@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'sent'	        => 'Your password link has been sent!',
-    'user'			=> 'That user does not exist or does not have an email address associated',
+    'sent'	        => 'Ο σύνδεσμος κωδικού πρόσβασης σας έχει σταλεί!',
+    'user'			=> 'Αυτός ο χρήστης δεν υπάρχει ή δεν έχει συσχετιστεί με διεύθυνση ηλεκτρονικού ταχυδρομείου',
 ];
 

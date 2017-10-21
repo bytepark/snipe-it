@@ -1,16 +1,15 @@
 <?php
 
 return array(
-
     'actions' 	                => 'Toiminnot',
     'add'    	                => 'Lisää uusi',
     'cancel'                    => 'Peruuta',
-    'checkin_and_delete'  	    => 'Checkin & Delete User',
+    'checkin_and_delete'  	    => 'Tarkista & Poista käyttäjä',
     'delete'  	                => 'Poista',
     'edit'    	                => 'Muokkaa',
     'restore' 	                => 'Palauta',
-    'request'                   => 'Request',
+    'request'                   => 'Pyyntö',
     'submit'  	                => 'Lähetä',
     'upload'                    => 'Lähetä',
-
+	'select_file'				=> 'Valitse tiedosto...',
 );

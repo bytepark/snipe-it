@@ -11,6 +11,10 @@
             'error'   => 'Vedlikeholdet ble ikke opprettet, prøv igjen.',
             'success' => 'Vedlikeholdet ble opprettet.'
         ],
+        'edit'                       => [
+            'error'   => 'Vedlikeholdet ble ikke opprettet, prøv igjen.',
+            'success' => 'Vedlikehold endret vellykket.'
+        ],
         'asset_maintenance_incomplete' => 'Enda Ikke fullført',
         'warranty'                     => 'Garanti',
         'not_warranty'                 => 'Ikke garanti',

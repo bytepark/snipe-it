@@ -28,4 +28,9 @@ return array(
         'success' 		=> 'Sukses memulihkan model.'
     ),
 
+    'bulkedit' => array(
+        'error'   		=> 'Tidak ada bidang yang berubah, jadi tidak ada yang diperbarui.',
+        'success' 		=> 'Model diperbarui'
+    ),
+
 );

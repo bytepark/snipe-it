@@ -3,48 +3,48 @@
 return array(
 
     'field' => array(
-        'invalid'   => 'That field does not exist.',
-        'already_added'   => 'Field already added',
+        'invalid'   => 'Αυτό το πεδίο δεν υπάρχει.',
+        'already_added'   => 'Το πεδίο έχει ήδη προσθέσει',
 
         'create' => array(
-            'error'   => 'Field was not created, please try again.',
-            'success' => 'Field created successfully.',
-            'assoc_success' => 'Field successfully added to fieldset.'
+            'error'   => 'Το πεδία δεν δημιουργήθηκαν, παρακαλώ προσπαθήστε ξανά.',
+            'success' => 'Το πεδίο δημιουργήθηκε με επιτυχία.',
+            'assoc_success' => 'Το πεδίο προστέθηκε με επιτυχία στο fieldset.'
         ),
 
         'update' => array(
-            'error'   => 'Field was not updated, please try again',
-            'success' => 'Field updated successfully.'
+            'error'   => 'Το πεδίο δεν ενημερώθηκε, δοκιμάστε ξανά',
+            'success' => 'Το πεδίο ενημερώθηκε επιτυχώς.'
         ),
 
         'delete' => array(
-            'confirm'   	=> 'Are you sure you wish to delete this field?',
-            'error'   => 'There was an issue deleting the field. Please try again.',
-            'success' => 'The field was deleted successfully.',
-            'in_use'   => 'Field is still in use.',
+            'confirm'   	=> 'Είστε βέβαιοι ότι θέλετε να διαγράψετε αυτό το πεδίο;',
+            'error'   => 'Παρουσιάστηκε πρόβλημα κατά τη διαγραφή του πεδίου. ΠΑΡΑΚΑΛΩ προσπαθησε ξανα.',
+            'success' => 'Το πεδίο διαγράφηκε με επιτυχία.',
+            'in_use'   => 'Το πεδίο παραμένει σε χρήση.',
         )
 
     ),
 
     'fieldset' => array(
 
-
+        'does_not_exist' => 'Το πεδίο δεν υπάρχει',
 
         'create' => array(
-            'error'   => 'Fieldset was not created, please try again.',
-            'success' => 'Fieldset created successfully.'
+            'error'   => 'Το Fieldset δεν δημιουργήθηκε, δοκιμάστε ξανά.',
+            'success' => 'Το σύνολο των πεδίων δημιουργήθηκε με επιτυχία.'
         ),
 
         'update' => array(
-            'error'   => 'Fieldset was not updated, please try again',
-            'success' => 'Fieldset updated successfully.'
+            'error'   => 'Το Fieldset δεν ενημερώθηκε, δοκιμάστε ξανά',
+            'success' => 'Το σύνολο των πεδίων ενημερώθηκε με επιτυχία.'
         ),
 
         'delete' => array(
-            'confirm'   	=> 'Are you sure you wish to delete this fieldset?',
-            'error'   => 'There was an issue deleting the fieldset. Please try again.',
-            'success' => 'The fieldset was deleted successfully.',
-            'in_use'   => 'Fieldset is still in use.',
+            'confirm'   	=> 'Είστε βέβαιοι ότι θέλετε να διαγράψετε αυτό το σύνολο πεδίων;',
+            'error'   => 'Παρουσιάστηκε ένα ζήτημα κατάργησης του πεδίου. ΠΑΡΑΚΑΛΩ προσπαθησε ξανα.',
+            'success' => 'Το πεδίο πεδίου διαγράφηκε με επιτυχία.',
+            'in_use'   => 'Το σύνολο των πεδίων παραμένουν σε χρήση.',
         )
 
     ),

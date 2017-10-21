@@ -28,4 +28,9 @@ return array(
         'success' 		=> 'Kiểu tài sản đã được phục hồi thành công.'
     ),
 
+    'bulkedit' => array(
+        'error'   		=> 'Không có trường nào được thay đổi, vì vậy không có gì được cập nhật.',
+        'success' 		=> 'Các mô hình được cập nhật.'
+    ),
+
 );

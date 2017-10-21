@@ -13,59 +13,91 @@ return array(
     |
     */
 
-    "accepted"         => "The :attribute must be accepted.",
-    "active_url"       => "The :attribute is not a valid URL.",
-    "after"            => "The :attribute must be a date after :date.",
-    "alpha"            => "The :attribute may only contain letters.",
-    "alpha_dash"       => "The :attribute may only contain letters, numbers, and dashes.",
-    "alpha_num"        => "The :attribute may only contain letters and numbers.",
-    "before"           => "The :attribute must be a date before :date.",
-    "between"          => array(
-        "numeric" => "The :attribute must be between :min - :max.",
-        "file"    => "The :attribute must be between :min - :max kilobytes.",
-        "string"  => "The :attribute must be between :min - :max characters.",
-    ),
-    "confirmed"        => "The :attribute confirmation does not match.",
-    "date"             => "The :attribute is not a valid date.",
-    "date_format"      => "The :attribute does not match the format :format.",
-    "different"        => "The :attribute and :other must be different.",
-    "digits"           => "The :attribute must be :digits digits.",
-    "digits_between"   => "The :attribute must be between :min and :max digits.",
-    "email"            => "The :attribute format is invalid.",
-    "exists"           => "The selected :attribute is invalid.",
-    "email_array"      => "One or more email addresses is invalid.",
-    "image"            => "The :attribute must be an image.",
-    "in"               => "The selected :attribute is invalid.",
-    "integer"          => "The :attribute must be an integer.",
-    "ip"               => "The :attribute must be a valid IP address.",
-    "max"              => array(
-        "numeric" => "The :attribute may not be greater than :max.",
-        "file"    => "The :attribute may not be greater than :max kilobytes.",
-        "string"  => "The :attribute may not be greater than :max characters.",
-    ),
-    "mimes"            => "The :attribute must be a file of type: :values.",
-    "min"              => array(
-        "numeric" => "The :attribute must be at least :min.",
-        "file"    => "The :attribute must be at least :min kilobytes.",
-        "string"  => "The :attribute must be at least :min characters.",
-    ),
-    "not_in"           => "The selected :attribute is invalid.",
-    "numeric"          => "The :attribute must be a number.",
-    "regex"            => "The :attribute format is invalid.",
-    "required"         => "The :attribute field is required.",
-    "required_if"      => "The :attribute field is required when :other is :value.",
-    "required_with"    => "The :attribute field is required when :values is present.",
-    "required_without" => "The :attribute field is required when :values is not present.",
-    "same"             => "The :attribute and :other must match.",
-    "size"             => array(
-        "numeric" => "The :attribute must be :size.",
-        "file"    => "The :attribute must be :size kilobytes.",
-        "string"  => "The :attribute must be :size characters.",
-    ),
-    "unique"           => "The :attribute has already been taken.",
-    "url"              => "The :attribute format is invalid.",
-    "statuslabel_type" => "You must select a valid status label type",
-    "unique_undeleted" => "The :attribute must be unique.",
+    'accepted'             => 'Το: χαρακτηριστικό πρέπει να γίνει δεκτό.',
+    'active_url'           => 'Η: το χαρακτηριστικό δεν έχει έγκυρη διεύθυνση URL.',
+    'after'                => 'Η ιδιότητα: πρέπει να είναι ημερομηνία μετά την ημερομηνία.',
+    'after_or_equal'       => 'Η ιδιότητα: πρέπει να είναι ημερομηνία μετά ή ίσο με: ημερομηνία.',
+    'alpha'                => 'Η: το χαρακτηριστικό μπορεί να περιέχει μόνο γράμματα.',
+    'alpha_dash'           => 'Το χαρακτηριστικό:: μπορεί να περιέχει μόνο γράμματα, αριθμούς και παύλες.',
+    'alpha_num'            => 'Το χαρακτηριστικό:: μπορεί να περιέχει μόνο γράμματα και αριθμούς.',
+    'array'                => 'Το χαρακτηριστικό πρέπει να είναι ένας πίνακας.',
+    'before'               => 'Η ιδιότητα: πρέπει να είναι μια ημερομηνία πριν: η ημερομηνία.',
+    'before_or_equal'      => 'Η ιδιότητα: πρέπει να είναι ημερομηνία πριν ή ίσο με: ημερομηνία.',
+    'between'              => [
+        'numeric' => 'Το χαρακτηριστικό πρέπει να είναι μεταξύ: min - :max.',
+        'file'    => 'Το χαρακτηριστικό πρέπει να είναι μεταξύ: min και: max kilobytes.',
+        'string'  => 'Η ιδιότητα: πρέπει να είναι μεταξύ: min και max χαρακτήρες.',
+        'array'   => 'Η ιδιότητα: πρέπει να έχει μεταξύ: min και max στοιχεία.',
+    ],
+    'boolean'              => 'Το πεδίο ιδιοτήτων πρέπει να είναι αληθές ή ψευδές.',
+    'confirmed'            => 'Η επιβεβαίωση του χαρακτηριστικού δεν αντιστοιχεί.',
+    'date'                 => 'Το χαρακτηριστικό: δεν είναι έγκυρη.',
+    'date_format'          => 'Το χαρακτηριστικό: δεν αντιστοιχεί στη μορφή: format.',
+    'different'            => 'Το χαρακτηριστικό: και: άλλα πρέπει να είναι διαφορετικά.',
+    'digits'               => 'Το χαρακτηριστικό: πρέπει να είναι: ψηφία ψηφία.',
+    'digits_between'       => 'Το χαρακτηριστικό: πρέπει να είναι μεταξύ: min και max.',
+    'dimensions'           => 'Το χαρακτηριστικό:: έχει μη έγκυρες διαστάσεις εικόνας.',
+    'distinct'             => 'Το πεδίο ιδιοτήτων: έχει διπλή τιμή.',
+    'email'                => 'Το χαρακτηριστικό: πρέπει να είναι έγκυρη διεύθυνση ηλεκτρονικού ταχυδρομείου.',
+    'exists'               => 'Το επιλεγμένο: χαρακτηριστικό δεν είναι έγκυρο.',
+    'file'                 => 'Το χαρακτηριστικό πρέπει να είναι ένα αρχείο.',
+    'filled'               => 'Το πεδίο ιδιοτήτων πρέπει να έχει τιμή.',
+    'image'                => 'Το: χαρακτηριστικό πρέπει να είναι μια εικόνα.',
+    'in'                   => 'Το χαρακτηριστικό επιλεγμένο: δεν είναι έγκυρο.',
+    'in_array'             => 'Το πεδίο ιδιοτήτων: δεν υπάρχει σε: άλλο.',
+    'integer'              => 'Το χαρακτηριστικό: πρέπει να είναι ένας ακέραιος αριθμός.',
+    'ip'                   => 'Το χαρακτηριστικό: πρέπει να είναι μια έγκυρη διεύθυνση IP.',
+    'ipv4'                 => 'Το χαρακτηριστικό: πρέπει να είναι μια έγκυρη διεύθυνση IPv4.',
+    'ipv6'                 => 'Το χαρακτηριστικό: πρέπει να είναι μια έγκυρη διεύθυνση IPv6.',
+    'json'                 => 'Το χαρακτηριστικό: πρέπει να είναι μια έγκυρη συμβολοσειρά JSON.',
+    'max'                  => [
+        'numeric' => 'Η ιδιότητα: δεν μπορεί να είναι μεγαλύτερη από: max.',
+        'file'    => 'Η ιδιότητα: δεν μπορεί να είναι μεγαλύτερη από: μέγιστα kilobyte.',
+        'string'  => 'Το χαρακτηριστικό:: δεν μπορεί να είναι μεγαλύτερο από: max χαρακτήρες.',
+        'array'   => 'Το χαρακτηριστικό:: δεν μπορεί να έχει περισσότερα από: max στοιχεία.',
+    ],
+    'mimes'                => 'Το χαρακτηριστικό: πρέπει να είναι ένα αρχείο τύπου:: τιμές.',
+    'mimetypes'            => 'Το χαρακτηριστικό: πρέπει να είναι ένα αρχείο τύπου:: τιμές.',
+    'min'                  => [
+        'numeric' => 'Η ιδιότητα: πρέπει να είναι τουλάχιστον: min.',
+        'file'    => 'Το χαρακτηριστικό πρέπει να είναι τουλάχιστον: min kilobytes.',
+        'string'  => 'Το χαρακτηριστικό: πρέπει να είναι τουλάχιστον: min χαρακτήρες.',
+        'array'   => 'Το χαρακτηριστικό: πρέπει να έχει τουλάχιστον: λεπτά στοιχεία.',
+    ],
+    'not_in'               => 'Το επιλεγμένο: χαρακτηριστικό δεν είναι έγκυρο.',
+    'numeric'              => 'Το χαρακτηριστικό πρέπει να είναι ένας αριθμός.',
+    'present'              => 'Πρέπει να υπάρχει το πεδίο ιδιοτήτων: attribute.',
+    'regex'                => 'Η μορφή του χαρακτηριστικού είναι μη έγκυρη.',
+    'required'             => 'Το πεδίο ιδιοτήτων: απαιτείται.',
+    'required_if'          => 'Το πεδίο ιδιοτήτων: απαιτείται όταν: το άλλο είναι: τιμή.',
+    'required_unless'      => 'Το πεδίο ιδιοτήτων: απαιτείται εκτός εάν: το άλλο είναι σε: τιμές.',
+    'required_with'        => 'Το πεδίο ιδιοτήτων: απαιτείται όταν υπάρχουν: τιμές.',
+    'required_with_all'    => 'Το πεδίο ιδιοτήτων: απαιτείται όταν υπάρχουν: τιμές.',
+    'required_without'     => 'Το πεδίο ιδιοτήτων: απαιτείται όταν: δεν υπάρχουν τιμές.',
+    'required_without_all' => 'Το πεδίο ιδιοτήτων είναι απαραίτητο όταν δεν υπάρχουν καμία από τις τιμές.',
+    'same'                 => 'Το χαρακτηριστικό: και: άλλα πρέπει να ταιριάζουν.',
+    'size'                 => [
+        'numeric' => 'Το χαρακτηριστικό: πρέπει να είναι: μέγεθος.',
+        'file'    => 'Το χαρακτηριστικό: πρέπει να είναι: kilobytes μεγέθους.',
+        'string'  => 'Το χαρακτηριστικό: πρέπει να είναι: χαρακτήρες μεγέθους.',
+        'array'   => 'Το χαρακτηριστικό: πρέπει να περιέχει: στοιχεία μεγέθους.',
+    ],
+    'string'               => 'Το χαρακτηριστικό πρέπει να είναι μια συμβολοσειρά.',
+    'timezone'             => 'Το χαρακτηριστικό: πρέπει να είναι μια έγκυρη ζώνη.',
+    'unique'               => 'Το χαρακτηριστικό: έχει ήδη ληφθεί.',
+    'uploaded'             => 'Το χαρακτηριστικό:: απέτυχε να μεταφορτωθεί.',
+    'url'                  => 'Η μορφή του χαρακτηριστικού είναι μη έγκυρη.',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Validation Language Lines
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify custom validation messages for attributes using the
+    | convention "attribute.rule" to name the lines. This makes it quick to
+    | specify a specific custom language line for a given attribute rule.
+    |
+    */
 
 
     /*
@@ -79,8 +111,14 @@ return array(
     |
     */
 
-    'custom' => array(),
-    'alpha_space' => "The :attribute field contains a character that is not allowed.",
+    'custom' => [
+        'alpha_space' => "Το πεδίο ιδιοτήτων: περιέχει ένα χαρακτήρα που δεν επιτρέπεται.",
+        "email_array"      => "Μία ή περισσότερες διευθύνσεις ηλεκτρονικού ταχυδρομείου δεν είναι έγκυρες.",
+        "hashed_pass"      => "Ο τρέχων κωδικός πρόσβασης είναι εσφαλμένος",
+        'dumbpwd'          => 'Αυτός ο κωδικός πρόσβασης είναι πολύ συνηθισμένος.',
+        "statuslabel_type" => "Πρέπει να επιλέξετε έναν έγκυρο τύπο ετικέτας κατάστασης",
+        "unique_undeleted" => "Το χαρακτηριστικό: πρέπει να είναι μοναδικό.",
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -93,6 +131,6 @@ return array(
     |
     */
 
-    'attributes' => array(),
+    'attributes' => [],
 
 );

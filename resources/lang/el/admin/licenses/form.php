@@ -2,21 +2,21 @@
 
 return array(
 
-    'asset'             => 'Asset',
-    'checkin'           => 'Checkin',
-    'create'            => 'Create License',
-    'expiration'        => 'Expiration Date',
-    'license_key'       => 'Product Key',
-    'maintained'        => 'Maintained',
-    'name'              => 'Software Name',
-    'no_depreciation'   => 'Do Not Depreciate',
-    'purchase_order'    => 'Purchase Order Number',
-    'reassignable'      => 'Reassignable',
-    'remaining_seats'   => 'Remaining Seats',
-    'seats'             => 'Seats',
-    'termination_date'  => 'Termination Date',
-    'to_email'          => 'Licensed to Email',
-    'to_name'           => 'Licensed to Name',
-    'update'            => 'Update License',
-    'checkout_help'     => 'You must check a license out to a hardware asset or a person. You can select both, but the owner of the asset must match the person you\'re checking the asset out to.'
+    'asset'             => 'Πάγιο',
+    'checkin'           => 'Μεταβίβαση ελέγχου',
+    'create'            => 'Ενημέρωση άδειας',
+    'expiration'        => 'Ημερομηνία Λήξης',
+    'license_key'       => 'Κλειδί προϊόντος',
+    'maintained'        => 'Συντηρείται',
+    'name'              => 'Όνομα προγράμματος',
+    'no_depreciation'   => 'Μην απογοητεύετε',
+    'purchase_order'    => 'Αριθμός παραγγελίας αγοράς',
+    'reassignable'      => 'Επαναπροσδιορίζεται',
+    'remaining_seats'   => 'Υπόλοιπα καθίσματα',
+    'seats'             => 'Καθίσματα',
+    'termination_date'  => 'Ημερομηνία λήξης',
+    'to_email'          => 'Αδειοδότηση σε ηλεκτρονικό ταχυδρομείο',
+    'to_name'           => 'Αδειοδοτείται στο όνομα',
+    'update'            => 'Ενημέρωση άδειας',
+    'checkout_help'     => 'Πρέπει να ελέγξετε μια άδεια χρήσης σε ένα υλικό υλικό ή ένα άτομο. Μπορείτε να επιλέξετε και τα δύο, αλλά ο κάτοχος του στοιχείου πρέπει να ταιριάζει με το άτομο στο οποίο ελέγχετε το στοιχείο.'
 );

@@ -7,6 +7,7 @@ return array(
     'asset_does_not_exist' 	=> 'O artigo que está a tentar associar com esta licença não existe.',
     'owner_doesnt_match_asset' => 'O proprietário do artigo que está a tentar associar com esta licença não é pessoa selecionada na dropdown.',
     'assoc_users'	 => 'Esta licença está correntemente alocada a um utilizador e não pode ser removida. Por favor devolva a licença e de seguida tente remover novamente. ',
+    'select_asset_or_person' => 'Você deve selecionar um recurso ou um usuário, mas não ambos.',
 
 
     'create' => array(
@@ -23,7 +24,7 @@ return array(
         'error'   => 'Ficheiro(s) não submetidos. Por favor, tente novamente.',
         'success' => 'Ficheiro(s) submetidos com sucesso.',
         'nofiles' => 'Não selecionou nenhum ficheiro para submissão, ou o ficheiro que pretende submeter é demasiado grande',
-        'invalidfiles' => 'One or more of your files is too large or is a filetype that is not allowed. Allowed filetypes are png, gif, jpg, jpeg, doc, docx, pdf, txt, zip, rar, rtf, xml, and lic.',
+        'invalidfiles' => 'Um ou mais ficheiros excedem o tamanho ou são do tipo de ficheiro não é permitido. Os tipos permitidos são png, gif, jpg, doc, docx, pdf, txt, zip, rar, and rtf.',
     ),
 
     'update' => array(

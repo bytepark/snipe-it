@@ -2,24 +2,31 @@
 
 return array(
 
-    'does_not_exist' => 'Status Label does not exist.',
-    'assoc_assets'	 => 'This Status Label is currently associated with at least one Asset and cannot be deleted. Please update your assets to no longer reference this status and try again. ',
+    'does_not_exist' => 'Етикет за статус не съществува.',
+    'assoc_assets'	 => 'Този етикет за статус е свързан с най-малко един актив и не може да бъде изтрит. Моля актуализирайте вашите активи да не се прехвърлят към този статус и опитайте отново.',
 
 
     'create' => array(
-        'error'   => 'Status Label was not created, please try again.',
-        'success' => 'Status Label created successfully.'
+        'error'   => 'Етикет за статус не беше създаден, моля опитайте отново.',
+        'success' => 'Етикет за статус създаден успешно.'
     ),
 
     'update' => array(
-        'error'   => 'Status Label was not updated, please try again',
-        'success' => 'Status Label updated successfully.'
+        'error'   => 'Етикет за статус не беше актуализиран, моля опитайте отново.',
+        'success' => 'Етикет за статус актуализиран успешно.'
     ),
 
     'delete' => array(
-        'confirm'   => 'Are you sure you wish to delete this Status Label?',
-        'error'   => 'There was an issue deleting the Status Label. Please try again.',
-        'success' => 'The Status Label was deleted successfully.'
-    )
+        'confirm'   => 'Сигурни ли сте, че желаете да изтриете този етикет за статус?',
+        'error'   => 'Имаше проблем при изтриването на етикета за статус. Моля опитайте отново.',
+        'success' => 'Етикета за статус бе изтрит успешно.'
+    ),
+
+    'help' => array(
+        'undeployable'   => 'Тези активи не могат да бъдат възлагани на никого.',
+        'deployable'   => 'Тези активи могат да бъдат проверени. След като бъдат присвоени, те ще поемат мета статус на <i class="fa fa-circle text-blue"></i> <strong>Deployed</strong>.',
+        'archived'   => 'Тези активи не могат да бъдат отметнати и ще се показват само в архивирания изглед. Това е полезно за запазване на информация за активи за бюджетиране / исторически цели, но задържането им извън ежедневния списък на активите.',
+        'pending'   => 'Тези активи все още не могат да бъдат прехвърляни на никого, често използвани за артикули, които са предназначени за ремонт, но се очаква да се върнат в обръщение.',
+    ),
 
 );

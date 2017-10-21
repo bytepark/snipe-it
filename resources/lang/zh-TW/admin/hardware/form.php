@@ -1,7 +1,7 @@
 <?php
 
 return array(
-	'bulk_delete'		=> 'Confirm Bulk Delete Assets',
+	'bulk_delete'		=> '確認批次刪除資產',
   'bulk_delete_help'	=> '請再次確認批次刪除的資產。刪除後資產可以恢復，但將會失去當前的用戶關聯資訊。',
   'bulk_delete_warn'	=> '即將刪除 :asset_count 項資產',
 	'bulk_update'		=> '批次更新資產',
@@ -14,6 +14,7 @@ return array(
     'cost'				=> '採購成本',
     'create'			=> '新增資產',
     'date'				=> '採購日期',
+    'depreciation'	    => '折舊',
     'depreciates_on'	=> '折舊於',
     'default_location'	=> '預設位置',
     'eol_date'			=> '產品壽命日期',

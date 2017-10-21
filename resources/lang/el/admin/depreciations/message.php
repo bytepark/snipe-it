@@ -2,24 +2,24 @@
 
 return array(
 
-    'does_not_exist' => 'Depreciation class does not exist.',
-    'assoc_users'	 => 'This depreciation is currently associated with one or more models and cannot be deleted. Please delete the models, and then try deleting again. ',
+    'does_not_exist' => 'Αποσβέσεις κλάση δεν υπάρχει.',
+    'assoc_users'	 => 'Αυτή η απόσβεση είναι επί του παρόντος σχετίζεται με ένα ή περισσότερα μοντέλα και δεν μπορεί να διαγραφεί. Παρακαλώ διαγράψτε τα μοντέλα, και, στη συνέχεια, προσπαθήστε να διαγράψετε ξανά. ',
 
 
     'create' => array(
-        'error'   => 'Depreciation class was not created, please try again. :(',
-        'success' => 'Depreciation class created successfully. :)'
+        'error'   => 'Δεν δημιουργήθηκε κλάση απόσβεσης, δοκιμάστε ξανά. :(',
+        'success' => 'Η κατηγορία απόσβεσης δημιουργήθηκε με επιτυχία. :)'
     ),
 
     'update' => array(
-        'error'   => 'Depreciation class was not updated, please try again',
-        'success' => 'Depreciation class updated successfully.'
+        'error'   => 'Η κατηγορία απόσβεσης δεν ενημερώθηκε, δοκιμάστε ξανά',
+        'success' => 'Η τάξη απόσβεσης ενημερώθηκε με επιτυχία.'
     ),
 
     'delete' => array(
-        'confirm'   => 'Are you sure you wish to delete this depreciation class?',
-        'error'   => 'There was an issue deleting the depreciation class. Please try again.',
-        'success' => 'The depreciation class was deleted successfully.'
+        'confirm'   => 'Είστε βέβαιοι ότι θέλετε να διαγράψετε αυτήν την κατηγορία απόσβεσης;',
+        'error'   => 'Υπήρξε ένα ζήτημα διαγράφοντας την τάξη αποσβέσεων. Παρακαλώ δοκιμάστε ξανά.',
+        'success' => 'Η τάξη αποσβέσεων διαγράφηκε με επιτυχία.'
     )
 
 );

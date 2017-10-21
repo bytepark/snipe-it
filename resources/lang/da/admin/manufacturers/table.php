@@ -1,12 +1,16 @@
 <?php
 
 return array(
-    'about_manufacturers_title'     => 'About manufacturers',
-    'about_manufacturers_text'           => 'Manufacturers make all the magic items we consume.',
+    'about_manufacturers_title'    => 'Om producenterne',
+    'about_manufacturers_text'  => 'Producenter er de virksomheder, der skaber dine aktiver. Du kan gemme vigtige supportkontaktoplysninger om dem her, som vil blive vist på dine detaljerede sider.',
     'asset_manufacturers'	=> 'Asset Manufacturers',
-    'create'				=> 'Create Manufacturer',
+    'create'				=> 'Opret producent',
     'id'   					=> 'ID',
-    'name'      			=> 'Manufacturer Name',
-    'update'				=> 'Update Manufacturer',
+    'name'      			=> 'Navn',
+    'support_email'   		=> 'Support Email',
+    'support_phone'   		=> 'Support Telefon',
+    'support_url'   		=> 'Support URL',
+    'update'				=> 'Opdater Fabrikant',
+    'url'   				=> 'URL',
 
 );

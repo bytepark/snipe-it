@@ -1,7 +1,6 @@
 <?php
 
 return array(
-
     'activated'  			=> 'Attivo',
     'allow'  				=> 'Consenti',
     'checkedout'  			=> 'Beni',
@@ -20,6 +19,7 @@ return array(
     'location'  			=> 'Posizione',
     'lock_passwords'		=> 'Dettagli di login non possono essere cambiati in questa installazione.',
     'manager' 				=> 'Manager',
+    'managed_locations'     => 'Località gestite',
     'name' 					=> 'Nome',
     'notes'                 => 'Note',
     'password_confirm' 		=> 'Conferma password',
@@ -28,8 +28,10 @@ return array(
     'show_current'          => 'Visualizza utenti attuali',
     'show_deleted'          => 'Visualizza utenti eliminati',
     'title' 				=> 'Titolo',
+	'to_restore_them'		=> 'per ripristinarli.',
     'updateuser' 			=> 'Aggiornamento utente',
     'username' 				=> 'Username',
+	'user_deleted_text' 	=> 'Questo utente è stato contrassegnato come eliminato.',
     'username_note' 		=> '(Questo è usato solo per Active Directory vincolante, non per il login.)',
     'cloneuser'             => 'Clona Utente',
     'viewusers' 			=> 'Visualizza utenti',

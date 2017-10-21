@@ -4,6 +4,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Name
+    |--------------------------------------------------------------------------
+    |
+    | This value is the name of your application. This value is used when the
+    | framework needs to place the application's name in a notification or
+    | any other location as required by the application or its packages.
+    */
+
+    'name' => env('SITE_NAME', 'Snipe-IT'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |
@@ -66,7 +78,7 @@ return [
     |
     */
 
-    'locale' =>  env('APP_LOCALE', 'en'),
+    'locale' =>  env('APP_LOCALE', 'en_US.UTF-8'),
 
     /*
     |--------------------------------------------------------------------------
@@ -94,7 +106,7 @@ return [
 
     'key' => env('APP_KEY'),
 
-    'cipher' => 'rijndael-256',
+    'cipher' =>  env('APP_CIPHER', 'AES-256-CBC'),
 
     /*
     |--------------------------------------------------------------------------
@@ -109,8 +121,41 @@ return [
     |
     */
 
-    'log' => env('APP_LOG', 'single'),
-    'log-level' => env('APP_LOG_LEVEL', 'error'),
+    'log' => env('APP_LOG', 'daily'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Logging Max Files
+    |--------------------------------------------------------------------------
+    |
+    | When using the daily log mode, Laravel will only retain 5
+    | days of log files by default.
+    |
+    | To change this, set the APP_LOG_MAX_FILES option in your .env.
+    |
+    */
+
+    'log_max_files' => env('APP_LOG_MAX_FILES', 5),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Logging Detail
+    |--------------------------------------------------------------------------
+    |
+    | By default, Laravel writes all log levels to storage. However, in your 
+    | production environment, you may wish to configure the minimum severity that 
+    | should be logged by editing your APP_LOG_LEVEL env config.
+    |
+    | Laravel will log all levels greater than or equal to the specified severity.
+    | For example, a default log_level of error will log error, critical, alert,
+    | and emergency messages.
+    |
+    | APP_LOG_LEVEL options are:
+    | "debug", "info", "notice", "warning", "error", "critical", "alert", "emergency"
+    |
+    */
+    
+    'log_level' => env('APP_LOG_LEVEL', 'error'),
 
 
     /*
@@ -141,6 +186,39 @@ return [
     */
 
     'allow_iframing' => env('ALLOW_IFRAMING', false),
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | REFERRER-POLICY
+    |--------------------------------------------------------------------------
+    |
+    | This is an additional security header that browsers use to determine
+    | whether they should report back URL referrer information.
+    |
+    | Read more: https://www.w3.org/TR/referrer-policy/
+    |
+    */
+
+    'referrer_policy' => env('REFERRER_POLICY', 'same-origin'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | CSP
+    |--------------------------------------------------------------------------
+    |
+    | Disable the content security policy that restricts what scripts, images
+    | and styles can load. (This should be left as false if you don't know
+    | what this means.)
+    |
+    | Read more: https://www.w3.org/TR/CSP/
+    | Read more: https://content-security-policy.com
+    |
+    */
+
+    'enable_csp' => env('ENABLE_CSP', false),
+
+
 
 
     /*
@@ -184,6 +262,7 @@ return [
         Illuminate\Foundation\Providers\FoundationServiceProvider::class,
         Illuminate\Hashing\HashServiceProvider::class,
         Illuminate\Mail\MailServiceProvider::class,
+        Illuminate\Notifications\NotificationServiceProvider::class,
         Illuminate\Pagination\PaginationServiceProvider::class,
         Illuminate\Pipeline\PipelineServiceProvider::class,
         Illuminate\Queue\QueueServiceProvider::class,
@@ -195,15 +274,7 @@ return [
         Illuminate\View\ViewServiceProvider::class,
 
         /*
-         * Application Service Providers...
-         */
-        App\Providers\AppServiceProvider::class,
-        App\Providers\AuthServiceProvider::class,
-        App\Providers\EventServiceProvider::class,
-        App\Providers\RouteServiceProvider::class,
-
-        /*
-         * Vendor service providers
+         * Package Service Providers...
          */
 
         Barryvdh\Debugbar\ServiceProvider::class,
@@ -212,13 +283,26 @@ return [
         Collective\Html\HtmlServiceProvider::class,
         Spatie\Backup\BackupServiceProvider::class,
         Fideloper\Proxy\TrustedProxyServiceProvider::class,
-        MisterPhilip\MaintenanceMode\MaintenanceModeServiceProvider::class,
-        MisterPhilip\MaintenanceMode\MaintenanceCommandServiceProvider::class,
         PragmaRX\Google2FA\Vendor\Laravel\ServiceProvider::class,
+        Laravel\Passport\PassportServiceProvider::class,
+        Laravel\Tinker\TinkerServiceProvider::class,
+        Unicodeveloper\DumbPassword\DumbPasswordServiceProvider::class,
+        Schuppo\PasswordStrength\PasswordStrengthServiceProvider::class,
+        Tightenco\Ziggy\ZiggyServiceProvider::class, // Laravel routes in vue
+
         /*
-         * Custom service provider
-         */
-         App\Providers\MacroServiceProvider::class,
+        * Application Service Providers...
+        */
+        App\Providers\AppServiceProvider::class,
+        App\Providers\AuthServiceProvider::class,
+        App\Providers\EventServiceProvider::class,
+        App\Providers\RouteServiceProvider::class,
+
+
+        /*
+        * Custom service provider
+        */
+        App\Providers\MacroServiceProvider::class,
 
 
     ],
@@ -236,42 +320,47 @@ return [
 
     'aliases' => [
 
-        'App'       => Illuminate\Support\Facades\App::class,
-        'Artisan'   => Illuminate\Support\Facades\Artisan::class,
-        'Auth'      => Illuminate\Support\Facades\Auth::class,
-        'Blade'     => Illuminate\Support\Facades\Blade::class,
-        'Cache'     => Illuminate\Support\Facades\Cache::class,
-        'Config'    => Illuminate\Support\Facades\Config::class,
-        'Cookie'    => Illuminate\Support\Facades\Cookie::class,
-        'Crypt'     => Illuminate\Support\Facades\Crypt::class,
-        'DB'        => Illuminate\Support\Facades\DB::class,
-        'Debugbar'  => Barryvdh\Debugbar\Facade::class,
-        'Eloquent'  => Illuminate\Database\Eloquent\Model::class,
-        'Event'     => Illuminate\Support\Facades\Event::class,
-        'File'      => Illuminate\Support\Facades\File::class,
-        'Gate'      => Illuminate\Support\Facades\Gate::class,
-        'Hash'      => Illuminate\Support\Facades\Hash::class,
-        'Image'     => Intervention\Image\Facades\Image::class,
-        'Input'     => Illuminate\Support\Facades\Input::class,
-        'Lang'      => Illuminate\Support\Facades\Lang::class,
-        'Log'       => Illuminate\Support\Facades\Log::class,
-        'Mail'      => Illuminate\Support\Facades\Mail::class,
-        'Password'  => Illuminate\Support\Facades\Password::class,
-        'Queue'     => Illuminate\Support\Facades\Queue::class,
-        'Redirect'  => Illuminate\Support\Facades\Redirect::class,
-        'Redis'     => Illuminate\Support\Facades\Redis::class,
-        'Request'   => Illuminate\Support\Facades\Request::class,
-        'Response'  => Illuminate\Support\Facades\Response::class,
-        'Route'     => Illuminate\Support\Facades\Route::class,
-        'Schema'    => Illuminate\Support\Facades\Schema::class,
-        'Session'   => Illuminate\Support\Facades\Session::class,
-        'Storage'   => Illuminate\Support\Facades\Storage::class,
-        'URL'       => Illuminate\Support\Facades\URL::class,
+        'App' => Illuminate\Support\Facades\App::class,
+        'Artisan' => Illuminate\Support\Facades\Artisan::class,
+        'Auth' => Illuminate\Support\Facades\Auth::class,
+        'Blade' => Illuminate\Support\Facades\Blade::class,
+        'Bus' => Illuminate\Support\Facades\Bus::class,
+        'Cache' => Illuminate\Support\Facades\Cache::class,
+        'Config' => Illuminate\Support\Facades\Config::class,
+        'Cookie' => Illuminate\Support\Facades\Cookie::class,
+        'Crypt' => Illuminate\Support\Facades\Crypt::class,
+        'DB' => Illuminate\Support\Facades\DB::class,
+        'Eloquent' => Illuminate\Database\Eloquent\Model::class,
+        'Event' => Illuminate\Support\Facades\Event::class,
+        'File' => Illuminate\Support\Facades\File::class,
+        'Gate' => Illuminate\Support\Facades\Gate::class,
+        'Hash' => Illuminate\Support\Facades\Hash::class,
+        'Lang' => Illuminate\Support\Facades\Lang::class,
+        'Log' => Illuminate\Support\Facades\Log::class,
+        'Mail' => Illuminate\Support\Facades\Mail::class,
+        'Notification' => Illuminate\Support\Facades\Notification::class,
+        'Password' => Illuminate\Support\Facades\Password::class,
+        'Queue' => Illuminate\Support\Facades\Queue::class,
+        'Redirect' => Illuminate\Support\Facades\Redirect::class,
+        'Redis' => Illuminate\Support\Facades\Redis::class,
+        'Request' => Illuminate\Support\Facades\Request::class,
+        'Response' => Illuminate\Support\Facades\Response::class,
+        'Route' => Illuminate\Support\Facades\Route::class,
+        'Schema' => Illuminate\Support\Facades\Schema::class,
+        'Session' => Illuminate\Support\Facades\Session::class,
+        'Storage' => Illuminate\Support\Facades\Storage::class,
+        'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
-        'View'      => Illuminate\Support\Facades\View::class,
-        'Form'      => 'Collective\Html\FormFacade',
-        'Html'      => 'Collective\Html\HtmlFacade',
+        'View' => Illuminate\Support\Facades\View::class,
+        'Input' => Illuminate\Support\Facades\Input::class,
+        'Form'      => Collective\Html\FormFacade::class,
+        'Html'      => Collective\Html\HtmlFacade::class,
         'Google2FA' => PragmaRX\Google2FA\Vendor\Laravel\Facade::class,
+        'Debugbar' => Barryvdh\Debugbar\Facade::class,
+        'Image'     => Intervention\Image\ImageManagerStatic::class,
+        'Carbon' => Carbon\Carbon::class,
+
+
     ],
 
 ];

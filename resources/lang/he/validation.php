@@ -13,59 +13,91 @@ return array(
     |
     */
 
-    "accepted"         => "The :attribute must be accepted.",
-    "active_url"       => "The :attribute is not a valid URL.",
-    "after"            => "The :attribute must be a date after :date.",
-    "alpha"            => "The :attribute may only contain letters.",
-    "alpha_dash"       => "The :attribute may only contain letters, numbers, and dashes.",
-    "alpha_num"        => "The :attribute may only contain letters and numbers.",
-    "before"           => "The :attribute must be a date before :date.",
-    "between"          => array(
-        "numeric" => "The :attribute must be between :min - :max.",
-        "file"    => "The :attribute must be between :min - :max kilobytes.",
-        "string"  => "The :attribute must be between :min - :max characters.",
-    ),
-    "confirmed"        => "The :attribute confirmation does not match.",
-    "date"             => "The :attribute is not a valid date.",
-    "date_format"      => "The :attribute does not match the format :format.",
-    "different"        => "The :attribute and :other must be different.",
-    "digits"           => "The :attribute must be :digits digits.",
-    "digits_between"   => "The :attribute must be between :min and :max digits.",
-    "email"            => "The :attribute format is invalid.",
-    "exists"           => "The selected :attribute is invalid.",
-    "email_array"      => "One or more email addresses is invalid.",
-    "image"            => "The :attribute must be an image.",
-    "in"               => "The selected :attribute is invalid.",
-    "integer"          => "The :attribute must be an integer.",
-    "ip"               => "The :attribute must be a valid IP address.",
-    "max"              => array(
-        "numeric" => "The :attribute may not be greater than :max.",
-        "file"    => "The :attribute may not be greater than :max kilobytes.",
-        "string"  => "The :attribute may not be greater than :max characters.",
-    ),
-    "mimes"            => "The :attribute must be a file of type: :values.",
-    "min"              => array(
-        "numeric" => "The :attribute must be at least :min.",
-        "file"    => "The :attribute must be at least :min kilobytes.",
-        "string"  => "The :attribute must be at least :min characters.",
-    ),
-    "not_in"           => "The selected :attribute is invalid.",
-    "numeric"          => "The :attribute must be a number.",
-    "regex"            => "The :attribute format is invalid.",
-    "required"         => "The :attribute field is required.",
-    "required_if"      => "The :attribute field is required when :other is :value.",
-    "required_with"    => "The :attribute field is required when :values is present.",
-    "required_without" => "The :attribute field is required when :values is not present.",
-    "same"             => "The :attribute and :other must match.",
-    "size"             => array(
-        "numeric" => "The :attribute must be :size.",
-        "file"    => "The :attribute must be :size kilobytes.",
-        "string"  => "The :attribute must be :size characters.",
-    ),
-    "unique"           => "The :attribute has already been taken.",
-    "url"              => "The :attribute format is invalid.",
-    "statuslabel_type" => "You must select a valid status label type",
-    "unique_undeleted" => "The :attribute must be unique.",
+    'accepted'             => 'התכונה: חייבת להתקבל.',
+    'active_url'           => 'התכונה: אינה כתובת אתר חוקית.',
+    'after'                => 'התכונה: חייבת להיות תאריך לאחר: תאריך.',
+    'after_or_equal'       => 'התכונה: חייבת להיות תאריך אחרי או שווה ל: תאריך.',
+    'alpha'                => 'התכונה: יכולה להכיל רק אותיות.',
+    'alpha_dash'           => 'התכונה: עשויה להכיל רק אותיות, מספרים וקווים.',
+    'alpha_num'            => 'התכונה: עשויה להכיל רק אותיות ומספרים.',
+    'array'                => 'התכונה: חייבת להיות מערך.',
+    'before'               => 'התכונה: חייבת להיות תאריך לפני: תאריך.',
+    'before_or_equal'      => 'התכונה: חייבת להיות תאריך לפני או שווה ל: תאריך.',
+    'between'              => [
+        'numeric' => 'התכונה: חייבת להיות בין: min ו-: max.',
+        'file'    => 'התכונה: חייבת להיות בין: min ו-: max kilobytes.',
+        'string'  => 'התכונה: חייבת להיות בין: דקות ו-: תווים מקסימליים.',
+        'array'   => 'התכונה: חייבת להיות בין: min ו-: max items.',
+    ],
+    'boolean'              => 'שדה התכונה: חייב להיות אמיתי או שגוי.',
+    'confirmed'            => 'אישור התכונה אינו תואם.',
+    'date'                 => 'התכונה: אינה תאריך חוקי.',
+    'date_format'          => 'התכונה: אינה תואמת את הפורמט: format.',
+    'different'            => 'התכונה: ו-: אחרים חייבים להיות שונים.',
+    'digits'               => 'התכונה: חייבת להיות: ספרות ספרות.',
+    'digits_between'       => 'התכונה: חייבת להיות בין: דקות ו-: ספרות מקסימליות.',
+    'dimensions'           => 'לתכונה: יש ממדי תמונה לא חוקיים.',
+    'distinct'             => 'שדה התכונה: יש ערך כפול.',
+    'email'                => 'התכונה: חייבת להיות כתובת דוא"ל חוקית.',
+    'exists'               => 'התכונה שנבחרה: אינה חוקית.',
+    'file'                 => 'התכונה: חייבת להיות קובץ.',
+    'filled'               => 'שדה המאפיין חייב להיות בעל ערך.',
+    'image'                => 'התכונה: חייבת להיות תמונה.',
+    'in'                   => 'התכונה שנבחרה: אינה חוקית.',
+    'in_array'             => 'שדה התכונה: אינו קיים ב-: other.',
+    'integer'              => 'התכונה: חייבת להיות מספר שלם.',
+    'ip'                   => 'התכונה: חייבת להיות כתובת IP חוקית.',
+    'ipv4'                 => 'התכונה: חייבת להיות כתובת IPv4 חוקית.',
+    'ipv6'                 => 'התכונה: חייבת להיות כתובת IPv6 חוקית.',
+    'json'                 => 'התכונה: חייבת להיות מחרוזת JSON חוקית.',
+    'max'                  => [
+        'numeric' => 'התכונה: לא יכולה להיות גדולה מ: מקסימום.',
+        'file'    => 'התכונה: לא יכולה להיות גדולה מ: קילו-בתים מקסימליים.',
+        'string'  => 'התכונה: לא יכולה להיות גדולה מ: תווים מקסימליים.',
+        'array'   => 'לתכונה: אין יותר מ: פריטים מקסימליים.',
+    ],
+    'mimes'                => 'התכונה: חייבת להיות קובץ מסוג:: ערכים.',
+    'mimetypes'            => 'התכונה: חייבת להיות קובץ מסוג:: ערכים.',
+    'min'                  => [
+        'numeric' => 'התכונה: חייבת להיות לפחות: דקות.',
+        'file'    => 'התכונה: חייבת להיות לפחות: קילובייט מינימלי.',
+        'string'  => 'התכונה: חייבת להיות לפחות: דקות תווים.',
+        'array'   => 'התכונה: חייבת לכלול לפחות פריטים מינימליים.',
+    ],
+    'not_in'               => 'התכונה שנבחרה: אינה חוקית.',
+    'numeric'              => 'התכונה: חייבת להיות מספר.',
+    'present'              => 'שדה התכונה: חייב להיות נוכח.',
+    'regex'                => 'תבנית התכונה: אינה חוקית.',
+    'required'             => 'שדה התכונה: נדרש.',
+    'required_if'          => 'שדה התכונה: נדרש כאשר: other is: value.',
+    'required_unless'      => 'שדה התכונה: נדרש, אלא אם: אחרים נמצאים ב: ערכים.',
+    'required_with'        => 'שדה התכונה: נדרש כאשר: ערכים קיימים.',
+    'required_with_all'    => 'שדה התכונה: נדרש כאשר: ערכים קיימים.',
+    'required_without'     => 'שדה התכונה: נדרש כאשר: ערכים לא קיימים.',
+    'required_without_all' => 'שדה התכונה: נדרש כאשר אף אחד מערכים אלה אינו קיים.',
+    'same'                 => 'התכונה: ו-: אחרים חייבים להתאים.',
+    'size'                 => [
+        'numeric' => 'התכונה: חייבת להיות: גודל.',
+        'file'    => 'התכונה: חייבת להיות: גודל קילובייט.',
+        'string'  => 'התכונה: חייבת להיות: גודל תווים.',
+        'array'   => 'התכונה: חייבת להכיל: פריטי גודל.',
+    ],
+    'string'               => 'התכונה: חייבת להיות מחרוזת.',
+    'timezone'             => 'התכונה: חייבת להיות אזור חוקי.',
+    'unique'               => 'התכונה: כבר נלקחה.',
+    'uploaded'             => 'התכונה: נכשלה.',
+    'url'                  => 'תבנית התכונה: אינה חוקית.',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Validation Language Lines
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify custom validation messages for attributes using the
+    | convention "attribute.rule" to name the lines. This makes it quick to
+    | specify a specific custom language line for a given attribute rule.
+    |
+    */
 
 
     /*
@@ -79,8 +111,14 @@ return array(
     |
     */
 
-    'custom' => array(),
-    'alpha_space' => "The :attribute field contains a character that is not allowed.",
+    'custom' => [
+        'alpha_space' => "השדה: מאפיין מכיל תו שאינו מותר.",
+        "email_array"      => "כתובת אימייל אחת או יותר אינה חוקית.",
+        "hashed_pass"      => "הסיסמה הנוכחית שלך שגויה",
+        'dumbpwd'          => 'סיסמה זו נפוצה מדי.',
+        "statuslabel_type" => "עליך לבחור סוג תווית סטטוס חוקי",
+        "unique_undeleted" => "התכונה: חייבת להיות ייחודית.",
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -93,6 +131,6 @@ return array(
     |
     */
 
-    'attributes' => array(),
+    'attributes' => [],
 
 );

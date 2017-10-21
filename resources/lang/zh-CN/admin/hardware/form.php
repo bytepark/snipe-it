@@ -1,7 +1,7 @@
 <?php
 
 return array(
-	'bulk_delete'		=> 'Confirm Bulk Delete Assets',
+	'bulk_delete'		=> '批量删除确认',
   'bulk_delete_help'	=> '请在此确认将批量删除的资产。在删除后，资产可以恢复，但一切当前的用户关联将会丢失。',
   'bulk_delete_warn'	=> '即将删除 :asset_count 项资产',
 	'bulk_update'		=> '批量更新',
@@ -14,6 +14,7 @@ return array(
     'cost'				=> '采购价格',
     'create'			=> '创建资产',
     'date'				=> '购买时间',
+    'depreciation'	    => '折旧',
     'depreciates_on'	=> '折旧于',
     'default_location'	=> '默认位置',
     'eol_date'			=> '产品寿命日期',

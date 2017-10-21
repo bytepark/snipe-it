@@ -1,7 +1,6 @@
 <?php
 
 return array(
-
     'activated'  			=> 'Aktif',
     'allow'  				=> 'Benarkan',
     'checkedout'  			=> 'Harta',
@@ -18,18 +17,21 @@ return array(
     'last_login'  			=> 'Log masuk terakhir',
     'last_name'  			=> 'Nama Keluarga',
     'location'  			=> 'Lokasi',
-    'lock_passwords'		=> 'Login details cannot be changed on this installation.',
+    'lock_passwords'		=> 'Butiran log masuk tidak boleh diubah pada pemasangan ini.',
     'manager' 				=> 'Pengurus',
+    'managed_locations'     => 'Lokasi Terurus',
     'name' 					=> 'Nama',
-    'notes'                 => 'Notes',
+    'notes'                 => 'Nota',
     'password_confirm' 		=> 'Sahkan kata laluan',
     'password' 				=> 'Kata Laluan',
     'phone'  				=> 'Telefon',
-    'show_current'          => 'Show Current Users',
-    'show_deleted'          => 'Show Deleted Users',
+    'show_current'          => 'Tunjukkan Pengguna Semasa',
+    'show_deleted'          => 'Tunjukkan Pengguna Dipadamkan',
     'title' 				=> 'Tajuk',
+	'to_restore_them'		=> 'untuk memulihkannya.',
     'updateuser' 			=> 'Kemaskini Pengguna',
     'username' 				=> 'Nama pengguna',
+	'user_deleted_text' 	=> 'Pengguna ini telah ditandakan sebagai dipadamkan.',
     'username_note' 		=> '(Ini digunakan untuk \'Active Directory\' sahaja, bukan untuk log masuk.)',
     'cloneuser'             => 'Pendua Pengguna',
     'viewusers' 			=> 'Papar Pengguna',

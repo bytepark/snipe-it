@@ -28,4 +28,9 @@ return array(
         'success' 		=> '型番は復元されました。'
     ),
 
+    'bulkedit' => array(
+        'error'   		=> 'フィールドが選択されていないため、更新されませんでした。',
+        'success' 		=> '型番を更新しました。'
+    ),
+
 );

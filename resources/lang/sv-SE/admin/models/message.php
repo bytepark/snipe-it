@@ -9,7 +9,7 @@ return array(
     'create' => array(
         'error'   => 'Modellen skapades inte, försök igen.',
         'success' => 'Modellen skapad.',
-        'duplicate_set' => 'An asset model with that name, manufacturer and model number already exists.',
+        'duplicate_set' => 'En tillgångsmodell med det namnet, tillverkaren och modellnumret finns redan.',
     ),
 
     'update' => array(
@@ -26,6 +26,11 @@ return array(
     'restore' => array(
         'error'   		=> 'Modellen återskapades inte, försök igen',
         'success' 		=> 'Modellen återskapades.'
+    ),
+
+    'bulkedit' => array(
+        'error'   		=> 'Inga fält ändrades, så ingenting uppdaterades.',
+        'success' 		=> 'Modeller uppdaterade.'
     ),
 
 );

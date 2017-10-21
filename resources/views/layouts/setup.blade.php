@@ -7,21 +7,13 @@
         @show
       </title>
 
-         <!-- CSS -->
-          <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
-          <!-- Font Awesome -->
-          <link rel="stylesheet" href="{{ asset('assets/css/font-awesome.min.css') }}">
-          <!-- Theme style -->
-          <link rel="stylesheet" href="{{ asset('assets/css/AdminLTE.min.css') }}">
-          <link rel="stylesheet" href="{{ asset('assets/css/skins/skin-blue.css') }}">
-        <link rel="stylesheet" href="{{ asset('assets/js/plugins/select2/select2.min.css') }}">
-          <link rel="stylesheet" href="{{ elixir('assets/css/app.css') }}">
+        <link rel="stylesheet" href="{{ url(mix('css/dist/all.css')) }}">
 
 
 
 
 
-        <script>
+        <script nonce="{{ csrf_token() }}">
             window.snipeit = {
                 settings: {
                     "per_page": 20
@@ -126,9 +118,9 @@
                   </div>
               </div>
           </div>
-          <script src="{{ asset(elixir('assets/js/all.js')) }}"></script>
+          <script src="{{ url(mix('js/dist/all.js')) }}" nonce="{{ csrf_token() }}"></script>
 
-        <script>
+        <script nonce="{{ csrf_token() }}">
             $(function () {
                 $(".select2").select2();
             });

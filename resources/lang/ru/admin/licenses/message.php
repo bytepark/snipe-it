@@ -7,6 +7,7 @@ return array(
     'asset_does_not_exist' 	=> 'Актив который вы пытаетесь ассоциировать с этой лицензией не существует.',
     'owner_doesnt_match_asset' => 'Владелец актива, который вы пытаетесь связать с этой лицензией, отличается от выбранного в списке пользователя.',
     'assoc_users'	 => 'Эта лицензия выдана пользователю и не может быть удалена. Перед удалением необходимо сначала списать лицензию на склад. ',
+    'select_asset_or_person' => 'Вы должны выбрать актив или пользователя, но не оба.',
 
 
     'create' => array(
@@ -23,7 +24,7 @@ return array(
         'error'   => 'Не удалось загрузить файл(ы). Повторите попытку.',
         'success' => 'Файл(ы) успешно загружены.',
         'nofiles' => 'Не выбрано ни одного файла для загрузки или файл, который вы пытаетесь загрузить, слишком большой',
-        'invalidfiles' => 'One or more of your files is too large or is a filetype that is not allowed. Allowed filetypes are png, gif, jpg, jpeg, doc, docx, pdf, txt, zip, rar, rtf, xml, and lic.',
+        'invalidfiles' => 'Один из ваших файлов слишком большой или имеет запрещенный тип файла. Резрешенные типы файлов: png, gif, jpg, jpeg, doc, docx, pdf, txt, zip, rar, rtf, xml, и lic.',
     ),
 
     'update' => array(

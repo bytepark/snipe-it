@@ -24,6 +24,12 @@ return array(
         'success' 		=> 'Equipo restaurado correctamente.'
     ),
 
+    'audit' => array(
+        'error'   		=> 'La auditoría de activos no tuvo éxito. Vuelve a intentarlo.',
+        'success' 		=> 'Auditoría de activos registrada correctamente.'
+    ),
+
+
     'deletefile' => array(
         'error'   => 'Archivo no eliminado. Por favor, vuelva a intentarlo.',
         'success' => 'Archivo eliminado correctamente.',
@@ -48,6 +54,7 @@ return array(
     'delete' => array(
         'confirm'   	=> 'Estás seguro que quieres eliminar el equipo?',
         'error'   		=> 'Equipo no eliminado, intentalo de nuevo.',
+        'nothing_updated'   => 'No se seleccionaron los activos, por lo que no se eliminó nada.',
         'success' 		=> 'Equipo eliminado.'
     ),
 

@@ -1,7 +1,7 @@
 <?php
 
 return array(
-	'bulk_delete'		=> 'Confirm Bulk Delete Assets',
+	'bulk_delete'		=> 'Bevestig bulk verwijdering van materiaal',
   'bulk_delete_help'	=> 'Herzie de goederen voor de bulk verwijdering hier onder. Eens verwijderd, dan kan het hersteld worden, maar dan zijn ze niet meer geassocieerd met een gebruiker waar ze aan gekoppeld waren.',
   'bulk_delete_warn'	=> 'Je staat op het punt om :asset_count assets te verwijderen.',
 	'bulk_update'		=> 'Wijzig goederen in bulk',
@@ -14,6 +14,7 @@ return array(
     'cost'				=> 'Aankoopprijs',
     'create'			=> 'Materiaal aanmaken',
     'date'				=> 'Aankoopdatum',
+    'depreciation'	    => 'waardevermindering',
     'depreciates_on'	=> 'Afschrijving op',
     'default_location'	=> 'Standaardlocatie',
     'eol_date'			=> 'EOL datum',

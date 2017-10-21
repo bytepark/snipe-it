@@ -15,7 +15,7 @@
         @for($i=0; $count > $i; $i++)
             <tr>
                 <td>
-                    <a href="{{ config('app.url') }}/admin/{{ $data[$i]['type'] }}/{{ $data[$i]['id'] }}/view">{{ $data[$i]['name'] }}</a>
+                    <a href="{{ route($data[$i]['type'].'.show', $data[$i]['id']) }}">{{ $data[$i]['name'] }}</a>
                 </td>
                 <td>{{ $data[$i]['type'] }}</td>
                 <td>{{ $data[$i]['remaining'] }}</td>
@@ -27,5 +27,10 @@
 
     </table>
 
+    @if ($snipeSettings->show_url_in_emails=='1')
+        <p><a href="{{ url('/') }}">{{ $snipeSettings->site_name }}</a></p>
+    @else
+        <p>{{ $snipeSettings->site_name }}</p>
+    @endif
 
 @stop

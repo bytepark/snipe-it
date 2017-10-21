@@ -15,18 +15,18 @@ class Supplier extends SnipeModel
 
     protected $rules = array(
         'name'              => 'required|min:3|max:255|unique_undeleted',
-        'address'           => 'min:3|max:50',
-        'address2'          => 'min:2|max:50',
-        'city'              => 'min:3|max:255',
-        'state'             => 'min:0|max:32',
-        'country'           => 'min:0|max:2',
-        'fax'               => 'min:7|max:20',
-        'phone'             => 'min:7|max:20',
-        'contact'           => 'min:0|max:100',
-        'notes'             => 'min:0|max:255',
-        'email'             => 'email|min:5|max:150',
-        'zip'               => 'min:0|max:10',
-        'url'               => 'min:3|max:250',
+        'address'           => 'max:50|nullable',
+        'address2'          => 'max:50|nullable',
+        'city'              => 'max:255|nullable',
+        'state'             => 'max:32|nullable',
+        'country'           => 'max:3|nullable',
+        'fax'               => 'min:7|max:35|nullable',
+        'phone'             => 'min:7|max:35|nullable',
+        'contact'           => 'max:100|nullable',
+        'notes'             => 'max:255|nullable',
+        'email'             => 'email|max:150|nullable',
+        'zip'               => 'max:10|nullable',
+        'url'               => 'sometimes|nullable|string|max:250',
     );
 
     /**
@@ -45,7 +45,7 @@ class Supplier extends SnipeModel
      *
      * @var array
      */
-    protected $fillable = ['name'];
+    protected $fillable = ['name','address','address2','city','state','country','zip','phone','fax','email','contact','url','notes'];
 
 
     // Eager load counts.
@@ -66,6 +66,11 @@ class Supplier extends SnipeModel
     public function assets()
     {
         return $this->hasMany('\App\Models\Asset', 'supplier_id');
+    }
+
+    public function accessories()
+    {
+        return $this->hasMany('\App\Models\Accessory', 'supplier_id');
     }
 
     public function asset_maintenances()

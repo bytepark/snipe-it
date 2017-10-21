@@ -28,4 +28,9 @@ return array(
         'success' 		=> 'Model został przywrócony pomyślnie.'
     ),
 
+    'bulkedit' => array(
+        'error'   		=> 'Żadne pole nie zostało zmodyfikowane, więc nic nie zostało zaktualizowane.',
+        'success' 		=> 'Modele zostały uaktualnione.'
+    ),
+
 );
