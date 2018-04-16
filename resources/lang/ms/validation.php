@@ -67,6 +67,7 @@ return array(
     'not_in'               => 'Piliah :attribute tidak sah.',
     'numeric'              => ':attribute mesti nombor.',
     'present'              => 'Yang: bidang atribut mesti ada.',
+    'valid_regex'          => 'That is not a valid regex. ',
     'regex'                => ':attribute format tidak sah.',
     'required'             => ':attribute ruangan diperlukan.',
     'required_if'          => ':attribute rungan diperlukan bila :other adalah :value.',
@@ -87,6 +88,7 @@ return array(
     'unique'               => ':attribute telah diambil.',
     'uploaded'             => 'The: attribute gagal untuk dimuat naik.',
     'url'                  => ':attribute format tidak sah.',
+    "unique_undeleted"     => "The :attribute must be unique.",
 
     /*
     |--------------------------------------------------------------------------
@@ -117,7 +119,6 @@ return array(
         "hashed_pass"      => "Kata laluan semasa anda tidak betul",
         'dumbpwd'          => 'Kata laluan itu terlalu umum.',
         "statuslabel_type" => "Anda mesti memilih jenis label status yang sah",
-        "unique_undeleted" => "The: atribut mestilah unik.",
     ],
 
     /*

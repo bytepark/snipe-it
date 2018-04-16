@@ -22,7 +22,14 @@ class License extends Depreciable
     protected $injectUniqueIdentifier = true;
     use ValidatingTrait;
 
-    protected $dates = ['deleted_at'];
+    // We set these as protected dates so that they will be easily accessible via Carbon
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+        'purchase_date'
+    ];
+
 
     public $timestamps = true;
 
@@ -33,7 +40,6 @@ class License extends Depreciable
         'seats'   => 'required|min:1|max:1000000|integer',
         'license_email'   => 'email|nullable|max:120',
         'license_name'   => 'string|nullable|max:100',
-        'note'   => 'string|nullable',
         'notes'   => 'string|nullable',
         'company_id' => 'integer|nullable',
     );
@@ -44,25 +50,25 @@ class License extends Depreciable
     * @var array
     */
     protected $fillable = [
-        'name',
-        'serial',
-        'purchase_date',
-        'purchase_cost',
-        'order_number',
-        'seats',
-        'notes',
-        'user_id',
-        'depreciation_id',
-        'license_name', //actually licensed_to
-        'license_email',
-        'supplier_id',
-        'expiration_date',
-        'purchase_order',
-        'termination_date',
-        'maintained',
-        'reassignable',
         'company_id',
-        'manufacturer_id'
+        'depreciation_id',
+        'expiration_date',
+        'license_email',
+        'license_name', //actually licensed_to
+        'maintained',
+        'manufacturer_id',
+        'name',
+        'notes',
+        'order_number',
+        'purchase_cost',
+        'purchase_date',
+        'purchase_order',
+        'reassignable',
+        'seats',
+        'serial',
+        'supplier_id',
+        'termination_date',
+        'user_id',
     ];
 
     public static function boot()
@@ -266,7 +272,9 @@ class License extends Depreciable
     public function availCount()
     {
         return $this->licenseSeatsRelation()
-            ->whereNull('asset_id');
+            ->whereNull('asset_id')
+            ->whereNull('assigned_to')
+            ->whereNull('deleted_at');
     }
 
     public function getAvailSeatsCountAttribute()
@@ -338,11 +346,23 @@ class License extends Depreciable
      */
     public function freeSeat()
     {
-        return $this->licenseseats()
+        return  $this->licenseseats()
                     ->whereNull('deleted_at')
-                    ->whereNull('assigned_to')
-                    ->whereNull('asset_id')
+                    ->where(function ($query) {
+                        $query->whereNull('assigned_to')
+                            ->whereNull('asset_id');
+                    })
+                    ->orderBy('id', 'asc')
                     ->first();
+    }
+
+    /*
+   * Get the next available free seat - used by
+   * the API to populate next_seat
+   */
+    public function freeSeats()
+    {
+        return $this->hasMany('\App\Models\LicenseSeat')->whereNull('assigned_to')->whereNull('deleted_at')->whereNull('asset_id');
     }
 
     public static function getExpiringLicenses($days = 60)

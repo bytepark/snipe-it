@@ -67,6 +67,7 @@ return array(
     'not_in'               => 'Valitud atribuut on kehtetu.',
     'numeric'              => 'Atribuut peab olema number.',
     'present'              => 'Atribuudiväli peab olema kohal.',
+    'valid_regex'          => 'That is not a valid regex. ',
     'regex'                => 'Atribuudivorming on vale.',
     'required'             => 'Atribuudiväljandus on kohustuslik.',
     'required_if'          => 'Atribuudiväljastus on vajalik, kui: muu on: väärtus.',
@@ -87,6 +88,7 @@ return array(
     'unique'               => 'Atribuut: on juba võetud.',
     'uploaded'             => 'Atribuut ei õnnestunud üles laadida.',
     'url'                  => 'Atribuudivorming on vale.',
+    "unique_undeleted"     => "The :attribute must be unique.",
 
     /*
     |--------------------------------------------------------------------------
@@ -117,7 +119,6 @@ return array(
         "hashed_pass"      => "Teie praegune parool on vale",
         'dumbpwd'          => 'See parool on liiga levinud.',
         "statuslabel_type" => "Peate valima kehtiva olekutüübi tüübi",
-        "unique_undeleted" => "Atribuut peab olema ainulaadne.",
     ],
 
     /*

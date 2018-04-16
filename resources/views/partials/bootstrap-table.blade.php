@@ -1,106 +1,83 @@
-{{-- This Will load our default bootstrap-table settings on any table with a class of "snipe-table" and export it to the passed 'exportFile' name --}}
-<script src="{{ asset('js/bootstrap-table.js') }}"></script>
+<script src="{{ asset('js/bootstrap-table.min.js') }}"></script>
 <script src="{{ asset('js/extensions/mobile/bootstrap-table-mobile.js') }}"></script>
-
-@if (!isset($simple_view))
 <script src="{{ asset('js/extensions/export/bootstrap-table-export.js?v=1') }}"></script>
-<script src="{{ asset('js/extensions/cookie/bootstrap-table-cookie.js?v=1') }}"></script>
-<script src="{{ asset('js/extensions/export/tableExport.js') }}"></script>
+<script src="{{ asset('js/extensions/export/jquery.base64.js') }}"></script>
 <script src="{{ asset('js/FileSaver.min.js') }}"></script>
+<script src="{{ asset('js/xlsx.core.min.js') }}"></script>
 <script src="{{ asset('js/jspdf.min.js') }}"></script>
 <script src="{{ asset('js/jspdf.plugin.autotable.js') }}"></script>
-<script src="{{ asset('js/extensions/export/jquery.base64.js') }}"></script>
+<script src="{{ asset('js/extensions/export/tableExport.min.js') }}"></script>
+
+
+@if (!isset($simple_view))
 <script src="{{ asset('js/extensions/toolbar/bootstrap-table-toolbar.js') }}"></script>
+<script src="{{ asset('js/extensions/sticky-header/bootstrap-table-sticky-header.js') }}"></script>
 @endif
 
+<script src="{{ asset('js/extensions/cookie/bootstrap-table-cookie.js?v=1') }}"></script>
+
+
 <script nonce="{{ csrf_token() }}">
-$('.snipe-table').bootstrapTable({
-        classes: 'table table-responsive table-no-bordered',
-        undefinedText: '',
-        iconsPrefix: 'fa',
-
-        @if (isset($search))
-            search: true,
-        @endif
 
 
-        paginationVAlign: 'both',
-        sidePagination: 'server',
-        sortable: true,
+    $(function () {
+
+        var stickyHeaderOffsetY = 0;
+
+        if ( $('.navbar-fixed-top').css('height') ) {
+            stickyHeaderOffsetY = +$('.navbar-fixed-top').css('height').replace('px','');
+        }
+        if ( $('.navbar-fixed-top').css('margin-bottom') ) {
+            stickyHeaderOffsetY += +$('.navbar-fixed-top').css('margin-bottom').replace('px','');
+        }
 
 
-       @if (!isset($simple_view))
+        $('.snipe-table').bootstrapTable('destroy').bootstrapTable({
+            classes: 'table table-responsive table-no-bordered',
 
-        showRefresh: true,
-        pagination: true,
-        pageSize: {{ $snipeSettings->per_page }},
-
-        cookie: true,
-        cookieExpire: '2y',
-        showExport: true,
-        @if (isset($showFooter))
-            showFooter: true,
-        @endif
-        showColumns: true,
-        trimOnSearch: false,
-
-            @if (isset($multiSort))
-            showMultiSort: true,
-            @endif
-
-            @if (isset($exportFile))
-            exportDataType: 'all',
-            exportTypes: ['csv', 'excel', 'doc', 'txt','json', 'xml', 'pdf'],
-            exportOptions: {
-
-                fileName: '{{ $exportFile . "-" }}' + (new Date()).toISOString().slice(0,10),
-                ignoreColumn: ['actions','change','checkbox','checkincheckout','icon'],
-                worksheetName: "Snipe-IT Export",
-                jspdf: {
-                    orientation: 'l',
-                    autotable: {
-                        styles: {
-                            rowHeight: 20,
-                            fontSize: 10,
-                            overflow: 'linebreak',
-                        },
-                        headerStyles: {fillColor: 255, textColor: 0},
-                        //alternateRowStyles: {fillColor: [60, 69, 79], textColor: 255}
-                    }
+            ajaxOptions: {
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             },
-            @endif
+            stickyHeader: true,
+            stickyHeaderOffsetY: stickyHeaderOffsetY + 'px',
 
-        @endif
+            undefinedText: '',
+            iconsPrefix: 'fa',
+            cookie: true,
+            cookieExpire: '2y',
+            cookieIdTable: '{{ Route::currentRouteName() }}',
+            mobileResponsive: true,
+            maintainSelected: true,
+            trimOnSearch: false,
+            paginationFirstText: "{{ trans('general.first') }}",
+            paginationLastText: "{{ trans('general.last') }}",
+            paginationPreText: "{{ trans('general.previous') }}",
+            paginationNextText: "{{ trans('general.next') }}",
+            pageList: ['10','20', '30','50','100','150','200', '500'],
+            pageSize: {{  (($snipeSettings->per_page!='') && ($snipeSettings->per_page > 0)) ? $snipeSettings->per_page : 20 }},
+            paginationVAlign: 'both',
+            formatLoadingMessage: function () {
+                return '<h4><i class="fa fa-spinner fa-spin" aria-hidden="true"></i> Loading... please wait.... </h4>';
+            },
 
-        @if (isset($columns))
-            columns: {!! $columns !!},
-        @endif
+            icons: {
+                advancedSearchIcon: 'fa fa-search-plus',
+                paginationSwitchDown: 'fa-caret-square-o-down',
+                paginationSwitchUp: 'fa-caret-square-o-up',
+                columns: 'fa-columns',
+                refresh: 'fa-refresh'
+            },
+            exportTypes: ['csv', 'excel', 'doc', 'txt','json', 'xml', 'pdf'],
 
-        mobileResponsive: true,
-        maintainSelected: true,
-        paginationFirstText: "{{ trans('general.first') }}",
-        paginationLastText: "{{ trans('general.last') }}",
-        paginationPreText: "{{ trans('general.previous') }}",
-        paginationNextText: "{{ trans('general.next') }}",
-        formatLoadingMessage: function () {
-            return '<h4><i class="fa fa-spinner fa-spin" aria-hidden="true"></i> Loading... please wait.... </h4>';
-        },
-        pageList: ['30','50','100','150','200','500','1000'],
-        icons: {
-            advancedSearchIcon: 'fa fa-search-plus',
-            paginationSwitchDown: 'fa-caret-square-o-down',
-            paginationSwitchUp: 'fa-caret-square-o-up',
-            columns: 'fa-columns',
-            @if( isset($multiSort))
-            sort: 'fa fa-sort-amount-desc',
-            plus: 'fa fa-plus',
-            minus: 'fa fa-minus',
-            @endif
-            refresh: 'fa-refresh'
-        },
+
+        });
 
     });
+
+
+
 
 
     function dateRowCheckStyle(value) {
@@ -147,28 +124,38 @@ $('.snipe-table').bootstrapTable({
 
                 var text_color;
                 var icon_style;
+                var text_help;
+                var status_meta = {
+                  'deployed': '{{ strtolower(trans('general.deployed')) }}',
+                  'deployable': '{{ strtolower(trans('admin/hardware/general.deployable')) }}',
+                  'pending': '{{ strtolower(trans('general.pending')) }}'
+                }
 
                 switch (value.status_meta) {
                     case 'deployed':
                         text_color = 'blue';
                         icon_style = 'fa-circle';
+                        text_help = '<label class="label label-default">{{ trans('general.deployed') }}</label>';
                     break;
                     case 'deployable':
                         text_color = 'green';
                         icon_style = 'fa-circle';
+                        text_help = '';
                     break;
                     case 'pending':
                         text_color = 'orange';
                         icon_style = 'fa-circle';
+                        text_help = '';
                         break;
                     default:
                         text_color = 'red';
                         icon_style = 'fa-times';
+                        text_help = '';
                 }
 
-                return '<a href="{{ url('/') }}/' + destination + '/' + value.id + '" data-tooltip="true" title="'+ value.status_meta + '"> <i class="fa ' + icon_style + ' text-' + text_color + '"></i> ' + value.name + '</a> ';
+                return '<nobr><a href="{{ url('/') }}/' + destination + '/' + value.id + '" data-tooltip="true" title="'+ status_meta[value.status_meta] + '"> <i class="fa ' + icon_style + ' text-' + text_color + '"></i> ' + value.name + ' ' + text_help + ' </a> </nobr>';
             } else if ((value) && (value.name)) {
-                return '<a href="{{ url('/') }}/' + destination + '/' + value.id + '"> ' + value.name + '</a>';
+                return '<nobr><a href="{{ url('/') }}/' + destination + '/' + value.id + '"> ' + value.name + '</a></span>';
             }
         };
     }
@@ -182,6 +169,9 @@ $('.snipe-table').bootstrapTable({
             var dest = destination;
             if (destination=='groups') {
                 var dest = 'admin/groups';
+            }
+            if (destination=='maintenances') {
+                var dest = 'hardware/maintenances';
             }
 
             if ((row.available_actions) && (row.available_actions.clone === true)) {
@@ -245,7 +235,7 @@ $('.snipe-table').bootstrapTable({
                 item_icon = 'fa-map-marker';
             }
 
-            return '<a href="{{ url('/') }}/' + item_destination +'/' + value.id + '" data-tooltip="true" title="' + value.type + '"><i class="fa ' + item_icon + ' text-blue"></i> ' + value.name + '</a>';
+            return '<nobr><a href="{{ url('/') }}/' + item_destination +'/' + value.id + '" data-tooltip="true" title="' + value.type + '"><i class="fa ' + item_icon + ' text-blue"></i> ' + value.name + '</a></nobr>';
 
         } else {
             return '';
@@ -254,19 +244,42 @@ $('.snipe-table').bootstrapTable({
 
     }
 
+    // This just prints out the item type in the activity report
+    function itemTypeFormatter(value, row) {
+
+        if ((row) && (row.item) && (row.item.type)) {
+            return row.item.type;
+        }
+    }
+
+
+    // Convert line breaks to <br>
+    function notesFormatter(value) {
+        if (value) {
+            return value.replace(/(?:\r\n|\r|\n)/g, '<br />');;
+        }
+    }
+
+
+    // We need a special formatter for license seats, since they don't work exactly the same
+    // Checkouts need the license ID, checkins need the specific seat ID
+
+    function licenseSeatInOutFormatter(value, row) {
+        // The user is allowed to check the license seat out and it's available
+        if ((row.available_actions.checkout == true) && (row.user_can_checkout == true) && ((!row.asset_id) && (!row.assigned_to))) {
+            return '<a href="{{ url('/') }}/licenses/' + row.license_id + '/checkout" class="btn btn-sm bg-maroon" data-tooltip="true" title="Check this item out">{{ trans('general.checkout') }}</a>';
+        } else {
+            return '<a href="{{ url('/') }}/licenses/' + row.id + '/checkin" class="btn btn-sm bg-purple" data-tooltip="true" title="Check in this license seat.">{{ trans('general.checkin') }}</a>';
+        }
+
+    }
 
     function genericCheckinCheckoutFormatter(destination) {
         return function (value,row) {
 
             // The user is allowed to check items out, AND the item is deployable
-            if ((row.available_actions.checkout == true) && (row.user_can_checkout == true) && (!row.assigned_to)) {
-                // case for licenses
-                if (row.next_seat) {
-                    return '<a href="{{ url('/') }}/' + destination + '/' + row.next_seat + '/checkout" class="btn btn-sm bg-maroon" data-tooltip="true" title="Check this item out to a user">{{ trans('general.checkout') }}</a>';
-                } else {
-                    return '<a href="{{ url('/') }}/' + destination + '/' + row.id + '/checkout" class="btn btn-sm bg-maroon" data-tooltip="true" title="Check this item out to a user">{{ trans('general.checkout') }}</a>';
-                }
-
+            if ((row.available_actions.checkout == true) && (row.user_can_checkout == true) && ((!row.asset_id) && (!row.assigned_to))) {
+                    return '<a href="{{ url('/') }}/' + destination + '/' + row.id + '/checkout" class="btn btn-sm bg-maroon" data-tooltip="true" title="Check this item out">{{ trans('general.checkout') }}</a>';
 
             // The user is allowed to check items out, but the item is not deployable
             } else if (((row.user_can_checkout == false)) && (row.available_actions.checkout == true) && (!row.assigned_to)) {
@@ -275,12 +288,12 @@ $('.snipe-table').bootstrapTable({
             // The user is allowed to check items in
             } else if (row.available_actions.checkin == true)  {
                 if (row.assigned_to) {
-                    return '<nobr><a href="{{ url('/') }}/' + destination + '/' + row.id + '/checkin" class="btn btn-sm bg-purple" data-tooltip="true" title="Check this item in so it is available for re-imaging, re-issue, etc.">{{ trans('general.checkin') }}</a>';
+                    return '<a href="{{ url('/') }}/' + destination + '/' + row.id + '/checkin" class="btn btn-sm bg-purple" data-tooltip="true" title="Check this item in so it is available for re-imaging, re-issue, etc.">{{ trans('general.checkin') }}</a>';
                 } else if (row.assigned_pivot_id) {
-                    return '<nobr><a href="{{ url('/') }}/' + destination + '/' + row.assigned_pivot_id + '/checkin" class="btn btn-sm bg-purpley" data-tooltip="true" title="Check this item in so it is available for re-imaging, re-issue, etc.">{{ trans('general.checkin') }}</a>';
+                    return '<a href="{{ url('/') }}/' + destination + '/' + row.assigned_pivot_id + '/checkin" class="btn btn-sm bg-purple" data-tooltip="true" title="Check this item in so it is available for re-imaging, re-issue, etc.">{{ trans('general.checkin') }}</a>';
                 }
 
-            } 
+            }
 
         }
 
@@ -297,6 +310,7 @@ $('.snipe-table').bootstrapTable({
         'locations',
         'users',
         'manufacturers',
+        'maintenances',
         'statuslabels',
         'models',
         'licenses',
@@ -332,7 +346,17 @@ $('.snipe-table').bootstrapTable({
             // (for example, the locked icon for encrypted fields)
             var field_column_plain = field_column.replace(/<(?:.|\n)*?> ?/gm, '');
             if ((row.custom_fields) && (row.custom_fields[field_column_plain])) {
+
+                // If the field type needs special formatting, do that here
+                if ((row.custom_fields[field_column_plain].field_format) && (row.custom_fields[field_column_plain].value)) {
+                    if (row.custom_fields[field_column_plain].field_format=='URL') {
+                        return '<a href="' + row.custom_fields[field_column_plain].value + '" target="_blank" rel="noopener">' + row.custom_fields[field_column_plain].value + '</a>';
+                    } else if (row.custom_fields[field_column_plain].field_format=='EMAIL') {
+                        return '<a href="mailto:' + row.custom_fields[field_column_plain].value + '">' + row.custom_fields[field_column_plain].value + '</a>';
+                    }
+                }
                 return row.custom_fields[field_column_plain].value;
+
             }
 
     }
@@ -355,6 +379,27 @@ $('.snipe-table').bootstrapTable({
         }
     }
 
+
+
+    function changeLogFormatter(value) {
+        var result = '';
+            for (var index in value) {
+                result += index + ': <del>' + value[index].old + '</del>  <i class="fa fa-long-arrow-right" aria-hidden="true"></i> ' + value[index].new + '<br>'
+            }
+
+        return result;
+
+    }
+
+
+    // Create a linked phone number in the table list
+    function phoneFormatter(value) {
+        if (value) {
+            return  '<a href="tel:' + value + '">' + value + '</a>';
+        }
+    }
+
+
     function deployedLocationFormatter(row, value) {
         if ((row) && (row!=undefined)) {
             return '<a href="{{ url('/') }}/locations/' + row.id + '"> ' + row.name + '</a>';
@@ -366,6 +411,17 @@ $('.snipe-table').bootstrapTable({
 
     function groupsAdminLinkFormatter(value, row) {
         return '<a href="{{ url('/') }}/admin/groups/' + row.id + '"> ' + value + '</a>';
+    }
+
+    function assetTagLinkFormatter(value, row) {
+        return '<a href="{{ url('/') }}/hardware/' + row.asset.id + '"> ' + row.asset.asset_tag + '</a>';
+    }
+
+    function assetNameLinkFormatter(value, row) {
+        if ((row.asset) && (row.asset.name)) {
+            return '<a href="{{ url('/') }}/hardware/' + row.asset.id + '"> ' + row.asset.name + '</a>';
+        }
+
     }
 
     function trueFalseFormatter(value, row) {
@@ -407,7 +463,7 @@ $('.snipe-table').bootstrapTable({
     }
 
     function assetCompanyObjFilterFormatter(value, row) {
-        if (row.company) {
+        if ((row) && (row.company)) {
             return '<a href="{{ url('/') }}/hardware/?company_id=' + row.company.id + '"> ' + row.company.name + '</a>';
         }
     }
@@ -422,7 +478,7 @@ $('.snipe-table').bootstrapTable({
 
     function employeeNumFormatter(value, row) {
 
-        if ((row.assigned_to) && ((row.assigned_to.employee_number))) {
+        if ((row) && (row.assigned_to) && ((row.assigned_to.employee_number))) {
             return '<a href="{{ url('/') }}/users/' + row.assigned_to.id + '"> ' + row.assigned_to.employee_number + '</a>';
         }
     }
@@ -441,13 +497,16 @@ $('.snipe-table').bootstrapTable({
     }
 
     function sumFormatter(data) {
-        var field = this.field;
-        var total_sum = data.reduce(function(sum, row) {
-            return (sum) + (parseFloat(row[field]) || 0);
-        }, 0);
-        return total_sum.toFixed(2);
+        if (Array.isArray(data)) {
+            var field = this.field;
+            var total_sum = data.reduce(function(sum, row) {
+                return (sum) + (parseFloat(row[field]) || 0);
+            }, 0);
+            return total_sum.toFixed(2);
+        }
+        return 'not an array';
     }
-    
+
 
     $(function () {
         $('#bulkEdit').click(function () {

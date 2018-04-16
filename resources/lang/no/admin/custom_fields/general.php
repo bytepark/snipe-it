@@ -20,6 +20,7 @@ return array(
     'field_element_short'     => 'Element',
     'field_format'            => 'Format',
     'field_custom_format'     => 'Egendefinert Format',
+    'field_custom_format_help'     => 'Dette feltet lar deg bruke et regex-uttrykk for validering. Det skal begynne med "regex:" - for eksempel å validere at en egendefinert feltverdi inneholder en gyldig IMEI (15 numeriske siffer), vil du bruke <code>regex:/^[0-9]{15}$/</code>.',
     'required'   		          => 'Obligatorisk',
     'req'   		              => 'Obl.',
     'used_by_models'   		    => 'Brukes av modeller',

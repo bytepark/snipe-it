@@ -67,6 +67,7 @@ return array(
     'not_in'               => 'Det valda: attributet är ogiltigt.',
     'numeric'              => 'Attributet måste vara ett nummer.',
     'present'              => 'Attributfältet måste vara närvarande.',
+    'valid_regex'          => 'That is not a valid regex. ',
     'regex'                => 'Attributet formatet är ogiltigt.',
     'required'             => 'Fältet: Attribut är obligatoriskt.',
     'required_if'          => 'Attributfältet krävs när: annat är: värde.',
@@ -87,6 +88,7 @@ return array(
     'unique'               => 'Attributet har redan tagits.',
     'uploaded'             => 'Attributet misslyckades att ladda upp.',
     'url'                  => 'Attributet formatet är ogiltigt.',
+    "unique_undeleted"     => "The :attribute must be unique.",
 
     /*
     |--------------------------------------------------------------------------
@@ -117,7 +119,6 @@ return array(
         "hashed_pass"      => "Ditt nuvarande lösenord är felaktigt",
         'dumbpwd'          => 'Det lösenordet är för vanligt.',
         "statuslabel_type" => "Du måste välja en giltig status etikett typ",
-        "unique_undeleted" => "Attributet måste vara unikt.",
     ],
 
     /*

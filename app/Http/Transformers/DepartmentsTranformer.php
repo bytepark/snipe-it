@@ -25,6 +25,7 @@ class DepartmentsTransformer
             $array = [
                 'id' => (int) $department->id,
                 'name' => e($department->name),
+                'image' =>   ($department->image) ? app('departments_upload_url').e($department->image) : null,
                 'company' => ($department->company) ? [
                     'id' => (int) $department->company->id,
                     'name'=> e($department->company->name)
@@ -46,7 +47,7 @@ class DepartmentsTransformer
 
             $permissions_array['available_actions'] = [
                 'update' => Gate::allows('update', Department::class) ? true : false,
-                'delete' => Gate::allows('delete', Department::class) ? true : false,
+                'delete' => (Gate::allows('delete', Department::class) && ($department->users_count==0) && ($department->deleted_at=='')) ? true : false,
             ];
 
             $array += $permissions_array;

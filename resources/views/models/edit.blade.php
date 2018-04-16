@@ -10,8 +10,8 @@
 @section('inputFields')
 
 @include ('partials.forms.edit.name', ['translated_name' => trans('admin/models/table.name')])
-@include ('partials.forms.edit.manufacturer')
-@include ('partials.forms.edit.category')
+@include ('partials.forms.edit.manufacturer-select', ['translated_name' => trans('general.manufacturer'), 'fieldname' => 'manufacturer_id', 'required' => 'true'])
+@include ('partials.forms.edit.category-select', ['translated_name' => trans('admin/categories/general.category_name'), 'fieldname' => 'category_id', 'required' => 'true', 'category_type' => 'asset'])
 @include ('partials.forms.edit.model_number')
 @include ('partials.forms.edit.depreciation')
 
@@ -56,12 +56,6 @@
 </div>
 @endif
 
-<div class="form-group {{ $errors->has('image') ? 'has-error' : '' }}">
-    <label class="col-md-3 control-label" for="image">{{ trans('general.image_upload') }}</label>
-    <div class="col-md-5">
-        {{ Form::file('image') }}
-        {!! $errors->first('image', '<span class="alert-msg"><br>:message</span>') !!}
-    </div>
-</div>
+@include ('partials.forms.edit.image-upload')
 
 @stop

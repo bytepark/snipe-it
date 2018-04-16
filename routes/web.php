@@ -26,6 +26,12 @@ Route::group(['middleware' => 'auth'], function () {
     /*
     * Manufacturers
     */
+
+    Route::group([ 'prefix' => 'manufacturers', 'middleware' => ['auth'] ], function () {
+
+        Route::get('{manufacturers_id}/restore', [ 'as' => 'restore/manufacturer', 'uses' => 'ManufacturersController@restore']);
+    });
+
     Route::resource('manufacturers', 'ManufacturersController', [
         'parameters' => ['manufacturer' => 'manufacturers_id']
     ]);
@@ -82,6 +88,8 @@ Route::group(['middleware' => 'auth'], function () {
 
 Route::group(['middleware' => 'auth','prefix' => 'modals'], function () {
     Route::get('location',['as' => 'modal.location','uses' => 'ModalController@location']);
+    Route::get('category',['as' => 'modal.category','uses' => 'ModalController@category']);
+    Route::get('manufacturer',['as' => 'modal.manufacturer','uses' => 'ModalController@manufacturer']);
     Route::get('model',['as' => 'modal.model','uses' => 'ModalController@model']);
     Route::get('statuslabel',['as' => 'modal.statuslabel','uses' => 'ModalController@statuslabel']);
     Route::get('supplier',['as' => 'modal.supplier','uses' => 'ModalController@supplier']);
@@ -122,7 +130,7 @@ Route::group(['middleware' => 'auth'], function () {
 
 
 
-Route::group([ 'prefix' => 'admin','middleware' => ['authorize:superuser']], function () {
+Route::group([ 'prefix' => 'admin','middleware' => ['auth', 'authorize:superuser']], function () {
 
     Route::get('settings', ['as' => 'settings.general.index','uses' => 'SettingsController@getSettings' ]);
     Route::post('settings', ['as' => 'settings.general.save','uses' => 'SettingsController@postSettings' ]);
@@ -187,8 +195,6 @@ Route::group([ 'prefix' => 'admin','middleware' => ['authorize:superuser']], fun
     });
 
 
-    Route::get('requests', [ 'as' => 'requests', 'middleware' => 'authorize:admin', 'uses' => 'ViewAssetsController@getRequestedIndex']);
-
 
     Route::resource('groups', 'GroupsController', [
         'middleware' => ['auth'],
@@ -232,6 +238,8 @@ Route::group([ 'prefix' => 'account', 'middleware' => ['auth']], function () {
     # Profile
     Route::get('profile', [ 'as' => 'profile', 'uses' => 'ProfileController@getIndex' ]);
     Route::post('profile', 'ProfileController@postIndex');
+
+    Route::get('menu', [ 'as' => 'account.menuprefs', 'uses' => 'ProfileController@getMenuState' ]);
 
     Route::get('password', [ 'as' => 'account.password.index', 'uses' => 'ProfileController@password' ]);
     Route::post('password', [ 'uses' => 'ProfileController@passwordSave' ]);

@@ -12,6 +12,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Log;
 use Watson\Validating\ValidatingTrait;
 use Illuminate\Notifications\Notifiable;
+use DB;
+use App\Notifications\CheckinAssetNotification;
+use App\Notifications\CheckoutAssetNotification;
 
 /**
  * Model for Assets.
@@ -21,39 +24,48 @@ use Illuminate\Notifications\Notifiable;
 class Asset extends Depreciable
 {
     protected $presenter = 'App\Presenters\AssetPresenter';
-    use Loggable, Requestable, Presentable, Notifiable;
-    use SoftDeletes;
+    use Loggable, Requestable, Presentable, SoftDeletes, ValidatingTrait, UniqueUndeletedTrait;
 
     const LOCATION = 'location';
     const ASSET = 'asset';
     const USER = 'user';
-  /**
-  * The database table used by the model.
-  *
-  * @var string
-  */
+
+    /**
+     * Set static properties to determine which checkout/checkin handlers we should use
+     */
+    public static $checkoutClass = CheckoutAssetNotification::class;
+    public static $checkinClass = CheckinAssetNotification::class;
+
+
+    /**
+    * The database table used by the model.
+    *
+    * @var string
+    */
     protected $table = 'assets';
 
-  /**
-  * Whether the model should inject it's identifier to the unique
-  * validation rules before attempting validation. If this property
-  * is not set in the model it will default to true.
-  *
-  * @var boolean
-  */
+    /**
+    * Whether the model should inject it's identifier to the unique
+    * validation rules before attempting validation. If this property
+    * is not set in the model it will default to true.
+    *
+    * @var boolean
+    */
     protected $injectUniqueIdentifier = true;
 
+    // We set these as protected dates so that they will be easily accessible via Carbon
     protected $dates = [
         'created_at',
         'updated_at',
         'deleted_at',
         'purchase_date',
         'last_checkout',
-        'expected_checkin'
+        'expected_checkin',
+        'last_audit_date',
+        'next_audit_date'
     ];
 
 
-    use ValidatingTrait, UniqueUndeletedTrait;
 
     protected $rules = [
         'name'            => 'max:255|nullable',
@@ -69,6 +81,7 @@ class Asset extends Depreciable
         'status'          => 'integer',
         'purchase_cost'   => 'numeric|nullable',
         'next_audit_date'  => 'date|nullable',
+        'last_audit_date'  => 'date|nullable',
     ];
 
   /**
@@ -85,6 +98,7 @@ class Asset extends Depreciable
         'model_id',
         'name',
         'notes',
+        'order_number',
         'purchase_cost',
         'purchase_date',
         'rtd_location_id',
@@ -93,6 +107,8 @@ class Asset extends Depreciable
         'supplier_id',
         'warranty_months',
     ];
+
+
 
     public function getDisplayNameAttribute()
     {
@@ -126,11 +142,14 @@ class Asset extends Depreciable
 
     public function availableForCheckout()
     {
-        return (
-          empty($this->assigned_to) &&
-          $this->assetstatus->deployable == 1 &&
-          empty($this->deleted_at)
-        );
+        if (
+            (empty($this->assigned_to)) &&
+            (empty($this->deleted_at)) &&
+            (($this->assetstatus) && ($this->assetstatus->deployable == 1)))
+        {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -138,13 +157,13 @@ class Asset extends Depreciable
      * @param User $user
      * @param User $admin
      * @param Carbon $checkout_at
-     * @param null $expected_checkin
+     * @param Carbon $expected_checkin
      * @param string $note
      * @param null $name
      * @return bool
      */
     //FIXME: The admin parameter is never used. Can probably be removed.
-    public function checkOut($target, $admin = null, $checkout_at = null, $expected_checkin = null, $note = null, $name = null)
+    public function checkOut($target, $admin = null, $checkout_at = null, $expected_checkin = null, $note = null, $name = null, $location = null)
     {
         if (!$target) {
             return false;
@@ -161,6 +180,14 @@ class Asset extends Depreciable
 
         if ($name != null) {
             $this->name = $name;
+        }
+
+        if ($location != null) {
+            $this->location_id = $location;
+        } else {
+            if($target->location) {
+                $this->location_id = $target->location->id;
+            }
         }
 
         if ($this->requireAcceptance()) {
@@ -184,7 +211,7 @@ class Asset extends Depreciable
         } else {
             $user_name = "Unassigned";
         }
-        return $this->asset_tag . ' - ' . $this->name . ' (' . $user_name . ') ' . $this->model->name;
+        return $this->asset_tag . ' - ' . $this->name . ' (' . $user_name . ') ' . ($this->model) ? $this->model->name: '';
     }
 
     public function validationRules($id = '0')
@@ -206,7 +233,7 @@ class Asset extends Depreciable
      */
     public function components()
     {
-        return $this->belongsToMany('\App\Models\Component', 'components_assets', 'asset_id', 'component_id')->withPivot('id')->withTrashed();
+        return $this->belongsToMany('\App\Models\Component', 'components_assets', 'asset_id', 'component_id')->withPivot('id', 'assigned_qty')->withTrashed();
     }
 
   /**
@@ -214,7 +241,9 @@ class Asset extends Depreciable
    */
     public function get_depreciation()
     {
-        return $this->model->depreciation;
+        if (($this->model) && ($this->model->depreciation)) {
+            return $this->model->depreciation;
+        }
     }
 
   /**
@@ -252,25 +281,38 @@ class Asset extends Depreciable
   /**
    * Get the asset's location based on the assigned user
    **/
-    public function assetLoc()
+    public function assetLoc($iterations = 1,$first_asset = null)
     {
         if (!empty($this->assignedType())) {
-            // dd($this->assignedType());
             if ($this->assignedType() == self::ASSET) {
-                return $this->assignedto->assetloc(); // Recurse until we have a final location
+                if(!$first_asset) {
+                    $first_asset=$this;
+                }
+                if($iterations>10) {
+                    throw new \Exception("Asset assignment Loop for Asset ID: ".$first_asset->id);
+                }
+                $assigned_to=Asset::find($this->assigned_to); //have to do this this way because otherwise it errors
+                if ($assigned_to) {
+                    return $assigned_to->assetLoc($iterations + 1, $first_asset);
+                } // Recurse until we have a final location
             }
             if ($this->assignedType() == self::LOCATION) {
-                return $this->assignedTo();
+                if ($this->assignedTo) {
+                    return $this->assignedTo;
+                }
+
             }
             if ($this->assignedType() == self::USER) {
-                if (!$this->assignedTo) {
-                    return $this->defaultLoc();
+                if (($this->assignedTo) && $this->assignedTo->userLoc) {
+                    return $this->assignedTo->userLoc;
                 }
-                return $this->assignedTo->userLoc();
+                //this makes no sense
+                return $this->defaultLoc;
+
             }
 
         }
-        return $this->defaultLoc();
+        return $this->defaultLoc;
     }
 
     public function assignedType()
@@ -403,6 +445,12 @@ class Asset extends Depreciable
     public function supplier()
     {
         return $this->belongsTo('\App\Models\Supplier', 'supplier_id');
+    }
+
+
+    public function location()
+    {
+        return $this->belongsTo('\App\Models\Location', 'location_id');
     }
 
 
@@ -668,7 +716,7 @@ class Asset extends Depreciable
 
     public function scopeDeleted($query)
     {
-        return $query->whereNotNull('deleted_at');
+        return $query->whereNotNull('assets.deleted_at');
     }
 
     /**
@@ -684,7 +732,7 @@ class Asset extends Depreciable
    */
     public function scopeInModelList($query, array $modelIdListing)
     {
-        return $query->whereIn('model_id', $modelIdListing);
+        return $query->whereIn('assets.model_id', $modelIdListing);
     }
 
   /**
@@ -738,11 +786,11 @@ class Asset extends Depreciable
     {
         $search = explode(' OR ', $search);
 
-        return $query->leftJoin('users',function ($leftJoin) {
-            $leftJoin->on("users.id", "=", "assets.assigned_to")
+         return $query->leftJoin('users as assets_users',function ($leftJoin) {
+            $leftJoin->on("assets_users.id", "=", "assets.assigned_to")
                 ->where("assets.assigned_type", "=", User::class);
-        })->leftJoin('locations',function ($leftJoin) {
-            $leftJoin->on("locations.id","=","assets.assigned_to")
+        })->leftJoin('locations as assets_locations',function ($leftJoin) {
+            $leftJoin->on("assets_locations.id","=","assets.assigned_to")
                 ->where("assets.assigned_type","=",Location::class);
         })->leftJoin('assets as assigned_assets',function ($leftJoin) {
             $leftJoin->on('assigned_assets.id', '=', 'assets.assigned_to')
@@ -774,18 +822,77 @@ class Asset extends Depreciable
                     });
                 })->orWhere(function ($query) use ($search) {
                     $query->whereHas('company', function ($query) use ($search) {
-                        $query->where('companies.name', 'LIKE', '%'.$search.'%');
+                        $query->where('companies.name', 'LIKE', '%' . $search . '%');
                     });
                 })->orWhere(function ($query) use ($search) {
                     $query->whereHas('defaultLoc', function ($query) use ($search) {
                         $query->where('locations.name', 'LIKE', '%'.$search.'%');
                     });
                  })->orWhere(function ($query) use ($search) {
-                         $query->where('users.first_name', 'LIKE', '%'.$search.'%')
-                         ->orWhere('users.last_name', 'LIKE', '%'.$search.'%')
-                         ->orWhere('users.username', 'LIKE', '%'.$search.'%')
-                         ->orWhere('locations.name', 'LIKE', '%'.$search.'%')
+                         $query->where('assets_users.first_name', 'LIKE', '%'.$search.'%')
+                         ->orWhere('assets_users.last_name', 'LIKE', '%'.$search.'%')
+                         ->orWhereRaw('CONCAT('.DB::getTablePrefix().'assets_users.first_name," ",'.DB::getTablePrefix().'assets_users.last_name) LIKE ?', ["%$search%", "%$search%"])
+                         ->orWhere('assets_users.username', 'LIKE', '%'.$search.'%')
+                         ->orWhere('assets_locations.name', 'LIKE', '%'.$search.'%')
                          ->orWhere('assigned_assets.name', 'LIKE', '%'.$search.'%');
+                })->orWhere('assets.name', 'LIKE', '%'.$search.'%')
+                    ->orWhere('assets.asset_tag', 'LIKE', '%'.$search.'%')
+                    ->orWhere('assets.serial', 'LIKE', '%'.$search.'%')
+                    ->orWhere('assets.order_number', 'LIKE', '%'.$search.'%')
+                    ->orWhere('assets.purchase_cost', 'LIKE', '%'.$search.'%')
+                    ->orWhere('assets.notes', 'LIKE', '%'.$search.'%');
+            }
+            foreach (CustomField::all() as $field) {
+                $query->orWhere('assets.'.$field->db_column_name(), 'LIKE', "%$search%");
+            }
+        })->withTrashed()->whereNull("assets.deleted_at"); //workaround for laravel bug
+    }
+
+
+    /**
+     * Query builder scope to search on text for complex Bootstrap Tables API.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query  Query builder instance
+     * @param  text                              $search      Search term
+     *
+     * @return \Illuminate\Database\Query\Builder          Modified query builder
+     */
+    public function scopeAssignedSearch($query, $search)
+    {
+        $search = explode(' OR ', $search);
+
+        return $query->leftJoin('users as assets_users',function ($leftJoin) {
+            $leftJoin->on("assets_users.id", "=", "assets.assigned_to")
+                ->where("assets.assigned_type", "=", User::class);
+        })->leftJoin('locations as assets_locations',function ($leftJoin) {
+            $leftJoin->on("assets_locations.id","=","assets.assigned_to")
+                ->where("assets.assigned_type","=",Location::class);
+        })->leftJoin('assets as assigned_assets',function ($leftJoin) {
+            $leftJoin->on('assigned_assets.id', '=', 'assets.assigned_to')
+                ->where('assets.assigned_type', '=', Asset::class);
+        })->where(function ($query) use ($search) {
+            foreach ($search as $search) {
+                $query->whereHas('model', function ($query) use ($search) {
+                    $query->whereHas('category', function ($query) use ($search) {
+                        $query->where(function ($query) use ($search) {
+                            $query->where('categories.name', 'LIKE', '%'.$search.'%')
+                                ->orWhere('models.name', 'LIKE', '%'.$search.'%')
+                                ->orWhere('models.model_number', 'LIKE', '%'.$search.'%');
+                        });
+                    });
+                })->orWhereHas('model', function ($query) use ($search) {
+                    $query->whereHas('manufacturer', function ($query) use ($search) {
+                        $query->where(function ($query) use ($search) {
+                            $query->where('manufacturers.name', 'LIKE', '%'.$search.'%');
+                        });
+                    });
+                })->orWhere(function ($query) use ($search) {
+                    $query->where('assets_users.first_name', 'LIKE', '%'.$search.'%')
+                        ->orWhere('assets_users.last_name', 'LIKE', '%'.$search.'%')
+                        ->orWhereRaw('CONCAT('.DB::getTablePrefix().'assets_users.first_name," ",'.DB::getTablePrefix().'assets_users.last_name) LIKE ?', ["%$search%", "%$search%"])
+                        ->orWhere('assets_users.username', 'LIKE', '%'.$search.'%')
+                        ->orWhere('assets_locations.name', 'LIKE', '%'.$search.'%')
+                        ->orWhere('assigned_assets.name', 'LIKE', '%'.$search.'%');
                 })->orWhere('assets.name', 'LIKE', '%'.$search.'%')
                     ->orWhere('assets.asset_tag', 'LIKE', '%'.$search.'%')
                     ->orWhere('assets.serial', 'LIKE', '%'.$search.'%')
@@ -850,7 +957,7 @@ class Asset extends Depreciable
                 }
 
                 if ($fieldname =='location') {
-                    $query->whereHas('defaultLoc', function ($query) use ($search_val) {
+                    $query->whereHas('location', function ($query) use ($search_val) {
                         $query->where('locations.name', 'LIKE', '%' . $search_val . '%');
                     });
                 }
@@ -913,8 +1020,12 @@ class Asset extends Depreciable
                 }
             }
 
+            if (($fieldname!='category')  && ($fieldname!='location')
+                && ($fieldname!='status_label') && ($fieldname!='model') && ($fieldname!='company') && ($fieldname!='manufacturer')) {
+                    $query->orWhere('assets.'.$fieldname, 'LIKE', '%' . $search_val . '%');
+            }
 
-                    $query->orWhere($fieldname, 'LIKE', '%' . $search_val . '%');
+
 
 
         });
@@ -932,7 +1043,7 @@ class Asset extends Depreciable
     */
     public function scopeOrderModels($query, $order)
     {
-        return $query->join('models', 'assets.model_id', '=', 'models.id')->orderBy('models.name', $order);
+        return $query->join('models as asset_models', 'assets.model_id', '=', 'asset_models.id')->orderBy('asset_models.name', $order);
     }
 
     /**
@@ -959,7 +1070,7 @@ class Asset extends Depreciable
     */
     public function scopeOrderAssigned($query, $order)
     {
-        return $query->leftJoin('users', 'assets.assigned_to', '=', 'users.id')->select('assets.*')->orderBy('users.first_name', $order)->orderBy('users.last_name', $order);
+        return $query->leftJoin('users as users_sort', 'assets.assigned_to', '=', 'users_sort.id')->select('assets.*')->orderBy('users_sort.first_name', $order)->orderBy('users_sort.last_name', $order);
     }
 
     /**
@@ -972,7 +1083,7 @@ class Asset extends Depreciable
     */
     public function scopeOrderStatus($query, $order)
     {
-        return $query->join('status_labels', 'assets.status_id', '=', 'status_labels.id')->orderBy('status_labels.name', $order);
+        return $query->join('status_labels as status_sort', 'assets.status_id', '=', 'status_sort.id')->orderBy('status_sort.name', $order);
     }
 
     /**
@@ -985,7 +1096,7 @@ class Asset extends Depreciable
     */
     public function scopeOrderCompany($query, $order)
     {
-        return $query->leftJoin('companies', 'assets.company_id', '=', 'companies.id')->orderBy('companies.name', $order);
+        return $query->leftJoin('companies as company_sort', 'assets.company_id', '=', 'company_sort.id')->orderBy('company_sort.name', $order);
     }
 
 
@@ -1029,9 +1140,9 @@ class Asset extends Depreciable
     */
     public function scopeOrderCategory($query, $order)
     {
-        return $query->join('models', 'assets.model_id', '=', 'models.id')
-            ->join('categories', 'models.category_id', '=', 'categories.id')
-            ->orderBy('categories.name', $order);
+        return $query->join('models as order_model_category', 'assets.model_id', '=', 'order_model_category.id')
+            ->join('categories as category_order', 'order_model_category.category_id', '=', 'category_order.id')
+            ->orderBy('category_order.name', $order);
     }
 
 
@@ -1060,7 +1171,19 @@ class Asset extends Depreciable
     */
     public function scopeOrderLocation($query, $order)
     {
-        return $query->join('locations', 'locations.id', '=', 'assets.rtd_location_id')->orderBy('locations.name', $order);
+        return $query->leftJoin('locations as asset_locations', 'asset_locations.id', '=', 'assets.location_id')->orderBy('asset_locations.name', $order);
+    }
+
+    /**
+     * Query builder scope to order on default
+     * @param  \Illuminate\Database\Query\Builder  $query  Query builder instance
+     * @param  text                              $order       Order
+     *
+     * @return \Illuminate\Database\Query\Builder          Modified query builder
+     */
+    public function scopeOrderRtdLocation($query, $order)
+    {
+        return $query->leftJoin('locations as rtd_asset_locations', 'rtd_asset_locations.id', '=', 'assets.rtd_location_id')->orderBy('rtd_asset_locations.name', $order);
     }
 
 
@@ -1074,7 +1197,7 @@ class Asset extends Depreciable
      */
     public function scopeOrderSupplier($query, $order)
     {
-        return $query->leftJoin('suppliers', 'assets.supplier_id', '=', 'suppliers.id')->orderBy('suppliers.name', $order);
+        return $query->leftJoin('suppliers as suppliers_assets', 'assets.supplier_id', '=', 'suppliers_assets.id')->orderBy('suppliers_assets.name', $order);
     }
 
     /**
@@ -1088,18 +1211,11 @@ class Asset extends Depreciable
     public function scopeByLocationId($query, $search)
     {
         return $query->where(function ($query) use ($search) {
-            $query->whereHas('defaultLoc', function ($query) use ($search) {
+            $query->whereHas('location', function ($query) use ($search) {
                 $query->where('locations.id', '=', $search);
             });
         });
-        // FIXME: This needs porting to checkout to non-user.
-        // ->orWhere(function ($query) use ($search) {
-        //     $query->whereHas('assigneduser', function ($query) use ($search) {
-        //         $query->whereHas('userloc', function ($query) use ($search) {
-        //             $query->where('locations.id', '=', $search);
-        //         });
-        //     });
-        // });
+
     }
 
 

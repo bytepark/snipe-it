@@ -22,6 +22,9 @@ class ItemImporter extends Importer
 
     protected function handle($row)
     {
+        // Need to reset this between iterations or we'll have stale data.
+        $this->item = [];
+
         $item_category = $this->findCsvMatch($row, "category");
         if ($this->shouldUpdateField($item_category)) {
             $this->item["category_id"] = $this->createOrFetchCategory($item_category);
@@ -63,14 +66,11 @@ class ItemImporter extends Importer
         $this->item["qty"] = $this->findCsvMatch($row, "quantity");
         $this->item["requestable"] = $this->findCsvMatch($row, "requestable");
         $this->item["user_id"] = $this->user_id;
-        $this->item['serial'] = $this->findCsvMatch($row, "serial_number");
+        $this->item['serial'] = $this->findCsvMatch($row, "serial");
         // NO need to call this method if we're running the user import.
         // TODO: Merge these methods.
         if(get_class($this) !== UserImporter::class) {
-            if ($this->item["user"] = $this->createOrFetchUser($row)) {
-                $this->item['assigned_to'] = $this->item['user']->id;
-                $this->item['assigned_type'] = User::class;
-            }
+            $this->item["user"] = $this->createOrFetchUser($row);
         }
     }
 
@@ -92,6 +92,7 @@ class ItemImporter extends Importer
         $item = collect($this->item);
         // First Filter the item down to the model's fillable fields
         $item = $item->only($model->getFillable());
+
         // Then iterate through the item and, if we are updating, remove any blank values.
         if ($updating) {
             $item = $item->reject(function ($value) {

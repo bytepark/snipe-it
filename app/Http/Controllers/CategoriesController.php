@@ -15,6 +15,8 @@ use Lang;
 use Redirect;
 use Str;
 use View;
+use Image;
+use App\Http\Requests\ImageUploadRequest;
 
 /**
  * This class controls all actions related to Categories for
@@ -38,6 +40,7 @@ class CategoriesController extends Controller
     public function index()
     {
         // Show the page
+        $this->authorize('view', Category::class);
         return view('categories/index');
     }
 
@@ -53,6 +56,7 @@ class CategoriesController extends Controller
     public function create()
     {
         // Show the page
+        $this->authorize('create', Category::class);
          $category_types= Helper::categoryTypeList();
         return view('categories/edit')->with('item', new Category)
             ->with('category_types', $category_types);
@@ -67,11 +71,10 @@ class CategoriesController extends Controller
     * @since [v1.0]
     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(ImageUploadRequest $request)
     {
-        // create a new model instance
+        $this->authorize('create', Category::class);
         $category = new Category();
-        // Update the category data
         $category->name                 = $request->input('name');
         $category->category_type        = $request->input('category_type');
         $category->eula_text            = $request->input('eula_text');
@@ -79,6 +82,18 @@ class CategoriesController extends Controller
         $category->require_acceptance   = $request->input('require_acceptance', '0');
         $category->checkin_email        = $request->input('checkin_email', '0');
         $category->user_id              = Auth::id();
+
+        if ($request->file('image')) {
+            $image = $request->file('image');
+            $file_name = str_random(25).".".$image->getClientOriginalExtension();
+            $path = public_path('uploads/categories/'.$file_name);
+            Image::make($image->getRealPath())->resize(200, null, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            })->save($path);
+            $category->image = $file_name;
+        }
+
 
         if ($category->save()) {
             return redirect()->route('categories.index')->with('success', trans('admin/categories/message.create.success'));
@@ -98,6 +113,7 @@ class CategoriesController extends Controller
      */
     public function edit($categoryId = null)
     {
+        $this->authorize('edit', Category::class);
         if (is_null($item = Category::find($categoryId))) {
             return redirect()->route('categories.index')->with('error', trans('admin/categories/message.does_not_exist'));
         }
@@ -118,9 +134,9 @@ class CategoriesController extends Controller
      * @return \Illuminate\Http\RedirectResponse
      * @since [v1.0]
      */
-    public function update(Request $request, $categoryId = null)
+    public function update(ImageUploadRequest $request, $categoryId = null)
     {
-        // Check if the blog post exists
+        $this->authorize('edit', Category::class);
         if (is_null($category = Category::find($categoryId))) {
             // Redirect to the categories management page
             return redirect()->to('admin/categories')->with('error', trans('admin/categories/message.does_not_exist'));
@@ -135,6 +151,38 @@ class CategoriesController extends Controller
         $category->use_default_eula     = $request->input('use_default_eula', '0');
         $category->require_acceptance   = $request->input('require_acceptance', '0');
         $category->checkin_email        = $request->input('checkin_email', '0');
+
+        $old_image = $category->image;
+
+        // Set the model's image property to null if the image is being deleted
+        if ($request->input('image_delete') == 1) {
+            $category->image = null;
+        }
+
+        if ($request->file('image')) {
+            $image = $request->file('image');
+            $file_name = $category->id.'-'.str_slug($image->getClientOriginalName()) . "." . $image->getClientOriginalExtension();
+
+            if ($image->getClientOriginalExtension()!='svg') {
+                Image::make($image->getRealPath())->resize(500, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                })->save(app('categories_upload_path').$file_name);
+            } else {
+                $image->move(app('categories_upload_path'), $file_name);
+            }
+            $category->image = $file_name;
+
+        }
+
+        if ((($request->file('image')) && (isset($old_image)) && ($old_image!='')) || ($request->input('image_delete') == 1)) {
+            try  {
+                unlink(app('categories_upload_path').$old_image);
+            } catch (\Exception $e) {
+                \Log::error($e);
+            }
+        }
+
 
         if ($category->save()) {
             // Redirect to the new category page
@@ -154,6 +202,7 @@ class CategoriesController extends Controller
      */
     public function destroy($categoryId)
     {
+        $this->authorize('delete', Category::class);
         // Check if the category exists
         if (is_null($category = Category::find($categoryId))) {
             return redirect()->route('categories.index')->with('error', trans('admin/categories/message.not_found'));
@@ -187,6 +236,7 @@ class CategoriesController extends Controller
      */
     public function show($id)
     {
+        $this->authorize('view', Category::class);
         if ($category = Category::find($id)) {
 
             if ($category->category_type=='asset') {

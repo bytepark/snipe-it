@@ -42,19 +42,21 @@ class ReportsController extends Controller
 
         $allowed_columns = [
             'id',
-            'created_at'
+            'created_at',
+            'target_id',
+            'user_id',
+            'action_type',
+            'note'
         ];
         
         $sort = in_array($request->input('sort'), $allowed_columns) ? e($request->input('sort')) : 'created_at';
-        $order = $request->input('order') === 'asc' ? 'asc' : 'desc';
+        $order = ($request->input('order') == 'asc') ? 'asc' : 'desc';
         $offset = request('offset', 0);
         $limit = request('limit', 50);
         $total = $actionlogs->count();
-        $actionlogs = $actionlogs->orderBy($sort, $order);
-        $actionlogs = $actionlogs->skip($offset)->take($limit)->get();
-        return (new ActionlogsTransformer)->transformActionlogs($actionlogs, $total);
+        $actionlogs = $actionlogs->orderBy($sort, $order)->skip($offset)->take($limit)->get();
 
-
+        return response()->json((new ActionlogsTransformer)->transformActionlogs($actionlogs, $total), 200, ['Content-Type' => 'application/json;charset=utf8'], JSON_UNESCAPED_UNICODE);
 
     }
 }

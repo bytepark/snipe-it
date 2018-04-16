@@ -24,8 +24,8 @@ return array(
     ),
 
     'audit' => array(
-        'error'   		=> 'A auditoria de ativos não teve êxito. Por favor, tente novamente.',
-        'success' 		=> 'Auditoria de ativos logada com sucesso.'
+        'error'   		=> 'A auditoria de equipamentos não teve êxito. Por favor, tente novamente.',
+        'success' 		=> 'Auditoria de equipamentos logada com sucesso.'
     ),
 
 
@@ -61,7 +61,8 @@ return array(
         'error'   		=> 'Ativo não foi registrado, favor tentar novamente',
         'success' 		=> 'Ativo registrado com sucesso.',
         'user_does_not_exist' => 'Este usuário é inválido. Tente novamente.',
-        'not_available' => 'Esse recurso não está disponível para checkout!'
+        'not_available' => 'Esse recurso não está disponível para checkout!',
+        'no_assets_selected' => 'Você deve selecionar pelo menos um recurso da lista'
     ),
 
     'checkin' => array(

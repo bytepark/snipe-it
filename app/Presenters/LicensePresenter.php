@@ -76,14 +76,14 @@ class LicensePresenter extends Presenter
                 "title" => trans('general.manufacturer'),
                 "formatter" => "manufacturersLinkObjFormatter",
             ], [
-                "field" => "total_seats",
+                "field" => "seats",
                 "searchable" => false,
-                "sortable" => false,
+                "sortable" => true,
                 "title" => trans('admin/accessories/general.total'),
             ], [
-                "field" => "remaining_qty",
+                "field" => "free_seats_count",
                 "searchable" => false,
-                "sortable" => false,
+                "sortable" => true,
                 "title" => trans('admin/accessories/general.remaining'),
             ], [
                 "field" => "purchase_date",
@@ -117,6 +117,7 @@ class LicensePresenter extends Presenter
                 "sortable" => true,
                 "visible" => false,
                 "title" => trans('general.notes'),
+                "formatter" => "notesFormatter"
             ]
         ];
 
@@ -125,7 +126,7 @@ class LicensePresenter extends Presenter
             "searchable" => false,
             "sortable" => false,
             "switchable" => true,
-            "title" => 'Checkin/Checkout',
+            "title" => trans('general.checkin').'/'.trans('general.checkout'),
             "visible" => true,
             "formatter" => "licensesInOutFormatter",
         ];
@@ -139,6 +140,59 @@ class LicensePresenter extends Presenter
             "formatter" => "licensesActionsFormatter",
         ];
 
+
+        return json_encode($layout);
+    }
+
+
+    /**
+     * Json Column Layout for bootstrap table
+     * @return string
+     */
+    public static function dataTableLayoutSeats()
+    {
+        $layout = [
+           [
+                "field" => "name",
+                "searchable" => false,
+                "sortable" => false,
+                "switchable" => true,
+                "title" => trans('admin/licenses/general.seat'),
+                "visible" => true,
+            ], [
+                "field" => "assigned_user",
+                "searchable" => false,
+                "sortable" => false,
+                "switchable" => true,
+                "title" => trans('admin/licenses/general.user'),
+                "visible" => true,
+                "formatter" => "usersLinkObjFormatter"
+            ], [
+                "field" => "assigned_asset",
+                "searchable" => false,
+                "sortable" => false,
+                "switchable" => true,
+                "title" => trans('admin/licenses/form.asset'),
+                "visible" => true,
+                "formatter" => "hardwareLinkObjFormatter"
+            ], [
+                "field" => "location",
+                "searchable" => false,
+                "sortable" => false,
+                "switchable" => true,
+                "title" => trans('general.location'),
+                "visible" => true,
+                "formatter" => "locationsLinkObjFormatter"
+            ], [
+                "field" => "checkincheckout",
+                "searchable" => false,
+                "sortable" => false,
+                "switchable" => true,
+                "title" => trans('general.checkin').'/'.trans('general.checkout'),
+                "visible" => true,
+                "formatter" => "licenseSeatInOutFormatter"
+            ]
+        ];
 
         return json_encode($layout);
     }

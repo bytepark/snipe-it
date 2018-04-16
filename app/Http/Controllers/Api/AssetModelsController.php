@@ -8,6 +8,7 @@ use App\Helpers\Helper;
 use Illuminate\Http\Request;
 use App\Http\Transformers\AssetModelsTransformer;
 use App\Http\Transformers\AssetsTransformer;
+use App\Http\Transformers\SelectlistTransformer;
 
 
 /**
@@ -29,20 +30,35 @@ class AssetModelsController extends Controller
     public function index(Request $request)
     {
         $this->authorize('view', AssetModel::class);
-        $allowed_columns = ['id','image','name','model_number','eol','notes','created_at','manufacturer'];
+        $allowed_columns = ['id','image','name','model_number','eol','notes','created_at','manufacturer','assets_count'];
 
-        $assetmodels = AssetModel::select(['models.id','models.image','models.name','model_number','eol','models.notes','models.created_at','category_id','manufacturer_id','depreciation_id','fieldset_id', 'models.deleted_at'])
+        $assetmodels = AssetModel::select([
+            'models.id',
+            'models.image',
+            'models.name',
+            'model_number',
+            'eol',
+            'models.notes',
+            'models.created_at',
+            'category_id',
+            'manufacturer_id',
+            'depreciation_id',
+            'fieldset_id',
+            'models.deleted_at',
+            'models.updated_at',
+         ])
             ->with('category','depreciation', 'manufacturer','fieldset')
             ->withCount('assets');
 
-        if ($request->has('search')) {
-            $assetmodels->TextSearch($request->input('search'));
-        }
+
 
         if ($request->has('status')) {
             $assetmodels->onlyTrashed();
         }
 
+        if ($request->has('search')) {
+            $assetmodels->TextSearch($request->input('search'));
+        }
 
         $offset = $request->input('offset', 0);
         $limit = $request->input('limit', 50);
@@ -57,6 +73,7 @@ class AssetModelsController extends Controller
                 $assetmodels->orderBy($sort, $order);
                 break;
         }
+
 
 
         $total = $assetmodels->count();
@@ -134,7 +151,7 @@ class AssetModelsController extends Controller
         $assetmodel->fieldset_id = $request->get("custom_fieldset_id");
 
         if ($assetmodel->save()) {
-            return response()->json(Helper::formatStandardApiResponse('success', $assetmodel, trans('admin/assetmodels/message.update.success')));
+            return response()->json(Helper::formatStandardApiResponse('success', $assetmodel, trans('admin/models/message.update.success')));
         }
 
         return response()->json(Helper::formatStandardApiResponse('error', null, $assetmodel->getErrors()));
@@ -158,8 +175,69 @@ class AssetModelsController extends Controller
             return response()->json(Helper::formatStandardApiResponse('error', null,  trans('admin/models/message.assoc_users')));
         }
 
+        if ($assetmodel->image) {
+            try  {
+                unlink(public_path().'/uploads/models/'.$assetmodel->image);
+            } catch (\Exception $e) {
+                \Log::error($e);
+            }
+        }
+
         $assetmodel->delete();
-        return response()->json(Helper::formatStandardApiResponse('success', null,  trans('admin/assetmodels/message.delete.success')));
+        return response()->json(Helper::formatStandardApiResponse('success', null,  trans('admin/models/message.delete.success')));
 
     }
+
+    /**
+     * Gets a paginated collection for the select2 menus
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @since [v4.0.16]
+     * @see \App\Http\Transformers\SelectlistTransformer
+     *
+     */
+    public function selectlist(Request $request)
+    {
+
+        $assetmodels = AssetModel::select([
+            'models.id',
+            'models.name',
+            'models.image',
+            'models.model_number',
+            'models.manufacturer_id',
+            'models.category_id',
+        ])->with('manufacturer','category');
+
+        $settings = \App\Models\Setting::getSettings();
+
+        if ($request->has('search')) {
+            $assetmodels = $assetmodels->SearchByManufacturerOrCat($request->input('search'));
+        }
+
+        $assetmodels = $assetmodels->OrderCategory('ASC')->OrderManufacturer('ASC')->orderby('models.name', 'asc')->orderby('models.model_number', 'asc')->paginate(50);
+
+        foreach ($assetmodels as $assetmodel) {
+
+            $assetmodel->use_text = '';
+
+            if ($settings->modellistCheckedValue('category')) {
+                $assetmodel->use_text .= (($assetmodel->category) ? e($assetmodel->category->name).' - ' : '');
+            }
+
+            if ($settings->modellistCheckedValue('manufacturer')) {
+                $assetmodel->use_text .= (($assetmodel->manufacturer) ? e($assetmodel->manufacturer->name).' ' : '');
+            }
+
+            $assetmodel->use_text .=  e($assetmodel->name);
+
+            if (($settings->modellistCheckedValue('model_number')) && ($assetmodel->model_number!='')) {
+                $assetmodel->use_text .=  ' (#'.e($assetmodel->model_number).')';
+            }
+
+            $assetmodel->use_image = ($settings->modellistCheckedValue('image') && ($assetmodel->image)) ? url('/').'/uploads/models/'.$assetmodel->image : null;
+        }
+
+        return (new SelectlistTransformer)->transformSelectlist($assetmodels);
+    }
+
 }

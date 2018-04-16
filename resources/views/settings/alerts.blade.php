@@ -47,7 +47,18 @@
                             </div>
                             <div class="col-md-5">
                                 {{ Form::checkbox('alerts_enabled', '1', Input::old('alerts_enabled', $setting->alerts_enabled),array('class' => 'minimal')) }}
-                                {{ trans('admin/settings/general.alerts_enabled') }}
+                                {{ trans('general.yes') }}
+                            </div>
+                        </div>
+
+                        <!-- Menu Alerts Enabled -->
+                        <div class="form-group {{ $errors->has('show_alerts_in_menu') ? 'error' : '' }}">
+                            <div class="col-md-3">
+                                {{ Form::label('show_alerts_in_menu', trans('admin/settings/general.show_alerts_in_menu')) }}
+                            </div>
+                            <div class="col-md-5">
+                                {{ Form::checkbox('show_alerts_in_menu', '1', Input::old('show_alerts_in_menu', $setting->show_alerts_in_menu),array('class' => 'minimal')) }}
+                                {{ trans('general.yes') }}
                             </div>
                         </div>
 
@@ -63,6 +74,22 @@
                                 {!! $errors->first('alert_email', '<span class="alert-msg">:message</span><br>') !!}
 
                                 <p class="help-block">Email addresses or distribution lists you want alerts to be sent to, comma separated</p>
+
+
+                            </div>
+                        </div>
+
+
+                        <!-- Admin CC Email -->
+                        <div class="form-group {{ $errors->has('admin_cc_email') ? 'error' : '' }}">
+                            <div class="col-md-3">
+                                {{ Form::label('admin_cc_email', trans('admin/settings/general.admin_cc_email')) }}
+                            </div>
+                            <div class="col-md-7">
+                                {{ Form::text('admin_cc_email', Input::old('admin_cc_email', $setting->admin_cc_email), array('class' => 'form-control','placeholder' => 'admin@yourcompany.com')) }}
+                                {!! $errors->first('admin_cc_email', '<span class="alert-msg">:message</span><br>') !!}
+
+                                <p class="help-block">{{ trans('admin/settings/general.admin_cc_email_help') }}</p>
 
 
                             </div>

@@ -10,6 +10,23 @@
 {{-- Page content --}}
 @section('content')
 
+@if ($snipeSettings->dashboard_message!='')
+<div class="row">
+    <div class="col-md-12">
+        <div class="box">
+            <!-- /.box-header -->
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        {!!  Parsedown::instance()->text(e($snipeSettings->dashboard_message))  !!}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 <div class="row">
   <!-- panel -->
   <div class="col-lg-3 col-xs-6">
@@ -146,24 +163,29 @@
         <div class="row">
           <div class="col-md-12">
             <div class="table-responsive">
-              <table
-                class="table table-striped snipe-table"
-                name="activityReport"
-                id="table"
-                data-sort-order="desc"
-                data-height="400"
-                data-url="{{ route('api.activity.index', ['limit' => 25]) }}">
-                <thead>
-                  <tr>
-                    <th data-field="icon" style="width: 40px;" class="hidden-xs" data-formatter="iconFormatter"></th>
-                    <th class="col-sm-3" data-field="created_at" data-formatter="dateDisplayFormatter">{{ trans('general.date') }}</th>
-                    <th class="col-sm-2" data-field="admin" data-formatter="usersLinkObjFormatter">{{ trans('general.admin') }}</th>
-                    <th class="col-sm-2" data-field="action_type">{{ trans('general.action') }}</th>
-                    <th class="col-sm-3" data-field="item" data-formatter="polymorphicItemFormatter">{{ trans('general.item') }}</th>
-                    <th class="col-sm-2" data-field="target" data-formatter="polymorphicItemFormatter">{{ trans('general.target') }}</th>
-                  </tr>
-                </thead>
-              </table>
+
+                <table
+                    data-cookie-id-table="dashActivityReport"
+                    data-height="400"
+                    data-side-pagination="server"
+                    data-sort-order="desc"
+                    data-sort-name="created_at"
+                    id="dashActivityReport"
+                    class="table table-striped snipe-table"
+                    data-url="{{ route('api.activity.index', ['limit' => 25]) }}">
+                    <thead>
+                    <tr>
+                        <th data-field="icon" data-visible="true" style="width: 40px;" class="hidden-xs" data-formatter="iconFormatter"></th>
+                        <th class="col-sm-3" data-visible="true" data-field="created_at" data-formatter="dateDisplayFormatter">{{ trans('general.date') }}</th>
+                        <th class="col-sm-2" data-visible="true" data-field="admin" data-formatter="usersLinkObjFormatter">{{ trans('general.admin') }}</th>
+                        <th class="col-sm-2" data-visible="true" data-field="action_type">{{ trans('general.action') }}</th>
+                        <th class="col-sm-3" data-visible="true" data-field="item" data-formatter="polymorphicItemFormatter">{{ trans('general.item') }}</th>
+                        <th class="col-sm-2" data-visible="true" data-field="target" data-formatter="polymorphicItemFormatter">{{ trans('general.target') }}</th>
+                    </tr>
+                    </thead>
+                </table>
+
+
 
             </div><!-- /.responsive -->
           </div><!-- /.col -->
@@ -178,7 +200,7 @@
 </div> <!--/row-->
 <div class="row">
     <div class="col-md-6">
-        <div class="box box-default" style="min-height: 400px;">
+        <div class="box box-default">
             <div class="box-header with-border">
                 <h3 class="box-title">{{ trans('general.assets') }} by Status</h3>
                 <div class="box-tools pull-right">
@@ -187,7 +209,7 @@
                 </div>
             </div>
             <!-- /.box-header -->
-            <div class="box-body">
+            <div class="box-body" style="min-height: 400px;">
                 <div class="row">
                     <div class="col-md-12">
                         <div class="chart-responsive">
@@ -214,16 +236,23 @@
                 <div class="row">
                     <div class="col-md-12">
                         <table
+                                data-cookie-id-table="dashCategorySummary"
+                                data-height="400"
+                                data-side-pagination="server"
+                                data-sort-order="desc"
+                                data-sort-field="assets_count"
+                                id="dashCategorySummary"
                                 class="table table-striped snipe-table"
-                                name="categorySummary"
-                                id="table"
-                                data-height="440"
+                                data-url="{{ route('api.categories.index', ['sort' => 'assets_count', 'order' => 'asc']) }}">
 
-                                data-url="{{ route('api.categories.index') }}">
                             <thead>
                             <tr>
-                                <th class="col-sm-2" data-field="name" data-formatter="categoriesLinkFormatter">{{ trans('general.name') }}</th>
-                                <th class="col-sm-2" data-field="assets_count"><i class="fa fa-barcode"></i></th>
+                                <th class="col-sm-3" data-visible="true" data-field="name" data-formatter="categoriesLinkFormatter" data-sortable="true">{{ trans('general.name') }}</th>
+                                <th class="col-sm-3" data-visible="true" data-field="category_type" data-sortable="true">{{ trans('general.type') }}</th>
+                                <th class="col-sm-1" data-visible="true" data-field="assets_count" data-sortable="true"><i class="fa fa-barcode"></i></th>
+                                <th class="col-sm-1" data-visible="true" data-field="accessories_count" data-sortable="true"><i class="fa fa-keyboard-o"></i></th>
+                                <th class="col-sm-1" data-visible="true" data-field="consumables_count" data-sortable="true"><i class="fa fa-tint"></i></th>
+                                <th class="col-sm-1" data-visible="true" data-field="components_count" data-sortable="true"><i class="fa fa-hdd-o"></i></th>
                             </tr>
                             </thead>
                         </table>
@@ -244,7 +273,7 @@
 @stop
 
 @section('moar_scripts')
-@include ('partials.bootstrap-table', ['simple_view' => true])
+@include ('partials.bootstrap-table', ['simple_view' => true, 'nopages' => true])
 
 @if ($snipeSettings->load_remote=='1')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>

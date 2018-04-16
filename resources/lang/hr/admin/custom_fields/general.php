@@ -20,6 +20,7 @@ return array(
     'field_element_short'     => 'Element',
     'field_format'            => 'Format',
     'field_custom_format'     => 'Prilagođeni format',
+    'field_custom_format_help'     => 'Ovo polje omogućuje vam upotrebu regex izraza za provjeru valjanosti. Trebalo bi početi s "regex:" - primjerice, da biste potvrdili da prilagođena vrijednost polja sadrži važeći IMEI (15 numeričkih znamenki), upotrijebite <code>regex: / ^ [0-9]{15} $ / </code>.',
     'required'   		          => 'Potreban',
     'req'   		              => 'Req.',
     'used_by_models'   		    => 'Koristi se po modelu',

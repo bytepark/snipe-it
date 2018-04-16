@@ -12,7 +12,6 @@ use DB;
 use Gate;
 use Input;
 use Lang;
-use Mail;
 use Redirect;
 use Illuminate\Http\Request;
 use Slack;
@@ -54,14 +53,9 @@ class AccessoriesController extends Controller
     public function create(Request $request)
     {
         $this->authorize('create', Accessory::class);
-        // Show the page
-        return view('accessories/edit')
-          ->with('item', new Accessory)
-          ->with('category_list', Helper::categoryList('accessory'))
-          ->with('company_list', Helper::companyList())
-          ->with('supplier_list', Helper::suppliersList())
-          ->with('location_list', Helper::locationsList())
-          ->with('manufacturer_list', Helper::manufacturerList());
+        $category_type = 'accessory';
+        return view('accessories/edit')->with('category_type', $category_type)
+          ->with('item', new Accessory);
     }
 
 
@@ -130,19 +124,15 @@ class AccessoriesController extends Controller
    */
     public function edit(Request $request, $accessoryId = null)
     {
-        // Check if the accessory exists
-        if (is_null($item = Accessory::find($accessoryId))) {
-            return redirect()->route('accessories.index')->with('error', trans('admin/accessories/message.does_not_exist'));
+
+        if ($item = Accessory::find($accessoryId)) {
+            $this->authorize($item);
+            $category_type = 'accessory';
+            return view('accessories/edit', compact('item'))->with('category_type', $category_type);
         }
 
-        $this->authorize($item);
+        return redirect()->route('accessories.index')->with('error', trans('admin/accessories/message.does_not_exist'));
 
-        return view('accessories/edit', compact('item'))
-          ->with('category_list', Helper::categoryList('accessory'))
-          ->with('company_list', Helper::companyList())
-          ->with('location_list', Helper::locationsList())
-          ->with('supplier_list', Helper::suppliersList())
-          ->with('manufacturer_list', Helper::manufacturerList());
     }
 
 
@@ -271,7 +261,7 @@ class AccessoriesController extends Controller
         $this->authorize('checkout', $accessory);
 
         // Get the dropdown of users and then pass it to the checkout view
-        return view('accessories/checkout', compact('accessory'))->with('users_list', Helper::usersList());
+        return view('accessories/checkout', compact('accessory'));
 
     }
 
@@ -296,7 +286,7 @@ class AccessoriesController extends Controller
         $this->authorize('checkout', $accessory);
 
         if (!$user = User::find(Input::get('assigned_to'))) {
-            return redirect()->route('accessories.index')->with('error', trans('admin/accessories/message.not_found'));
+            return redirect()->route('checkout/accessory', $accessory->id)->with('error', trans('admin/accessories/message.checkout.user_does_not_exist'));
         }
 
       // Update the accessory data
@@ -322,15 +312,6 @@ class AccessoriesController extends Controller
         $data['expected_checkin'] = '';
         $data['note'] = $logaction->note;
         $data['require_acceptance'] = $accessory->requireAcceptance();
-        // TODO: Port this to new mail notifications
-        if ((($accessory->requireAcceptance()=='1')  || ($accessory->getEula())) && ($user->email!='')) {
-
-            Mail::send('emails.accept-accessory', $data, function ($m) use ($user) {
-                $m->to($user->email, $user->first_name . ' ' . $user->last_name);
-                $m->replyTo(config('mail.reply_to.address'), config('mail.reply_to.name'));
-                $m->subject(trans('mail.Confirm_accessory_delivery'));
-            });
-        }
 
       // Redirect to the new accessory page
         return redirect()->route('accessories.index')->with('success', trans('admin/accessories/message.checkout.success'));
@@ -377,7 +358,7 @@ class AccessoriesController extends Controller
       // Check if the accessory exists
         if (is_null($accessory_user = DB::table('accessories_users')->find($accessoryUserId))) {
             // Redirect to the accessory management page with error
-            return redirect()->route('accessories.index')->with('error', trans('admin/accessories/message.not_found'));
+            return redirect()->route('accessories.index')->with('error', trans('admin/accessories/message.does_not_exist'));
         }
 
         $accessory = Accessory::find($accessory_user->accessory_id);
@@ -395,19 +376,11 @@ class AccessoriesController extends Controller
 
             $data['log_id'] = $logaction->id;
             $data['first_name'] = e($user->first_name);
+            $data['last_name'] = e($user->last_name);
             $data['item_name'] = e($accessory->name);
             $data['checkin_date'] = e($logaction->created_at);
             $data['item_tag'] = '';
             $data['note'] = e($logaction->note);
-
-            if ((($accessory->checkin_email()=='1')) && ($user->email!='')) {
-
-                Mail::send('emails.checkin-asset', $data, function ($m) use ($user) {
-                    $m->to($user->email, $user->first_name . ' ' . $user->last_name);
-                    $m->replyTo(config('mail.reply_to.address'), config('mail.reply_to.name'));
-                    $m->subject(trans('mail.Confirm_Accessory_Checkin'));
-                });
-            }
 
             if ($backto=='user') {
                 return redirect()->route("users.show", $return_to)->with('success', trans('admin/accessories/message.checkin.success'));

@@ -41,12 +41,26 @@ class ConsumablePresenter extends Presenter
                 "title" => trans('general.name'),
                 "visible" => true,
                 "formatter" => 'consumablesLinkFormatter',
+            ],
+            [
+                "field" => "image",
+                "searchable" => false,
+                "sortable" => true,
+                "switchable" => true,
+                "title" => trans('general.image'),
+                "visible" => false,
+                "formatter" => 'imageFormatter',
             ], [
                 "field" => "category",
                 "searchable" => true,
                 "sortable" => true,
                 "title" => trans('general.category'),
                 "formatter" => "categoriesLinkObjFormatter"
+            ],[
+                "field" => "model_number",
+                "searchable" => true,
+                "sortable" => true,
+                "title" => trans('general.model_no'),
             ],[
                 "field" => "item_no",
                 "searchable" => true,
@@ -70,6 +84,19 @@ class ConsumablePresenter extends Presenter
                 "sortable" => false,
                 "title" => trans('general.min_amt'),
                 "visible" => true,
+            ],  [
+                "field" => "location",
+                "searchable" => true,
+                "sortable" => true,
+                "title" => trans('general.location'),
+                "formatter" => "locationsLinkObjFormatter"
+            ], [
+                "field" => "manufacturer",
+                "searchable" => true,
+                "sortable" => true,
+                "title" => trans('general.manufacturer'),
+                "visible" => false,
+                "formatter" => "manufacturersLinkObjFormatter"
             ], [
                 "field" => "order_number",
                 "searchable" => true,

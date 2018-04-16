@@ -35,12 +35,12 @@ class AssetModelsController extends Controller
     * the content for the accessories listing, which is generated in getDatatable.
     *
     * @author [A. Gianotto] [<snipe@snipe.net>]
-    * @see AssetModelsController::getDatatable() method that generates the JSON response
     * @since [v1.0]
     * @return View
     */
     public function index()
     {
+        $this->authorize('index', AssetModel::class);
         return view('models/index');
     }
 
@@ -53,11 +53,10 @@ class AssetModelsController extends Controller
     */
     public function create()
     {
-        // Show the page
-        return view('models/edit')
-        ->with('category_list', Helper::categoryList('asset'))
+        $this->authorize('create', AssetModel::class);
+        $category_type = 'asset';
+        return view('models/edit')->with('category_type',$category_type)
         ->with('depreciation_list', Helper::depreciationList())
-        ->with('manufacturer_list', Helper::manufacturerList())
         ->with('item', new AssetModel);
     }
 
@@ -72,6 +71,7 @@ class AssetModelsController extends Controller
     public function store(ImageUploadRequest $request)
     {
 
+        $this->authorize('create', AssetModel::class);
         // Create a new asset model
         $model = new AssetModel;
 
@@ -93,8 +93,8 @@ class AssetModelsController extends Controller
         if (Input::file('image')) {
 
             $image = Input::file('image');
-            $file_name = str_random(25) . "." . $image->getClientOriginalExtension();
-            $path = public_path('uploads/models/');
+            $file_name = str_slug($image->getClientOriginalName()) . "." . $image->getClientOriginalExtension();
+            $path = app('models_upload_path');
 
             if ($image->getClientOriginalExtension()!='svg') {
                 Image::make($image->getRealPath())->resize(500, null, function ($constraint) {
@@ -127,7 +127,8 @@ class AssetModelsController extends Controller
      */
     public function apiStore(Request $request)
     {
-      //COPYPASTA!!!! FIXME
+        //COPYPASTA!!!! FIXME
+        $this->authorize('create', AssetModel::class);
         $model = new AssetModel;
 
         $settings=Input::all();
@@ -165,17 +166,16 @@ class AssetModelsController extends Controller
     */
     public function edit($modelId = null)
     {
-        // Check if the model exists
-        if (is_null($item = AssetModel::find($modelId))) {
-            // Redirect to the model management page
-            return redirect()->route('models.index')->with('error', trans('admin/models/message.does_not_exist'));
+        $this->authorize('update', AssetModel::class);
+        if ($item = AssetModel::find($modelId)) {
+            $category_type = 'asset';
+            $view = View::make('models/edit', compact('item','category_type'));
+            $view->with('depreciation_list', Helper::depreciationList());
+            return $view;
         }
 
-        $view = View::make('models/edit', compact('item'));
-        $view->with('category_list', Helper::categoryList('asset'));
-        $view->with('depreciation_list', Helper::depreciationList());
-        $view->with('manufacturer_list', Helper::manufacturerList());
-        return $view;
+        return redirect()->route('models.index')->with('error', trans('admin/models/message.does_not_exist'));
+
     }
 
 
@@ -190,21 +190,21 @@ class AssetModelsController extends Controller
     */
     public function update(ImageUploadRequest $request, $modelId = null)
     {
+        $this->authorize('update', AssetModel::class);
         // Check if the model exists
         if (is_null($model = AssetModel::find($modelId))) {
             // Redirect to the models management page
             return redirect()->route('models.index')->with('error', trans('admin/models/message.does_not_exist'));
         }
 
-        $model->depreciation_id = $request->input('depreciation_id');
-        $model->eol = $request->input('eol');
+        $model->depreciation_id     = $request->input('depreciation_id');
+        $model->eol                 = $request->input('eol');
         $model->name                = $request->input('name');
         $model->model_number        = $request->input('model_number');
         $model->manufacturer_id     = $request->input('manufacturer_id');
         $model->category_id         = $request->input('category_id');
         $model->notes               = $request->input('notes');
-
-        $model->requestable = Input::has('requestable');
+        $model->requestable         = $request->input('requestable', '0');
 
         if ($request->input('custom_fieldset')=='') {
             $model->fieldset_id = null;
@@ -212,26 +212,37 @@ class AssetModelsController extends Controller
             $model->fieldset_id = $request->input('custom_fieldset');
         }
 
-        if (Input::file('image')) {
-            $image = Input::file('image');
-            $file_name = str_random(25) . "." . $image->getClientOriginalExtension();
-            $path = public_path('uploads/models/');
+        $old_image = $model->image;
+
+        // Set the model's image property to null if the image is being deleted
+        if ($request->input('image_delete') == 1) {
+            $model->image = null;
+        }
+
+        if ($request->file('image')) {
+            $image = $request->file('image');
+            $file_name = $model->id.'-'.str_slug($image->getClientOriginalName()) . "." . $image->getClientOriginalExtension();
 
             if ($image->getClientOriginalExtension()!='svg') {
                 Image::make($image->getRealPath())->resize(500, null, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
-                })->save($path.'/'.$file_name);
+                })->save(app('models_upload_path').$file_name);
             } else {
-                $image->move($path, $file_name);
+                $image->move(app('models_upload_path'), $file_name);
             }
             $model->image = $file_name;
 
         }
 
-        if ($request->input('image_delete') == 1 && Input::file('image') == "") {
-            $model->image = null;
+        if ((($request->file('image')) && (isset($old_image)) && ($old_image!='')) || ($request->input('image_delete') == 1)) {
+            try  {
+                unlink(app('models_upload_path').$old_image);
+            } catch (\Exception $e) {
+                \Log::error($e);
+            }
         }
+
 
         if ($model->save()) {
             return redirect()->route("models.index")->with('success', trans('admin/models/message.update.success'));
@@ -250,6 +261,7 @@ class AssetModelsController extends Controller
     */
     public function destroy($modelId)
     {
+        $this->authorize('delete', AssetModel::class);
         // Check if the model exists
         if (is_null($model = AssetModel::find($modelId))) {
             return redirect()->route('models.index')->with('error', trans('admin/models/message.not_found'));
@@ -259,6 +271,15 @@ class AssetModelsController extends Controller
             // Throw an error that this model is associated with assets
             return redirect()->route('models.index')->with('error', trans('admin/models/message.assoc_users'));
         }
+
+        if ($model->image) {
+            try  {
+                unlink(public_path().'/uploads/models/'.$model->image);
+            } catch (\Exception $e) {
+                \Log::error($e);
+            }
+        }
+
         // Delete the model
         $model->delete();
 
@@ -277,7 +298,7 @@ class AssetModelsController extends Controller
     */
     public function getRestore($modelId = null)
     {
-
+        $this->authorize('create', AssetModel::class);
         // Get user information
         $model = AssetModel::withTrashed()->find($modelId);
 
@@ -308,6 +329,7 @@ class AssetModelsController extends Controller
     */
     public function show($modelId = null)
     {
+        $this->authorize('view', AssetModel::class);
         $model = AssetModel::withTrashed()->find($modelId);
 
         if (isset($model->id)) {
@@ -379,20 +401,39 @@ class AssetModelsController extends Controller
         
         $models_raw_array = Input::get('ids');
 
-        if (is_array($models_raw_array)) {
-            $models = AssetModel::whereIn('id', $models_raw_array)->get();
-            $nochange = ['NC' => 'No Change'];
-            $fieldset_list = $nochange + Helper::customFieldsetList();
-            $depreciation_list = $nochange + Helper::depreciationList();
-            $category_list = $nochange + Helper::categoryList('asset');
-            $manufacturer_list = $nochange + Helper::manufacturerList();
+        // Make sure some IDs have been selected
+        if ((is_array($models_raw_array)) && (count($models_raw_array) > 0)) {
 
-        
-             return view('models/bulk-edit', compact('models'))
-                ->with('manufacturer_list', $manufacturer_list)
-                ->with('category_list', $category_list)
-                ->with('fieldset_list', $fieldset_list)
-                ->with('depreciation_list', $depreciation_list);
+
+            $models = AssetModel::whereIn('id', $models_raw_array)->withCount('assets')->orderBy('assets_count', 'ASC')->get();
+
+            // If deleting....
+            if ($request->input('bulk_actions')=='delete') {
+                $valid_count = 0;
+                foreach ($models as $model) {
+                    if ($model->assets_count == 0) {
+                        $valid_count++;
+                    }
+                }
+                return view('models/bulk-delete', compact('models'))->with('valid_count', $valid_count);
+
+            // Otherwise display the bulk edit screen
+            } else {
+
+                $nochange = ['NC' => 'No Change'];
+                $fieldset_list = $nochange + Helper::customFieldsetList();
+                $depreciation_list = $nochange + Helper::depreciationList();
+                $category_list = $nochange + Helper::categoryList('asset');
+                $manufacturer_list = $nochange + Helper::manufacturerList();
+
+
+                return view('models/bulk-edit', compact('models'))
+                    ->with('manufacturer_list', $manufacturer_list)
+                    ->with('category_list', $category_list)
+                    ->with('fieldset_list', $fieldset_list)
+                    ->with('depreciation_list', $depreciation_list);
+            }
+
         }
 
         return redirect()->route('models.index')
@@ -414,6 +455,7 @@ class AssetModelsController extends Controller
 
         $models_raw_array = Input::get('ids');
         $update_array = array();
+
 
         if (($request->has('manufacturer_id') && ($request->input('manufacturer_id')!='NC'))) {
             $update_array['manufacturer_id'] = $request->input('manufacturer_id');
@@ -438,6 +480,54 @@ class AssetModelsController extends Controller
 
         return redirect()->route('models.index')
             ->with('warning', trans('admin/models/message.bulkedit.error'));
+
+    }
+
+    /**
+     * Validate and delete the given Asset Models. An Asset Model
+     * cannot be deleted if there are associated assets.
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @since [v1.0]
+     * @param int $modelId
+     * @return Redirect
+     */
+    public function postBulkDelete(Request $request)
+    {
+        $models_raw_array = Input::get('ids');
+
+        if ((is_array($models_raw_array)) && (count($models_raw_array) > 0)) {
+
+            $models = AssetModel::whereIn('id', $models_raw_array)->withCount('assets')->get();
+
+            $del_error_count = 0;
+            $del_count = 0;
+
+            foreach ($models as $model) {
+                \Log::debug($model->id);
+
+                if ($model->assets_count > 0) {
+                    $del_error_count++;
+                } else {
+                    $model->delete();
+                    $del_count++;
+                }
+            }
+
+            \Log::debug($del_count);
+            \Log::debug($del_error_count);
+
+            if ($del_error_count == 0) {
+                return redirect()->route('models.index')
+                    ->with('success', trans('admin/models/message.bulkdelete.success',['success_count'=> $del_count] ));
+            }
+
+            return redirect()->route('models.index')
+                ->with('warning', trans('admin/models/message.bulkdelete.success_partial', ['fail_count'=>$del_error_count, 'success_count'=> $del_count]));
+        }
+
+        return redirect()->route('models.index')
+            ->with('error', trans('admin/models/message.bulkdelete.error'));
 
     }
 

@@ -3,7 +3,7 @@
 return array(
 
     'does_not_exist' => 'Tedarikçi mevcut değil.',
-    'assoc_users'	 => 'Bu kategori en az 1 adet model ile ilişkili ve silinemez. Lütfen Modelleri güncelleyerek bu kategori ile bağını kesin ve tekrar deneyin. ',
+
 
     'create' => array(
         'error'   => 'Tedarikçi oluşturulamadı, lütfen tekrar deneyin.',
@@ -18,7 +18,10 @@ return array(
     'delete' => array(
         'confirm'   => 'Tedarikçiyi silmek istediğinize emin misiniz?',
         'error'   => 'Tedarikçi silinirken bir hata oluştu. Lütfen tekrar deneyin.',
-        'success' => 'Tedarikçi silindi.'
+        'success' => 'Tedarikçi silindi.',
+        'assoc_assets'	 => 'Bu tedarikçi halihazırda :asset_count asset(s) ilişkili durumda ve silinemez. Lütfen varlıklarınızı bu tedarikçi ile ilişkisi olmayacak şekilde güncelleyin ve yeniden deneyin. ',
+        'assoc_licenses'	 => 'Bu tedarikçi halihazırda :licenses_count licences(s) ilişkili durumda ve silinemez. Lütfen lisanslarınızı bu tedarikçi ile ilişkisi olmayacak şekilde güncelleyin ve yeniden deneyin. ',
+        'assoc_maintenances'	 => 'Bu tedarikçi halihazırda :asset_maintenances_count asset maintenances(s) ilişkili durumda ve silinemez. Lütfen varlık bakımlarınızı bu tedarikçi ile ilişkisi olmayacak şekilde güncelleyin ve yeniden deneyin. ',
     )
 
 );

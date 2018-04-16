@@ -2,6 +2,8 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Helper;
+use App\Http\Requests\ImageUploadRequest;
+use App\Models\Actionlog;
 use App\Models\Company;
 use App\Models\Component;
 use App\Models\CustomField;
@@ -21,6 +23,7 @@ use View;
 use Validator;
 use Illuminate\Http\Request;
 use Gate;
+use Image;
 
 /**
  * This class controls all actions related to Components for
@@ -57,12 +60,9 @@ class ComponentsController extends Controller
     public function create()
     {
         $this->authorize('create', Component::class);
-        // Show the page
-        return view('components/edit')
-            ->with('item', new Component)
-            ->with('category_list', Helper::categoryList('component'))
-            ->with('company_list', Helper::companyList())
-            ->with('location_list', Helper::locationsList());
+        $category_type = 'component';
+        return view('components/edit')->with('category_type',$category_type)
+            ->with('item', new Component);
     }
 
 
@@ -74,7 +74,7 @@ class ComponentsController extends Controller
     * @since [v3.0]
     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(ImageUploadRequest $request)
     {
         $this->authorize('create', Component::class);
         $component = new Component();
@@ -89,6 +89,18 @@ class ComponentsController extends Controller
         $component->purchase_cost          = $request->input('purchase_cost', null);
         $component->qty                    = $request->input('qty');
         $component->user_id                = Auth::id();
+
+
+        if ($request->file('image')) {
+            $image = $request->file('image');
+            $file_name = str_random(25).".".$image->getClientOriginalExtension();
+            $path = public_path('uploads/components/'.$file_name);
+            Image::make($image->getRealPath())->resize(200, null, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            })->save($path);
+            $component->image = $file_name;
+        }
 
         if ($component->save()) {
             return redirect()->route('components.index')->with('success', trans('admin/components/message.create.success'));
@@ -107,16 +119,18 @@ class ComponentsController extends Controller
      */
     public function edit($componentId = null)
     {
-        if (is_null($item = Component::find($componentId))) {
-            return redirect()->route('components.index')->with('error', trans('admin/components/message.does_not_exist'));
+
+
+        if ($item = Component::find($componentId)) {
+            $this->authorize('update', $item);
+            $category_type = 'component';
+            return view('components/edit', compact('item'))->with('category_type', $category_type);
         }
+        return redirect()->route('components.index')->with('error', trans('admin/components/message.does_not_exist'));
 
-        $this->authorize('update', $item);
 
-        return view('components/edit', compact('item'))
-            ->with('category_list', Helper::categoryList('component'))
-            ->with('company_list', Helper::companyList())
-            ->with('location_list', Helper::locationsList());
+
+
     }
 
 
@@ -129,7 +143,7 @@ class ComponentsController extends Controller
     * @since [v3.0]
     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update($componentId = null)
+    public function update(ImageUploadRequest $request, $componentId = null)
     {
         if (is_null($component = Component::find($componentId))) {
             return redirect()->route('components.index')->with('error', trans('admin/components/message.does_not_exist'));
@@ -150,6 +164,19 @@ class ComponentsController extends Controller
         $component->purchase_cost          = request('purchase_cost');
         $component->qty                    = Input::get('qty');
 
+        if ($request->file('image')) {
+            $image = $request->file('image');
+            $file_name = str_random(25).".".$image->getClientOriginalExtension();
+            $path = public_path('uploads/components/'.$file_name);
+            Image::make($image->getRealPath())->resize(200, null, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            })->save($path);
+            $component->image = $file_name;
+        } elseif ($request->input('image_delete')=='1') {
+            $component->image = null;
+        }
+
         if ($component->save()) {
             return redirect()->route('components.index')->with('success', trans('admin/components/message.update.success'));
         }
@@ -167,7 +194,7 @@ class ComponentsController extends Controller
     public function destroy($componentId)
     {
         if (is_null($component = Component::find($componentId))) {
-            return redirect()->route('components.index')->with('error', trans('admin/components/message.not_found'));
+            return redirect()->route('components.index')->with('error', trans('admin/components/message.does_not_exist'));
         }
 
         $this->authorize('delete', $component);
@@ -228,7 +255,7 @@ class ComponentsController extends Controller
             return redirect()->route('components.index')->with('error', trans('admin/components/message.not_found'));
         }
         $this->authorize('checkout', $component);
-        return view('components/checkout', compact('component'))->with('assets_list', Helper::detailedAssetList());
+        return view('components/checkout', compact('component'));
     }
 
     /**
@@ -285,6 +312,98 @@ class ComponentsController extends Controller
 
         $component->logCheckout(e(Input::get('note')), $asset);
         return redirect()->route('components.index')->with('success', trans('admin/components/message.checkout.success'));
+    }
+
+    /**
+     * Returns a view that allows the checkin of a component from an asset.
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @see ComponentsController::postCheckout() method that stores the data.
+     * @since [v4.1.4]
+     * @param int $componentId
+     * @return \Illuminate\Contracts\View\View
+     */
+    public function getCheckin($component_asset_id)
+    {
+
+        // This could probably be done more cleanly but I am very tired. - @snipe
+        if ($component_assets = DB::table('components_assets')->find($component_asset_id)) {
+            if (is_null($component = Component::find($component_assets->component_id))) {
+                return redirect()->route('components.index')->with('error', trans('admin/components/messages.not_found'));
+            }
+            if (is_null($asset = Asset::find($component_assets->asset_id))) {
+                return redirect()->route('components.index')->with('error',
+                    trans('admin/components/message.not_found'));
+            }
+            $this->authorize('checkin', $component);
+            return view('components/checkin', compact('component_assets','component','asset'));
+        }
+
+        return redirect()->route('components.index')->with('error', trans('admin/components/messages.not_found'));
+
+    }
+
+    /**
+     * Validate and store checkin data.
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @see ComponentsController::getCheckout() method that returns the form.
+     * @since [v4.1.4]
+     * @param Request $request
+     * @param int $componentId
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function postCheckin(Request $request, $component_asset_id)
+    {
+        if ($component_assets = DB::table('components_assets')->find($component_asset_id)) {
+            if (is_null($component = Component::find($component_assets->component_id))) {
+                return redirect()->route('components.index')->with('error',
+                    trans('admin/components/message.not_found'));
+            }
+
+
+            $this->authorize('checkin', $component);
+
+            $max_to_checkin = $component_assets->assigned_qty;
+            $validator = Validator::make($request->all(), [
+                "checkin_qty" => "required|numeric|between:1,$max_to_checkin"
+            ]);
+
+            if ($validator->fails()) {
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+
+            // Validation passed, so let's figure out what we have to do here.
+            $qty_remaining_in_checkout = ($component_assets->assigned_qty - (int)$request->input('checkin_qty'));
+
+            // We have to modify the record to reflect the new qty that's
+            // actually checked out.
+            $component_assets->assigned_qty = $qty_remaining_in_checkout;
+            DB::table('components_assets')->where('id',
+                $component_asset_id)->update(['assigned_qty' => $qty_remaining_in_checkout]);
+
+            $log = new Actionlog();
+            $log->user_id = Auth::user()->id;
+            $log->action_type = 'checkin from';
+            $log->target_type = Asset::class;
+            $log->target_id = $component_assets->asset_id;
+            $log->item_id = $component_assets->component_id;
+            $log->item_type = Component::class;
+            $log->note = $request->input('note');
+            $log->save();
+
+            // If the checked-in qty is exactly the same as the assigned_qty,
+            // we can simply delete the associated components_assets record
+            if ($qty_remaining_in_checkout == 0) {
+                DB::table('components_assets')->where('id', '=', $component_asset_id)->delete();
+            }
+
+            return redirect()->route('components.index')->with('success',
+                trans('admin/components/message.checkout.success'));
+        }
+        return redirect()->route('components.index')->with('error', trans('admin/components/message.not_found'));
     }
 
 

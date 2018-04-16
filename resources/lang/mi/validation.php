@@ -67,6 +67,7 @@ return array(
     'not_in'               => 'Ko te mea i tīpakohia: he muhu te huanga.',
     'numeric'              => 'Ko te: me tohu he huanga.',
     'present'              => 'Ko te: ko te waahi tohu kia noho.',
+    'valid_regex'          => 'That is not a valid regex. ',
     'regex'                => 'Ko te: ko te hōputu huanga he muhu.',
     'required'             => 'Ko te: e hiahiatia ana te waahi huanga.',
     'required_if'          => 'Ko te: ka hiahiatia te waahi huanga ina: ko etahi atu: te uara.',
@@ -87,6 +88,7 @@ return array(
     'unique'               => 'Ko te: kua tangohia te huanga.',
     'uploaded'             => 'Ko te: ko te huanga i rahua te tuku.',
     'url'                  => 'Ko te: ko te hōputu huanga he muhu.',
+    "unique_undeleted"     => "The :attribute must be unique.",
 
     /*
     |--------------------------------------------------------------------------
@@ -117,7 +119,6 @@ return array(
         "hashed_pass"      => "He hē tō kupuhipa o nāianei",
         'dumbpwd'          => 'He noa rawa te kupuhipa.',
         "statuslabel_type" => "Me tīpako i te momo tahua tohu whaimana",
-        "unique_undeleted" => "Ko te: me tino ahurei te huanga.",
     ],
 
     /*

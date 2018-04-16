@@ -43,6 +43,20 @@ class ComponentPresenter extends Presenter
                 "visible" => true,
                 "formatter" => 'componentsLinkFormatter',
             ], [
+                "field" => "image",
+                "searchable" => false,
+                "sortable" => true,
+                "switchable" => true,
+                "title" => trans('general.image'),
+                "visible" => false,
+                "formatter" => 'imageFormatter',
+            ],[
+                "field" => "serial",
+                "searchable" => true,
+                "sortable" => true,
+                "title" => trans('admin/hardware/form.serial'),
+                "formatter" => "componentsLinkFormatter"
+            ], [
                 "field" => "category",
                 "searchable" => true,
                 "sortable" => true,
@@ -51,7 +65,7 @@ class ComponentPresenter extends Presenter
             ], [
                 "field" => "qty",
                 "searchable" => false,
-                "sortable" => false,
+                "sortable" => true,
                 "title" => trans('admin/components/general.total'),
                 "visible" => true,
             ], [
@@ -66,6 +80,12 @@ class ComponentPresenter extends Presenter
                 "sortable" => false,
                 "title" => trans('general.min_amt'),
                 "visible" => true,
+            ], [
+                "field" => "location",
+                "searchable" => true,
+                "sortable" => true,
+                "title" => trans('general.location'),
+                "formatter" => "locationsLinkObjFormatter"
             ], [
                 "field" => "order_number",
                 "searchable" => true,
@@ -94,7 +114,7 @@ class ComponentPresenter extends Presenter
             "searchable" => false,
             "sortable" => false,
             "switchable" => true,
-            "title" => 'Checkin/Checkout',
+            "title" => trans('general.checkin').'/'.trans('general.checkout'),
             "visible" => true,
             "formatter" => "componentsInOutFormatter",
         ];

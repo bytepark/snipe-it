@@ -67,6 +67,7 @@ return array(
     'not_in'               => 'Zvolený :attribute je neplatný.',
     'numeric'              => ':attribute musí být číslo.',
     'present'              => 'Pole atributu musí být přítomno.',
+    'valid_regex'          => 'That is not a valid regex. ',
     'regex'                => 'Formát :attribute je neplatný.',
     'required'             => 'Pole :attribute je požadováno.',
     'required_if'          => 'Položka :attribute je vyžadována, když :other je :value.',
@@ -87,6 +88,7 @@ return array(
     'unique'               => ':attribute byl již vybrán.',
     'uploaded'             => 'Atribut: se nepodařilo nahrát.',
     'url'                  => 'Formát :attribute je neplatný.',
+    "unique_undeleted"     => "The :attribute must be unique.",
 
     /*
     |--------------------------------------------------------------------------
@@ -117,7 +119,6 @@ return array(
         "hashed_pass"      => "Vaše současné heslo je nesprávné",
         'dumbpwd'          => 'Toto heslo je příliš běžné.',
         "statuslabel_type" => "Musíte vybrat platný typ štítku stavu",
-        "unique_undeleted" => "Atribut musí být jedinečný.",
     ],
 
     /*

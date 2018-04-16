@@ -22,7 +22,7 @@ class StatuslabelsController extends Controller
     public function index(Request $request)
     {
         $this->authorize('view', Statuslabel::class);
-        $allowed_columns = ['id','name','created_at', 'assets_count'];
+        $allowed_columns = ['id','name','created_at', 'assets_count','color','default_label'];
 
         $statuslabels = Statuslabel::withCount('assets');
 
@@ -56,7 +56,7 @@ class StatuslabelsController extends Controller
         $request->except('deployable', 'pending','archived');
 
         if (!$request->has('type')) {
-            return response()->json(Helper::formatStandardApiResponse('error', null, ["type" => ["Status label type is required."]]));
+            return response()->json(Helper::formatStandardApiResponse('error', null, ["type" => ["Status label type is required."]]),500);
         }
 
         $statuslabel = new Statuslabel;
@@ -161,19 +161,22 @@ class StatuslabelsController extends Controller
     public function getAssetCountByStatuslabel()
     {
 
-        $statusLabels = Statuslabel::get();
+        $statuslabels = Statuslabel::with('assets')->groupBy('id')->withCount('assets')->get();
+
         $labels=[];
         $points=[];
         $colors=[];
-        foreach ($statusLabels as $statusLabel) {
-            if ($statusLabel->assets()->count() > 0) {
-                $labels[]=$statusLabel->name;
-                $points[]=$statusLabel->assets()->whereNull('assigned_to')->count();
-                if ($statusLabel->color!='') {
-                    $colors[]=$statusLabel->color;
+        foreach ($statuslabels as $statuslabel) {
+            if ($statuslabel->assets_count > 0) {
+
+                $labels[]=$statuslabel->name. ' ('.number_format($statuslabel->assets_count).')';
+                $points[]=$statuslabel->assets_count;
+                if ($statuslabel->color!='') {
+                    $colors[]=$statuslabel->color;
                 }
             }
         }
+
         
         $colors_array = array_merge($colors, Helper::chartColors());
 

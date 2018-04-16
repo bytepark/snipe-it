@@ -34,6 +34,7 @@ use View;
 use Illuminate\Http\Request;
 use Gate;
 use Artisan;
+use App\Notifications\WelcomeNotification;
 
 /**
  * This controller handles all actions related to Users for
@@ -85,10 +86,6 @@ class UsersController extends Controller
         $permissions = $this->filterDisplayable($permissions);
 
         return view('users/edit', compact('groups', 'userGroups', 'permissions', 'userPermissions'))
-        ->with('location_list', Helper::locationsList())
-        ->with('manager_list', Helper::managerList())
-        ->with('company_list', Helper::companyList())
-        ->with('department_list', Helper::departmentList())
         ->with('user', new User);
     }
 
@@ -110,7 +107,6 @@ class UsersController extends Controller
             $user->password = bcrypt($request->input('password'));
             $data['password'] =  $request->input('password');
         }
-        // Update the user
         $user->first_name = $request->input('first_name');
         $user->last_name = $request->input('last_name');
         $user->locale = $request->input('locale');
@@ -123,6 +119,11 @@ class UsersController extends Controller
         $user->company_id = Company::getIdForUser($request->input('company_id', null));
         $user->manager_id = $request->input('manager_id', null);
         $user->notes = $request->input('notes');
+        $user->address = $request->input('address', null);
+        $user->city = $request->input('city', null);
+        $user->state = $request->input('state', null);
+        $user->country = $request->input('country', null);
+        $user->zip = $request->input('zip', null);
 
         // Strip out the superuser permission if the user isn't a superadmin
         $permissions_array = $request->input('permission');
@@ -146,13 +147,16 @@ class UsersController extends Controller
                 $data['email'] = e($request->input('email'));
                 $data['username'] = e($request->input('username'));
                 $data['first_name'] = e($request->input('first_name'));
+                $data['last_name'] = e($request->input('last_name'));
                 $data['password'] = e($request->input('password'));
 
-                Mail::send('emails.send-login', $data, function ($m) use ($user) {
+                $user->notify(new WelcomeNotification($data));
+
+/*                Mail::send('emails.send-login', $data, function ($m) use ($user) {
                     $m->to($user->email, $user->first_name . ' ' . $user->last_name);
                     $m->replyTo(config('mail.reply_to.address'), config('mail.reply_to.name'));
                     $m->subject(trans('mail.welcome', ['name' => $user->first_name]));
-                });
+                });*/
             }
             return redirect::route('users.index')->with('success', trans('admin/users/message.success.create'));
         }
@@ -192,15 +196,18 @@ class UsersController extends Controller
                 // Send the credentials through email
                 $data = array();
                 $data['email'] = $request->input('email');
+                $data['username'] = $request->input('username');
                 $data['first_name'] = $request->input('first_name');
-                $data['last_name'] = $request->input('last_name');
+                $data['last_name'] = e($request->input('last_name'));
                 $data['password'] = $request->input('password');
 
-                Mail::send('emails.send-login', $data, function ($m) use ($user) {
+                $user->notify(new WelcomeNotification($data));
+
+                /*Mail::send('emails.send-login', $data, function ($m) use ($user) {
                     $m->to($user->email, $user->first_name . ' ' . $user->last_name);
                     $m->replyTo(config('mail.reply_to.address'), config('mail.reply_to.name'));
                     $m->subject(trans('mail.welcome', ['name' => $user->first_name]));
-                });
+                });*/
             }
 
             return JsonResponse::create($user);
@@ -232,9 +239,9 @@ class UsersController extends Controller
 
     public function edit($id)
     {
-        try {
 
-            $user = User::find($id);
+        if ($user =  User::find($id)) {
+
             $this->authorize('update', $user);
             $permissions = config('permissions');
 
@@ -244,19 +251,14 @@ class UsersController extends Controller
             $user->permissions = $user->decodePermissions();
             $userPermissions = Helper::selectedPermissionsArray($permissions, $user->permissions);
             $permissions = $this->filterDisplayable($permissions);
-            
-        } catch (UserNotFoundException $e) {
 
-            $error = trans('admin/users/message.user_not_found', compact('id'));
-            return redirect()->route('users.index')->with('error', $error);
+            return view('users/edit', compact('user', 'groups', 'userGroups', 'permissions', 'userPermissions'))->with('item', $user);
         }
 
-        // Show the page
-        return view('users/edit', compact('user', 'groups', 'userGroups', 'permissions', 'userPermissions'))
-            ->with('location_list', Helper::locationsList())
-            ->with('department_list', Helper::departmentList())
-            ->with('company_list', Helper::companyList())
-            ->with('manager_list', Helper::managerList());
+        $error = trans('admin/users/message.user_not_found', compact('id'));
+        return redirect()->route('users.index')->with('error', $error);
+
+
     }
 
     /**
@@ -282,6 +284,10 @@ class UsersController extends Controller
         try {
 
             $user = User::find($id);
+
+            if ($user->id == $request->input('manager_id')) {
+                return redirect()->back()->withInput()->with('error', 'You cannot be your own manager.');
+            }
             $this->authorize('update', $user);
             // Figure out of this user was an admin before this edit
             $orig_permissions_array = $user->decodePermissions();
@@ -321,14 +327,23 @@ class UsersController extends Controller
         $user->locale = $request->input('locale');
         $user->employee_num = $request->input('employee_num');
         $user->activated = $request->input('activated', $user->activated);
-        $user->jobtitle = $request->input('jobtitle');
+        $user->jobtitle = $request->input('jobtitle', null);
         $user->phone = $request->input('phone');
         $user->location_id = $request->input('location_id', null);
         $user->company_id = Company::getIdForUser($request->input('company_id', null));
         $user->manager_id = $request->input('manager_id', null);
         $user->notes = $request->input('notes');
         $user->department_id = $request->input('department_id', null);
+        $user->address = $request->input('address', null);
+        $user->city = $request->input('city', null);
+        $user->state = $request->input('state', null);
+        $user->country = $request->input('country', null);
+        $user->zip = $request->input('zip', null);
 
+
+        // Update the location of any assets checked out to this user
+        Asset::where('assigned_type', User::class)
+            ->where('assigned_to', $user->id)->update(['location_id' => $request->input('location_id', null)]);
 
         // Do we want to update the user password?
         if ($request->has('password')) {
@@ -423,7 +438,7 @@ class UsersController extends Controller
     public function postBulkEdit(Request $request)
     {
         $this->authorize('update', User::class);
-        if ((!Input::has('ids')) || (count(Input::has('ids')) == 0)) {
+        if ((!Input::has('ids')) || (count(Input::input('ids')) == 0)) {
             return redirect()->back()->with('error', 'No users selected');
         } else {
 
@@ -435,11 +450,6 @@ class UsersController extends Controller
             if ($request->input('bulk_actions')=='edit') {
 
                 return view('users/bulk-edit', compact('users'))
-                    ->with('location_list', Helper::locationsList())
-                    ->with('company_list', Helper::companyList())
-                    ->with('manager_list', Helper::managerList())
-                    ->with('manager_list', Helper::managerList())
-                    ->with('department_list', Helper::departmentList())
                     ->with('groups', Group::pluck('name', 'id'));
             }
 
@@ -458,7 +468,7 @@ class UsersController extends Controller
     public function postBulkEditSave(Request $request)
     {
         $this->authorize('update', User::class);
-        if ((!Input::has('ids')) || (count(Input::has('ids')) == 0)) {
+        if ((!Input::has('ids')) || (count(Input::input('ids')) == 0)) {
             return redirect()->back()->with('error', 'No users selected');
         } else {
 
@@ -477,6 +487,11 @@ class UsersController extends Controller
             if ($request->has('company_id')) {
                 $update_array['company_id'] = $request->input('company_id');
             }
+            if ($request->has('locale')) {
+                $update_array['locale'] = $request->input('locale');
+            }
+
+
 
             if ($request->has('manager_id')) {
 
@@ -725,7 +740,7 @@ class UsersController extends Controller
             $user->first_name = '';
             $user->last_name = '';
             $user->email = substr($user->email, ($pos = strpos($user->email, '@')) !== false ? $pos : 0);
-            ;
+
             $user->id = null;
 
             // Get this user groups
@@ -738,10 +753,6 @@ class UsersController extends Controller
 
             // Show the page
             return view('users/edit', compact('permissions', 'userPermissions'))
-                            ->with('location_list', Helper::locationsList())
-                            ->with('company_list', Helper::companyList())
-                            ->with('manager_list', Helper::managerList())
-                            ->with('department_list', Helper::departmentList())
                             ->with('user', $user)
                             ->with('groups', Group::pluck('name', 'id'))
                             ->with('userGroups', $userGroups)
@@ -848,16 +859,21 @@ class UsersController extends Controller
                             // Send the credentials through email
                             if ($row[3] != '') {
                                 $data = array();
+                                $data['email'] = trim(e($row[4]));
                                 $data['username'] = trim(e($row[2]));
                                 $data['first_name'] = trim(e($row[0]));
+                                $data['last_name'] = trim(e($row[1]));
                                 $data['password'] = $pass;
 
                                 if ($newuser['email']) {
-                                    Mail::send('emails.send-login', $data, function ($m) use ($newuser) {
+                                    $user = User::where('username', $row[2])->first();
+                                    $user->notify(new WelcomeNotification($data));
+                                    
+                                    /*Mail::send('emails.send-login', $data, function ($m) use ($newuser) {
                                         $m->to($newuser['email'], $newuser['first_name'] . ' ' . $newuser['last_name']);
                                         $m->replyTo(config('mail.reply_to.address'), config('mail.reply_to.name'));
                                         $m->subject(trans('mail.welcome', ['name' => $newuser['first_name']]));
-                                    });
+                                    });*/
                                 }
                             }
                         }
@@ -1064,7 +1080,7 @@ class UsersController extends Controller
             // Open output stream
             $handle = fopen('php://output', 'w');
 
-            User::with('assets', 'accessories', 'consumables', 'licenses', 'manager', 'groups', 'userloc', 'company','throttle')->orderBy('created_at', 'DESC')->chunk(500, function($users) use($handle) {
+            User::with('assets', 'accessories', 'consumables', 'department', 'licenses', 'manager', 'groups', 'userloc', 'company','throttle')->orderBy('created_at', 'DESC')->chunk(500, function($users) use($handle) {
                 $headers=[
                     // strtolower to prevent Excel from trying to open it as a SYLK file
                     strtolower(trans('general.id')),
@@ -1076,6 +1092,7 @@ class UsersController extends Controller
                     trans('admin/users/table.email'),
                     trans('admin/users/table.manager'),
                     trans('admin/users/table.location'),
+                    trans('general.department'),
                     trans('general.assets'),
                     trans('general.licenses'),
                     trans('general.accessories'),
@@ -1106,6 +1123,7 @@ class UsersController extends Controller
                         $user->email,
                         ($user->manager) ? $user->manager->present()->fullName() : '',
                         ($user->userloc) ? $user->userloc->name : '',
+                        ($user->department) ? $user->department->name : '',
                         $user->assets->count(),
                         $user->licenses->count(),
                         $user->accessories->count(),
@@ -1132,20 +1150,23 @@ class UsersController extends Controller
 
     }
 
-    public function postTwoFactorReset(Request $request)
+    /**
+     * LDAP form processing.
+     *
+     * @author Aladin Alaily
+     * @since [v1.8]
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function printInventory($id)
     {
-        if (Gate::denies('users.edit')) {
-            return response()->json(['message' => trans('general.insufficient_permissions')], 500);
-        }
 
-        try {
-            $user = User::find($request->get('id'));
-            $user->two_factor_secret = null;
-            $user->two_factor_enrolled = 0;
-            $user->save();
-            return response()->json(['message' => trans('admin/settings/general.two_factor_reset_success')], 200);
-        } catch (\Exception $e) {
-            return response()->json(['message' => trans('admin/settings/general.two_factor_reset_error')], 500);
-        }
+        $show_user = User::where('id',$id)->withTrashed()->first();
+        $assets = Asset::where('assigned_to', $id)->where('assigned_type', User::class)->with('model', 'model.category')->get();
+        $licenses = $show_user->licenses()->get();
+        $accessories = $show_user->accessories()->get();
+        $consumables = $show_user->consumables()->get();
+        return view('users/print')->with('assets', $assets)->with('licenses',$licenses)->with('accessories', $accessories)->with('consumables', $consumables)->with('show_user', $show_user);
+
     }
+
 }

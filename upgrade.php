@@ -1,11 +1,15 @@
 <?php
 (PHP_SAPI !== 'cli' || isset($_SERVER['HTTP_USER_AGENT'])) && die('Access denied.');
 
-$pwu_data = posix_getpwuid(posix_geteuid());
-$username = $pwu_data['name'];
+if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+	echo "Skipping user check as it is not supported on Windows\n";
+} else {
+	$pwu_data = posix_getpwuid(posix_geteuid());
+	$username = $pwu_data['name'];
 
-if (($username=='root') || ($username=='admin')) {
-    die("\nERROR: This script should not be run as root/admin. Exiting.\n\n");
+	if (($username=='root') || ($username=='admin')) {
+		die("\nERROR: This script should not be run as root/admin. Exiting.\n\n");
+	}
 }
 
 
@@ -15,10 +19,10 @@ echo "Welcome to the Snipe-IT upgrader.\n\n";
 echo "Please note that this script will not download the latest Snipe-IT \n";
 echo "files for you unless you have git installed. \n";
 echo "It simply runs the standard composer and artisan \n";
-echo "commands needed to finalize the upgrade after \n\n";
+echo "commands needed to finalize the upgrade after. \n\n";
 
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-echo "!! If you have any encrypted custom fields, BE SURE TO run the recrypter. \n";
+echo "!! If you have any encrypted custom fields, BE SURE TO run the recrypter if upgrading from v3 to v4. \n";
 echo "!! See the Snipe-IT documentation for help: \n";
 echo "!! https://snipe-it.readme.io/docs/upgrading-to-v4\n";
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
@@ -102,7 +106,7 @@ echo "--------------------------------------------------------\n\n";
 if (file_exists('composer.phar')) {
     echo "-- Local composer.phar detected, so we'll use that.\n\n";
     $composer_dump = shell_exec('php composer.phar dump');
-    $composer = shell_exec('php composer.phar install --prefer-source');
+    $composer = shell_exec('php composer.phar install --no-dev --prefer-source');
 
 } else {
     echo "-- We couldn't find a local composer.phar - trying globally.\n\n";

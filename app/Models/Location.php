@@ -9,6 +9,7 @@ use App\Presenters\Presentable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Watson\Validating\ValidatingTrait;
+use DB;
 
 class Location extends SnipeModel
 {
@@ -44,7 +45,19 @@ class Location extends SnipeModel
      *
      * @var array
      */
-    protected $fillable = ['name','parent_id','address','address2','city','state', 'country','zip','ldap_ou'];
+    protected $fillable = [
+        'name',
+        'parent_id',
+        'address',
+        'address2',
+        'city',
+        'state',
+        'country',
+        'zip',
+        'ldap_ou',
+        'currency',
+        'image',
+    ];
     protected $hidden = ['user_id'];
 
     public function users()
@@ -54,12 +67,28 @@ class Location extends SnipeModel
 
     public function assets()
     {
-        return $this->hasManyThrough('\App\Models\Asset', '\App\Models\User', 'location_id', 'assigned_to', 'id')->where("assets.assigned_type",User::class);
+        return $this->hasMany('\App\Models\Asset', 'location_id')
+            ->whereHas('assetstatus', function ($query) {
+                    $query->where('status_labels.deployable', '=', 1)
+                        ->orWhere('status_labels.pending', '=', 1)
+                        ->orWhere('status_labels.archived', '=', 0);
+            });
     }
 
-    public function locationAssets()
+    public function rtd_assets()
     {
-        return $this->hasMany('\App\Models\Asset', 'rtd_location_id')->orHas('assignedAssets');
+        /* This used to have an ...->orHas() clause that referred to
+           assignedAssets, and that was probably incorrect, as well as
+           definitely was setting fire to the query-planner. So don't do that.
+
+           It is arguable that we should have a '...->whereNull('assigned_to')
+           bit in there, but that isn't always correct either (in the case 
+           where a user has no location, for example).
+
+           In all likelyhood, we need to denorm an "effective_location" column
+           into Assets to make this slightly less miserable.
+        */
+        return $this->hasMany('\App\Models\Asset', 'rtd_location_id');
     }
 
     public function parent()
@@ -77,10 +106,10 @@ class Location extends SnipeModel
         return $this->hasMany('\App\Models\Location', 'parent_id');
     }
 
+    // I don't think we need this anymore since we de-normed location_id in assets?
     public function assignedAssets()
     {
         return $this->morphMany('App\Models\Asset', 'assigned', 'assigned_type', 'assigned_to')->withTrashed();
-        // return $this->hasMany('\App\Models\Asset', 'assigned_to')->withTrashed();
     }
 
     public function setLdapOuAttribute($ldap_ou)
@@ -168,7 +197,7 @@ class Location extends SnipeModel
               })
             // Ugly, ugly code because Laravel sucks at self-joins
                 ->orWhere(function ($query) use ($search) {
-                    $query->whereRaw("parent_id IN (select id from locations where name LIKE '%".$search."%') ");
+                    $query->whereRaw("parent_id IN (select id from ".DB::getTablePrefix()."locations where name LIKE '%".$search."%') ");
                 });
           });
 
@@ -187,5 +216,18 @@ class Location extends SnipeModel
     {
       // Left join here, or it will only return results with parents
         return $query->leftJoin('locations as parent_loc', 'locations.parent_id', '=', 'parent_loc.id')->orderBy('parent_loc.name', $order);
+    }
+
+    /**
+     * Query builder scope to order on manager name
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query  Query builder instance
+     * @param  text                              $order       Order
+     *
+     * @return \Illuminate\Database\Query\Builder          Modified query builder
+     */
+    public function scopeOrderManager($query, $order)
+    {
+        return $query->leftJoin('users as location_user', 'locations.manager_id', '=', 'location_user.id')->orderBy('location_user.first_name', $order)->orderBy('location_user.last_name', $order);
     }
 }

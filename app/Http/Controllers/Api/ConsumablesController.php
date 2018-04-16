@@ -43,7 +43,7 @@ class ConsumablesController extends Controller
 
         $offset = request('offset', 0);
         $limit = request('limit', 50);
-        $allowed_columns = ['id','name','order_number','min_amt','purchase_date','purchase_cost','company','category','model_number', 'item_no', 'manufacturer','location','qty'];
+        $allowed_columns = ['id','name','order_number','min_amt','purchase_date','purchase_cost','company','category','model_number', 'item_no', 'manufacturer','location','qty','image'];
         $order = $request->input('order') === 'asc' ? 'asc' : 'desc';
         $sort = in_array($request->input('sort'), $allowed_columns) ? $request->input('sort') : 'created_at';
 
@@ -160,7 +160,6 @@ class ConsumablesController extends Controller
      */
     public function getDataView($consumableId)
     {
-        //$consumable = Consumable::find($consumableID);
         $consumable = Consumable::with(array('consumableAssignments'=>
         function ($query) {
             $query->orderBy('created_at', 'DESC');
@@ -171,18 +170,16 @@ class ConsumablesController extends Controller
         },
         ))->find($consumableId);
 
-        //  $consumable->load('consumableAssignments.admin','consumableAssignments.user');
-
         if (!Company::isCurrentUserHasAccess($consumable)) {
             return ['total' => 0, 'rows' => []];
         }
-        $this->authorize('view', Component::class);
+        $this->authorize('view', Consumable::class);
         $rows = array();
 
         foreach ($consumable->consumableAssignments as $consumable_assignment) {
             $rows[] = [
-                'name' => $consumable_assignment->user->present()->nameUrl(),
-                'created_at' => ($consumable_assignment->created_at->format('Y-m-d H:i:s')=='-0001-11-30 00:00:00') ? '' : $consumable_assignment->created_at->format('Y-m-d H:i:s'),
+                'name' => ($consumable_assignment->user) ? $consumable_assignment->user->present()->nameUrl() : 'Deleted User',
+                'created_at' => Helper::getFormattedDateObject($consumable_assignment->created_at, 'datetime'),
                 'admin' => ($consumable_assignment->admin) ? $consumable_assignment->admin->present()->nameUrl() : '',
             ];
         }

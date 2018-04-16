@@ -30,48 +30,28 @@
                     <div class="box-body">
 
 
-                        <!--  Location -->
-                        <div class="form-group {{ $errors->has('location_id') ? ' has-error' : '' }}">
-                            <label for="status_id" class="col-md-3 control-label">
-                                {{ trans('admin/users/table.location') }}
-                            </label>
-                            <div class="col-md-7">
-                                {{ Form::select('location_id', $location_list , Input::old('rtd_location_id'), array('class'=>'select2', 'style'=>'width:350px')) }}
-                                {!! $errors->first('location_id', '<span class="alert-msg"><i class="fa fa-times"></i> :message</span>') !!}
-                            </div>
-                        </div>
-
                         <!--  Department -->
-                        <div class="form-group {{ $errors->has('department_id') ? ' has-error' : '' }}">
-                            <label for="status_id" class="col-md-3 control-label">
-                                {{ trans('general.department') }}
-                            </label>
-                            <div class="col-md-7">
-                                {{ Form::select('department_id', $department_list , Input::old('department_id'), array('class'=>'select2', 'style'=>'width:350px')) }}
-                                {!! $errors->first('department_id', '<span class="alert-msg"><i class="fa fa-times"></i> :message</span>') !!}
-                            </div>
-                        </div>
+                        @include ('partials.forms.edit.department-select', ['translated_name' => trans('general.department'), 'fieldname' => 'department_id'])
+
+
+                        <!-- Location -->
+                        @include ('partials.forms.edit.location-select', ['translated_name' => trans('general.location'), 'fieldname' => 'location_id'])
 
 
                         <!-- Company -->
-                        <div class="form-group {{ $errors->has('company_id') ? ' has-error' : '' }}">
-                            <label for="company_id" class="col-md-3 control-label">
-                                {{ trans('general.company') }}
-                            </label>
-                            <div class="col-md-7">
-                                {{ Form::select('company_id', $company_list , Input::old('company_id'), array('class'=>'select2', 'style'=>'width:350px')) }}
-                                {!! $errors->first('company_id', '<span class="alert-msg"><i class="fa fa-times"></i> :message</span>') !!}
-                            </div>
-                        </div>
+                        @if (\App\Models\Company::canManageUsersCompanies())
+                            @include ('partials.forms.edit.company-select', ['translated_name' => trans('general.select_company'), 'fieldname' => 'company_id'])
+                        @endif
 
-                        <!-- manager -->
-                        <div class="form-group {{ $errors->has('manager_id') ? ' has-error' : '' }}">
-                            <label for="manager_id" class="col-md-3 control-label">
-                                {{ trans('admin/users/table.manager') }}
-                            </label>
-                            <div class="col-md-7">
-                                {{ Form::select('manager_id', $manager_list , Input::old('manager_id'), array('class'=>'select2', 'style'=>'width:350px')) }}
-                                {!! $errors->first('manager_id', '<span class="alert-msg"><i class="fa fa-times"></i> :message</span>') !!}
+                        <!-- Manager -->
+                    @include ('partials.forms.edit.user-select', ['translated_name' => trans('admin/users/table.manager'), 'fieldname' => 'manager_id'])
+
+                        <!-- language -->
+                        <div class="form-group {{ $errors->has('locale') ? 'has-error' : '' }}">
+                            <label class="col-md-3 control-label" for="locale">{{ trans('general.language') }}</label>
+                            <div class="col-md-8">
+                                {!! Form::locales('locale', Input::old('locale', $user->locale), 'select2') !!}
+                                {!! $errors->first('locale', '<span class="alert-msg">:message</span>') !!}
                             </div>
                         </div>
 

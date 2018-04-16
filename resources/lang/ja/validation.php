@@ -67,6 +67,7 @@ return array(
     'not_in'               => '選択された :attribute は不正です。',
     'numeric'              => ':attribute は数字にして下さい。',
     'present'              => ':attribute フィールドは必須です。',
+    'valid_regex'          => '有効な正規表現ではありません。',
     'regex'                => ':attribute フォーマットが不正です。',
     'required'             => ':attribute フィールドは、必須です。',
     'required_if'          => ':other が :value の時、:attribute フィールドは必須です。',
@@ -87,6 +88,7 @@ return array(
     'unique'               => ':attribute は、取得済みです。',
     'uploaded'             => ':attribute のアップロードに失敗しました。',
     'url'                  => ':attribute フォーマットが不正です。',
+    "unique_undeleted"     => ":attribute は 一意の値である必要があります。",
 
     /*
     |--------------------------------------------------------------------------
@@ -117,7 +119,6 @@ return array(
         "hashed_pass"      => "現在のパスワードが正しくありません。",
         'dumbpwd'          => 'そのパスワードはあまりにも脆弱です。',
         "statuslabel_type" => "有効なステータスラベルの種類を選択する必要があります。",
-        "unique_undeleted" => ":attribute は 一意の値である必要があります。",
     ],
 
     /*

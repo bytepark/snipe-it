@@ -67,6 +67,7 @@ return array(
     'not_in'               => 'Okukhethiwe: imfanelo ayivumelekile.',
     'numeric'              => 'I: imfanelo kufanele ibe inombolo.',
     'present'              => 'I: insimu yemfanelo kufanele ibe khona.',
+    'valid_regex'          => 'That is not a valid regex. ',
     'regex'                => 'I: ifomethi yokwaziswa ayivumelekile.',
     'required'             => 'I: insimu yemfanelo iyadingeka.',
     'required_if'          => 'I: Insimu yemfanelo iyadingeka uma: enye ingukuthi: inani.',
@@ -87,6 +88,7 @@ return array(
     'unique'               => 'I: imfanelo isivele ithathwe.',
     'uploaded'             => 'I: imfanelo ayihlulekile ukulayisha.',
     'url'                  => 'I: ifomethi yokwaziswa ayivumelekile.',
+    "unique_undeleted"     => "The :attribute must be unique.",
 
     /*
     |--------------------------------------------------------------------------
@@ -117,7 +119,6 @@ return array(
         "hashed_pass"      => "Iphasiwedi yakho yamanje ayilungile",
         'dumbpwd'          => 'Lelo phasiwedi livame kakhulu.',
         "statuslabel_type" => "Kumele ukhethe uhlobo lwelebula lesimo esivumelekile",
-        "unique_undeleted" => "I: imfanelo kufanele ibe eyingqayizivele.",
     ],
 
     /*

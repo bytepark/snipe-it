@@ -27,7 +27,13 @@ class Statuslabel extends SnipeModel
         'archived' => 'required',
     );
 
-    protected $fillable = ['name', 'deployable', 'pending', 'archived'];
+    protected $fillable = [
+        'archived',
+        'deployable',
+        'name',
+        'notes',
+        'pending',
+    ];
 
 
     /**
@@ -49,9 +55,10 @@ class Statuslabel extends SnipeModel
             return 'archived';
         } elseif (($this->pending == '0') && ($this->archived == '0')  && ($this->deployable == '0')) {
             return 'undeployable';
-        } else {
-            return 'deployable';
         }
+
+        return 'deployable';
+
     }
 
     public function scopePending()
@@ -78,6 +85,11 @@ class Statuslabel extends SnipeModel
 
     public static function getStatuslabelTypesForDB($type)
     {
+
+        $statustype['pending'] = 0;
+        $statustype['deployable'] = 0;
+        $statustype['archived'] = 0;
+
         if ($type == 'pending') {
             $statustype['pending'] = 1;
             $statustype['deployable'] = 0;
@@ -92,12 +104,6 @@ class Statuslabel extends SnipeModel
             $statustype['pending'] = 0;
             $statustype['deployable'] = 0;
             $statustype['archived'] = 1;
-            
-        } else {
-            $statustype['pending'] = 0;
-            $statustype['deployable'] = 0;
-            $statustype['archived'] = 0;
-
         }
 
         return $statustype;

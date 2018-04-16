@@ -67,6 +67,7 @@ return array(
     'not_in'               => 'Valittu :attribute on virheellinen.',
     'numeric'              => ':attribute tulee olla numero.',
     'present'              => 'Attribuutti-kentän on oltava läsnä.',
+    'valid_regex'          => 'Tuo ei ole kelvollinen regex. ',
     'regex'                => ':attribute muotoilu on virheellinen.',
     'required'             => ':attribute on vaadittu.',
     'required_if'          => ':attribute on vaadittu kun :other on :value.',
@@ -87,6 +88,7 @@ return array(
     'unique'               => ':attribute on jo käytössä.',
     'uploaded'             => 'Attribuutti ei onnistunut lataamaan.',
     'url'                  => ':attribute muotoilu on virheellinen.',
+    "unique_undeleted"     => ":attribute on oltava ainutlaatuinen.",
 
     /*
     |--------------------------------------------------------------------------
@@ -117,7 +119,6 @@ return array(
         "hashed_pass"      => "Nykyinen salasanasi on virheellinen",
         'dumbpwd'          => 'Salasana on liian yleinen.',
         "statuslabel_type" => "Sinun on valittava kelvollinen tilamerkintyyppi",
-        "unique_undeleted" => "Ominaisuuden on oltava ainutlaatuinen.",
     ],
 
     /*

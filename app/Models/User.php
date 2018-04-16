@@ -4,19 +4,22 @@ namespace App\Models;
 use App\Presenters\Presentable;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Watson\Validating\ValidatingTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Http\Traits\UniqueUndeletedTrait;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
+use DB;
 
 class User extends SnipeModel implements AuthenticatableContract, CanResetPasswordContract
 {
     protected $presenter = 'App\Presenters\UserPresenter';
     use SoftDeletes, ValidatingTrait;
-    use Authenticatable, CanResetPassword, HasApiTokens;
+    use Authenticatable, Authorizable, CanResetPassword, HasApiTokens;
     use UniqueUndeletedTrait;
     use Notifiable;
     use Presentable;
@@ -25,17 +28,25 @@ class User extends SnipeModel implements AuthenticatableContract, CanResetPasswo
     protected $table = 'users';
     protected $injectUniqueIdentifier = true;
     protected $fillable = [
-        'email',
-        'last_name',
+        'activated',
+        'address',
+        'city',
         'company_id',
+        'country',
         'department_id',
+        'email',
         'employee_num',
-        'jobtitle',
-        'location_id',
-        'password',
-        'phone_number',
-        'username',
         'first_name',
+        'jobtitle',
+        'last_name',
+        'locale',
+        'location_id',
+        'manager_id',
+        'password',
+        'phone',
+        'state',
+        'username',
+        'zip',
     ];
 
     protected $casts = [
@@ -53,7 +64,7 @@ class User extends SnipeModel implements AuthenticatableContract, CanResetPasswo
         'username'                => 'required|string|min:1|unique_undeleted',
         'email'                   => 'email|nullable',
         'password'                => 'required|min:6',
-        'locale'                  => 'max:10|nullable'
+        'locale'                  => 'max:10|nullable',
     ];
 
 
@@ -138,6 +149,18 @@ class User extends SnipeModel implements AuthenticatableContract, CanResetPasswo
         return $this->last_name . ", " . $this->first_name . " (" . $this->username . ")";
     }
 
+    /**
+     * The url for slack notifications.
+     * Used by Notifiable trait.
+     * @return mixed
+     */
+    public function routeNotificationForSlack()
+    {
+        // At this point the endpoint is the same for everything.
+        //  In the future this may want to be adapted for individual notifications.
+        $this->endpoint = \App\Models\Setting::getSettings()->slack_endpoint;
+        return $this->endpoint;
+    }
 
 
     /**
@@ -191,8 +214,18 @@ class User extends SnipeModel implements AuthenticatableContract, CanResetPasswo
 
     /**
      * Get the asset's location based on the assigned user
+     * @todo - this should be removed once we're sure we've switched it
+     * to location()
      **/
     public function userloc()
+    {
+        return $this->belongsTo('\App\Models\Location', 'location_id')->withTrashed();
+    }
+
+    /**
+     * Get the asset's location based on the assigned user
+     **/
+    public function location()
     {
         return $this->belongsTo('\App\Models\Location', 'location_id')->withTrashed();
     }
@@ -310,44 +343,37 @@ class User extends SnipeModel implements AuthenticatableContract, CanResetPasswo
 
     public static function generateFormattedNameFromFullName($format = 'filastname', $users_name)
     {
-        $name = explode(" ", $users_name);
-        $name = str_replace("'", '', $name);
-        $first_name = $name[0];
-        $email_last_name = '';
-        $email_prefix = $first_name;
 
-        // If there is no last name given
-        if (!array_key_exists(1, $name)) {
-            $last_name='';
-            $email_last_name = $last_name;
-            $user_username = $first_name;
+        // If there was only one name given
+        if (strpos($users_name, ' ') === false) {
+            $first_name = $users_name;
+            $last_name = '';
+            $username  = $users_name;
 
-            // There is a last name given
         } else {
 
-            $last_name = str_replace($first_name . ' ', '', $users_name);
+            list($first_name, $last_name) = explode(" ", $users_name, 2);
 
-            if ($format=='filastname') {
-                $email_last_name.=str_replace(' ', '', $last_name);
-                $email_prefix = $first_name[0].$email_last_name;
+            // Assume filastname by default
+            $username = str_slug(substr($first_name, 0, 1).$last_name);
 
-            } elseif ($format=='firstname.lastname') {
-                $email_last_name.=str_replace(' ', '', $last_name);
-                $email_prefix = $first_name.'.'.$email_last_name;
+            if ($format=='firstname.lastname') {
+                $username = str_slug($first_name) . '.' . str_slug($last_name);
+
+            } elseif ($format=='lastnamefirstinitial') {
+                $username = str_slug($last_name.substr($first_name, 0, 1));
+
+            } elseif ($format=='firstname_lastname') {
+                $username = str_slug($first_name).'_'.str_slug($last_name);
 
             } elseif ($format=='firstname') {
-                $email_last_name.=str_replace(' ', '', $last_name);
-                $email_prefix = $first_name;
+                $username = str_slug($first_name);
             }
-
-
         }
 
-        $user_username = $email_prefix;
         $user['first_name'] = $first_name;
         $user['last_name'] = $last_name;
-        $user['username'] = strtolower($user_username);
-
+        $user['username'] = strtolower($username);
         return $user;
 
 
@@ -381,7 +407,7 @@ class User extends SnipeModel implements AuthenticatableContract, CanResetPasswo
 
     public function scopeByGroup($query, $id) {
         return $query->whereHas('groups', function ($query) use ($id) {
-            $query->where('id', '=', $id);
+            $query->where('groups.id', '=', $id);
         });
     }
 
@@ -403,8 +429,10 @@ class User extends SnipeModel implements AuthenticatableContract, CanResetPasswo
                 ->orWhere('users.email', 'LIKE', "%$search%")
                 ->orWhere('users.username', 'LIKE', "%$search%")
                 ->orWhere('users.notes', 'LIKE', "%$search%")
+                ->orWhere('users.phone', 'LIKE', "%$search%")
                 ->orWhere('users.jobtitle', 'LIKE', "%$search%")
                 ->orWhere('users.employee_num', 'LIKE', "%$search%")
+                ->orWhereRaw('CONCAT('.DB::getTablePrefix().'users.first_name," ",'.DB::getTablePrefix().'users.last_name) LIKE ?', ["%$search%", "%$search%"])
                 ->orWhere(function ($query) use ($search) {
                     $query->whereHas('userloc', function ($query) use ($search) {
                         $query->where('locations.name', 'LIKE', '%'.$search.'%');
@@ -421,10 +449,12 @@ class User extends SnipeModel implements AuthenticatableContract, CanResetPasswo
                     });
                 })
 
-                // Ugly, ugly code because Laravel sucks at self-joins
+                 //Ugly, ugly code because Laravel sucks at self-joins
                 ->orWhere(function ($query) use ($search) {
-                    $query->whereRaw("users.manager_id IN (select id from users where first_name LIKE '%".$search."%' OR last_name LIKE '%".$search."%') ");
+                    $query->whereRaw(DB::getTablePrefix()."users.manager_id IN (select id from ".DB::getTablePrefix()."users where first_name LIKE ? OR last_name LIKE ?)", ["%$search%", "%$search%"]);
                 });
+
+
         });
 
     }
@@ -455,7 +485,7 @@ class User extends SnipeModel implements AuthenticatableContract, CanResetPasswo
     public function scopeOrderManager($query, $order)
     {
         // Left join here, or it will only return results with parents
-        return $query->leftJoin('users as manager', 'users.manager_id', '=', 'manager.id')->orderBy('manager.first_name', $order)->orderBy('manager.last_name', $order);
+        return $query->leftJoin('users as users_manager', 'users.manager_id', '=', 'users_manager.id')->orderBy('users_manager.first_name', $order)->orderBy('users_manager.last_name', $order);
     }
 
     /**
@@ -468,7 +498,7 @@ class User extends SnipeModel implements AuthenticatableContract, CanResetPasswo
      */
     public function scopeOrderLocation($query, $order)
     {
-        return $query->leftJoin('locations', 'users.location_id', '=', 'locations.id')->orderBy('locations.name', $order);
+        return $query->leftJoin('locations as locations_users', 'users.location_id', '=', 'locations_users.id')->orderBy('locations_users.name', $order);
     }
 
 
@@ -482,6 +512,6 @@ class User extends SnipeModel implements AuthenticatableContract, CanResetPasswo
      */
     public function scopeOrderDepartment($query, $order)
     {
-        return $query->leftJoin('departments', 'users.department_id', '=', 'departments.id')->orderBy('departments.name', $order);
+        return $query->leftJoin('departments as departments_users', 'users.department_id', '=', 'departments_users.id')->orderBy('departments_users.name', $order);
     }
 }

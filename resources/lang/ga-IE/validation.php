@@ -67,6 +67,7 @@ return array(
     'not_in'               => 'An roghnaithe: tá tréith neamhbhailí.',
     'numeric'              => 'An: Ní mór tréith a bheith ina líon.',
     'present'              => 'Ní mór an réimse tréith a bheith i láthair.',
+    'valid_regex'          => 'That is not a valid regex. ',
     'regex'                => 'Tá an fhormáid tréithbhail neamhbhailí.',
     'required'             => 'An: Tá réimse tréith ag teastáil.',
     'required_if'          => 'An: Tá réimse tréith ag teastáil nuair: eile é: luach.',
@@ -87,6 +88,7 @@ return array(
     'unique'               => 'An: tá tréith déanta cheana féin.',
     'uploaded'             => 'The: theip ar an tréith a uaslódáil.',
     'url'                  => 'Tá an fhormáid tréithbhail neamhbhailí.',
+    "unique_undeleted"     => "The :attribute must be unique.",
 
     /*
     |--------------------------------------------------------------------------
@@ -117,7 +119,6 @@ return array(
         "hashed_pass"      => "Tá do phasfhocal reatha mícheart",
         'dumbpwd'          => 'Tá an focal faire sin ró-choitianta.',
         "statuslabel_type" => "Ní mór duit cineál lipéad stádas bailí a roghnú",
-        "unique_undeleted" => "An: Ní mór tréith a bheith uathúil.",
     ],
 
     /*

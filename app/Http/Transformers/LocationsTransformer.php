@@ -33,14 +33,17 @@ class LocationsTransformer
             $array = [
                 'id' => (int) $location->id,
                 'name' => e($location->name),
-                'address' => e($location->address),
-                'city' => e($location->city),
-                'state' => e($location->state),
-                'country' => e($location->country),
-                'zip' => e($location->zip),
-                'assets_checkedout' => $location->location_assets_count,
-                'assets_default'    => $location->assigned_assets_count,
-
+                'image' =>   ($location->image) ? app('locations_upload_url').e($location->image) : null,
+                'address' =>  ($location->address) ? e($location->address) : null,
+                'address2' =>  ($location->address2) ? e($location->address2) : null,
+                'city' =>  ($location->city) ? e($location->city) : null,
+                'state' =>  ($location->state) ? e($location->state) : null,
+                'country' => ($location->country) ? e($location->country) : null,
+                'zip' => ($location->zip) ? e($location->zip) : null,
+                'assigned_assets_count' => (int) $location->assigned_assets_count,
+                'assets_count'    => (int) $location->assets_count,
+                'users_count'    => (int) $location->users_count,
+                'currency' =>  ($location->currency) ? e($location->currency) : null,
                 'created_at' => Helper::getFormattedDateObject($location->created_at, 'datetime'),
                 'updated_at' => Helper::getFormattedDateObject($location->updated_at, 'datetime'),
                 'parent' => ($location->parent) ? [
@@ -55,7 +58,7 @@ class LocationsTransformer
 
             $permissions_array['available_actions'] = [
                 'update' => Gate::allows('update', Location::class) ? true : false,
-                'delete' => Gate::allows('delete', Location::class) ? true : false,
+                'delete' => (Gate::allows('delete', Location::class) && ($location->assigned_assets_count==0) && ($location->assets_count==0) && ($location->users_count==0) && ($location->deleted_at=='')) ? true : false,
             ];
 
             $array += $permissions_array;

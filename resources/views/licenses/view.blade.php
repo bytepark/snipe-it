@@ -29,89 +29,44 @@
     <!-- Custom Tabs -->
     <div class="nav-tabs-custom">
       <ul class="nav nav-tabs">
-        <li class="active"><a href="#tab_1" data-toggle="tab">Details</a></li>
-        <li><a href="#tab_2" data-toggle="tab">{{ trans('general.file_uploads') }}</a></li>
-        <li><a href="#tab_3" data-toggle="tab">{{ trans('admin/licenses/general.checkout_history') }}</a></li>
+        <li class="active"><a href="#details" data-toggle="tab">Details</a></li>
+        <li><a href="#uploads" data-toggle="tab">{{ trans('general.file_uploads') }}</a></li>
+        <li><a href="#history" data-toggle="tab">{{ trans('admin/licenses/general.checkout_history') }}</a></li>
         <li class="pull-right"><a href="#" data-toggle="modal" data-target="#uploadFileModal"><i class="fa fa-paperclip"></i> {{ trans('button.upload') }}</a></li>
       </ul>
 
       <div class="tab-content">
-        <div class="tab-pane active" id="tab_1">
+        <div class="tab-pane active" id="details">
           <div class="row">
-            <div class="col-md-7">
-              <table class="table table-striped">
-                  <thead>
-                    <tr>
-                      <th class="col-md-2">{{ trans('admin/licenses/general.seat') }}</th>
-                      <th class="col-md-2">{{ trans('admin/licenses/general.user') }}</th>
-                      <th class="col-md-4">{{ trans('admin/licenses/form.asset') }}</th>
-                      <th class="col-md-2"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <?php $count=1; ?>
-                    @if ($license->licenseseats)
-                      @foreach ($license->licenseseats as $licensedto)
-                      <tr>
-                        <td>Seat {{ $count }} </td>
-                        <td>
-                          @if (($licensedto->user) && ($licensedto->deleted_at == NULL))
-                            @can('users.view')
-                              <a href="{{ route('users.show', $licensedto->assigned_to) }}">
-                                {{ $licensedto->user->present()->fullName() }}
-                              </a>
-                            @else
-                              {{ $licensedto->user->present()->fullName() }}
-                            @endcan
-                          @elseif (($licensedto->user) && ($licensedto->deleted_at != NULL))
-                            <del>{{ $licensedto->user->present()->fullName() }}</del>
-                          @elseif ($licensedto->asset)
-                            @if ($licensedto->asset->assigned_to != 0)
-                              @can('users.view')
-                                {!!  $licensedto->asset->assignedTo->present()->nameUrl()  !!}
-                              @else
-                                {{ $licensedto->asset->assignedTo->present()->name() }}
-                              @endcan
-                            @endif
-                          @endif
-                        </td>
-                        <td>
-                          @if ($licensedto->asset)
-                            @can('view', $licensedto->asset)
-                              <a href="{{ route('hardware.show', $licensedto->asset_id) }}">
-                                {{ $licensedto->asset->name }} {{ $licensedto->asset->asset_tag }}
-                              </a>
-                            @else
-                              {{ $licensedto->asset->name }} {{ $licensedto->asset->asset_tag }}
-                            @endcan
-                          @endif
-                        </td>
-                        <td>
-                          @can('checkout', $licensedto)
-                            @if (($licensedto->assigned_to) || ($licensedto->asset_id))
-                              @if ($license->reassignable)
-                                <a href="{{ route('licenses.checkin', $licensedto->id) }}" class="btn btn-primary btn-sm">
-                                  {{ trans('general.checkin') }}
-                                </a>
-                              @else
-                                <span>Assigned</span>
-                              @endif
-                            @else
-                              <a href="{{ route('licenses.checkout', $licensedto->id) }}" class="btn btn-info btn-sm">
-                                {{ trans('general.checkout') }}
-                              </a>
-                            @endif
-                          @endcan
-                        </td>
-                      </tr>
-                        <?php $count++; ?>
-                      @endforeach
-                    @endif
-                  </tbody>
+            <div class="col-md-8">
+
+              <div class="table-responsive">
+
+                <table
+                        data-columns="{{ \App\Presenters\LicensePresenter::dataTableLayoutSeats() }}"
+                        data-cookie-id-table="seatsTable"
+                        data-pagination="true"
+                        data-search="true"
+                        data-side-pagination="server"
+                        data-show-columns="true"
+                        data-show-export="true"
+                        data-show-refresh="true"
+                        data-sort-order="asc"
+                        data-sort-name="name"
+                        id="seatsTable"
+                        class="table table-striped snipe-table"
+                        data-url="{{ route('api.license.seats',['license_id' => $license->id]) }}"
+                        data-export-options='{
+                        "fileName": "export-seats-{{ str_slug($license->name) }}-{{ date('Y-m-d') }}",
+                        "ignoreColumn": ["actions","image","change","checkbox","checkincheckout","icon"]
+                        }'>
                 </table>
+
+              </div>
+
             </div>
 
-            <div class="col-md-5">
+            <div class="col-md-4">
               <div class="table">
                 <table class="table">
                   <tbody>
@@ -124,7 +79,7 @@
 
                     @if ($license->manufacturer)
                       <tr>
-                        <td>{{ trans('admin/hardware/form.manufacturer') }}</td>
+                        <td>{{ trans('admin/hardware/form.manufacturer') }}:</td>
                         <td><p style="line-height: 23px;">
                           @can('view', \App\Models\Manufacturer::class)
                             <a href="{{ route('manufacturers.show', $license->manufacturer->id) }}">
@@ -156,27 +111,32 @@
                       </tr>
                     @endif
 
-                    @can('viewKeys', $license)
+
                       @if (!is_null($license->serial))
                       <tr>
-                        <td>{{ trans('admin/licenses/form.license_key') }}</td>
+                        <td>{{ trans('admin/licenses/form.license_key') }}: </td>
                         <td style="word-wrap: break-word;overflow-wrap: break-word;word-break: break-word;">
-                          {!! nl2br(e($license->serial)) !!}
+                          @can('viewKeys', $license)
+                            {!! nl2br(e($license->serial)) !!}
+                          @else
+                           ------------
+                          @endcan
+
                         </td>
                       </tr>
                       @endif
-                    @endcan
 
-                    @if (!is_null($license->license_name))
+
+                    @if ($license->license_name!='')
                     <tr>
-                      <td>{{ trans('admin/licenses/form.to_name') }}</td>
+                      <td>{{ trans('admin/licenses/form.to_name') }}: </td>
                       <td>{{ $license->license_name }}</td>
                     </tr>
                     @endif
 
-                    @if (!is_null($license->license_email))
+                    @if ($license->license_email!='')
                     <tr>
-                      <td>{{ trans('admin/licenses/form.to_email') }}</td>
+                      <td>{{ trans('admin/licenses/form.to_email') }}:</td>
                       <td>{{ $license->license_email }}</td>
                     </tr>
                     @endif
@@ -298,27 +258,53 @@
           </div> <!--/.row-->
         </div> <!-- /.tab-pane -->
 
-        <div class="tab-pane" id="tab_2">
-          <table class="table table-striped">
+        <div class="tab-pane" id="uploads">
+          <div class="table-responsive">
+            <div id="upload-toolbar">
+              <a href="#" data-toggle="modal" data-target="#uploadFileModal" class="btn btn-default"><i class="fa fa-paperclip"></i> {{ trans('button.upload') }}</a>
+            </div>
+
+            <table
+                data-cookie-id-table="licenseUploadsTable"
+                data-pagination="true"
+                data-id-table="assetsListingTable"
+                data-search="true"
+                data-side-pagination="client"
+                data-show-columns="true"
+                data-show-export="true"
+                data-show-footer="true"
+                data-toolbar="#upload-toolbar"
+                data-show-refresh="true"
+                data-sort-order="asc"
+                data-sort-name="name"
+                id="licenseUploadsTable"
+                class="table table-striped snipe-table"
+                data-export-options='{
+                    "fileName": "export-license-uploads-{{ str_slug($license->name) }}-{{ date('Y-m-d') }}",
+                    "ignoreColumn": ["actions","image","change","checkbox","checkincheckout","delete","download","icon"]
+                    }'>
             <thead>
               <tr>
-                <th class="col-md-5">{{ trans('general.notes') }}</th>
-                <th class="col-md-5"><span class="line"></span>{{ trans('general.file_name') }}</th>
-                <th class="col-md-2"></th>
-                <th class="col-md-2"></th>
+                <th class="col-md-4" data-field="file_name" data-visible="true"  data-sortable="true" data-switchable="true">{{ trans('general.file_name') }}</th>
+                <th class="col-md-4" data-field="notes" data-visible="true" data-sortable="true" data-switchable="true">{{ trans('general.notes') }}</th>
+                <th class="col-md-4" data-field="created_at" data-visible="true"  data-sortable="true" data-switchable="true">{{ trans('general.created_at') }}</th>
+                <th class="col-md-2" data-field="download" data-visible="true"  data-sortable="false" data-switchable="true">Download</th>
+                <th class="col-md-2" data-field="delete" data-visible="true"  data-sortable="false" data-switchable="true">Delete</th>
               </tr>
             </thead>
             <tbody>
             @if (count($license->uploads) > 0)
               @foreach ($license->uploads as $file)
               <tr>
-                <td>
-                @if ($file->note)
-                  {{ $file->note }}
-                @endif
-                </td>
                 <td>{{ $file->filename }}</td>
                 <td>
+                  @if ($file->note)
+                    {{ $file->note }}
+                  @endif
+                </td>
+                <td>{{ $file->created_at }}</td>
+                <td>
+
                 @if ($file->filename)
                   <a href="{{ route('show/licensefile', [$license->id, $file->id]) }}" class="btn btn-default">
                     Download
@@ -337,30 +323,41 @@
             @endif
             </tbody>
           </table>
+          </div>
         </div> <!-- /.tab-pane -->
 
-        <div class="tab-pane" id="tab_3">
+        <div class="tab-pane" id="history">
           <div class="row">
             <div class="col-md-12">
+              <div class="table-responsive">
               <table
                       class="table table-striped snipe-table"
-                      name="assetHistory"
-                      id="table"
+                      id="historyTable"
+                      data-pagination="true"
+                      data-show-columns="true"
+                      data-side-pagination="server"
+                      data-show-refresh="true"
+                      data-show-export="true"
                       data-sort-order="desc"
-                      data-height="400"
-                      data-url="{{ route('api.activity.index', ['item_id' => $license->id, 'item_type' => 'license']) }}">
+                      data-export-options='{
+                       "fileName": "export-{{ str_slug($license->name) }}-history-{{ date('Y-m-d') }}",
+                       "ignoreColumn": ["actions","image","change","checkbox","checkincheckout","icon"]
+                     }'
+                      data-url="{{ route('api.activity.index', ['item_id' => $license->id, 'item_type' => 'license']) }}"
+                      data-cookie-id-table="license-history">
+
                 <thead>
                 <tr>
-                  <th data-field="icon" style="width: 40px;" class="hidden-xs" data-formatter="iconFormatter"></th>
-                  <th class="col-sm-2" data-field="created_at" data-formatter="dateDisplayFormatter">{{ trans('general.date') }}</th>
-                  <th class="col-sm-2" data-field="admin" data-formatter="usersLinkObjFormatter">{{ trans('general.admin') }}</th>
-                  <th class="col-sm-2" data-field="action_type">{{ trans('general.action') }}</th>
-                  <th class="col-sm-2" data-field="item" data-formatter="polymorphicItemFormatter">{{ trans('general.item') }}</th>
-                  <th class="col-sm-2" data-field="target" data-formatter="polymorphicItemFormatter">{{ trans('general.target') }}</th>
-                  <th class="col-sm-2" data-field="note">{{ trans('general.notes') }}</th>
+                  <th class="col-sm-2" data-visible="true" data-sortable="true" data-field="created_at" data-formatter="dateDisplayFormatter">{{ trans('general.date') }}</th>
+                  <th class="col-sm-2"data-visible="true" data-sortable="true" data-field="admin" data-formatter="usersLinkObjFormatter">{{ trans('general.admin') }}</th>
+                  <th class="col-sm-2" data-sortable="true"  data-visible="true" data-field="action_type">{{ trans('general.action') }}</th>
+                  <th class="col-sm-2" data-sortable="true"  data-visible="true" data-field="item" data-formatter="polymorphicItemFormatter">{{ trans('general.item') }}</th>
+                  <th class="col-sm-2" data-visible="true" data-field="target" data-formatter="polymorphicItemFormatter">{{ trans('general.target') }}</th>
+                  <th class="col-sm-2" data-sortable="true" data-visible="true" data-field="note">{{ trans('general.notes') }}</th>
                 </tr>
                 </thead>
               </table>
+              </div>
             </div> <!-- /.col-md-12-->
           </div> <!-- /.row-->
         </div> <!-- /.tab-pane -->
@@ -408,8 +405,6 @@
 
 
 @section('moar_scripts')
-  @include ('partials.bootstrap-table', ['simple_view' => true])
-
-
+  @include ('partials.bootstrap-table')
 @stop
 

@@ -20,6 +20,7 @@ return array(
     'field_element_short'     => 'elementti',
     'field_format'            => 'Muoto',
     'field_custom_format'     => 'Mukautettu muoto',
+    'field_custom_format_help'     => 'Tämän kentän avulla voit käyttää regex-lauseketta validointiin. Sen pitäisi alkaa "regex:" - esimerkiksi vahvistaaksesi, että mukautetun kentän arvo sisältää voimassa olevan IMEI: n (15 numeerista numeroa), käyttäisit <code>regex: /^[0-9]{15}$/</code>.',
     'required'   		          => 'Edellytetään',
     'req'   		              => 'Req.',
     'used_by_models'   		    => 'Käytetään mallien mukaan',

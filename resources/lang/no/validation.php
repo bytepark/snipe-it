@@ -67,6 +67,7 @@ return array(
     'not_in'               => 'Attributtet :attribute er ugyldig.',
     'numeric'              => 'Attributtet :attribute må være et nummer.',
     'present'              => 'Atributtfeltet :attribute må ha en verdi.',
+    'valid_regex'          => 'Det er ikke en gyldig regex. ',
     'regex'                => 'Attributt-formatet til :attribute er ugyldig.',
     'required'             => 'Attributt-feltet :attribute er påkrevd.',
     'required_if'          => 'Attributt-feltet :attribute er påkrevd når :oher er :value.',
@@ -87,6 +88,7 @@ return array(
     'unique'               => 'Attributtet :attribute er allerede tatt.',
     'uploaded'             => 'Atribbutet :attribute kunne ikke lastes opp.',
     'url'                  => 'Attributt-formatet :attribute er ugyldig.',
+    "unique_undeleted"     => ":attribute må være unikt.",
 
     /*
     |--------------------------------------------------------------------------
@@ -117,7 +119,6 @@ return array(
         "hashed_pass"      => "Gjeldende passord er feil",
         'dumbpwd'          => 'Passordet er for vanlig.',
         "statuslabel_type" => "Du må velge en gyldig statusetikett-type",
-        "unique_undeleted" => ":attribute må være unik.",
     ],
 
     /*

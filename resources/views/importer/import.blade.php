@@ -1,12 +1,5 @@
 @extends('layouts/default')
-<link rel="stylesheet" type="text/css" href="{{ asset('css/lib/jquery.fileupload.css') }}">
 
-{{-- Hide importer until vue has rendered it, if we continue using vue for other things we should move this higher in the style --}}
-<style>
-[v-cloak] {
-    display:none;
-}
-</style>
 {{-- Page title --}}
 @section('title')
 {{ trans('general.import') }}
@@ -15,22 +8,37 @@
 
 {{-- Page content --}}
 @section('content')
+
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/lib/jquery.fileupload.css') }}">
+
+    {{-- Hide importer until vue has rendered it, if we continue using vue for other things we should move this higher in the style --}}
+    <style>
+        [v-cloak] {
+            display:none;
+        }
+    </style>
+
 <div id="app">
     <importer inline-template v-cloak>
         <div class="row">
         <alert v-show="alert.visible" :alert-type="alert.type" v-on:hide="alert.visible = false">@{{ alert.message }}</alert>
             <errors :errors="importErrors"></errors>
+
             <div class="col-md-12">
                 <div class="box">
                     <div class="box-body">
                         <div class="row">
                             <div class="col-md-3">
+
                                 <!-- The fileinput-button span is used to style the file input field as button -->
+                                @if (!config('app.lock_passwords'))
                                 <span class="btn btn-info fileinput-button">
                                     <span>Select Import File...</span>
                                     <!-- The file input field used as target for the file upload widget -->
                                     <input id="fileupload" type="file" name="files[]" data-url="{{ route('api.imports.index') }}" accept="text/csv">
                                 </span>
+                                 @endif
+
                             </div>
                             <div class="col-md-9" v-show="progress.visible" style="padding-bottom:20px">
                                 <div class="col-md-11">
@@ -59,7 +67,7 @@
                                     			<td>@{{ currentFile.filesize }}</td>
                                     			<td>
                                     			<button class="btn btn-sm btn-info" @click="toggleEvent(currentFile.id)">Process</button>
-                                    				<button class="btn btn-danger" @click="deleteFile(currentFile)"><i class="fa fa-trash icon-white"></i></button>
+                                    				<button class="btn btn-sm btn-danger" @click="deleteFile(currentFile)"><i class="fa fa-trash icon-white"></i></button>
                                     			</td>
                                     		</tr>
                                     			<import-file

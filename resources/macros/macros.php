@@ -55,6 +55,7 @@ Form::macro('locales', function ($name = "locale", $selected = null, $class = nu
       'ta'=> "Tamil",
       'th'=> "Thai",
       'tr'=> "Turkish",
+      'uk'=> "Ukranian",
       'vi'=> "Vietnamese",
       'zu'=> "Zulu",
     );
@@ -455,6 +456,8 @@ Form::macro('username_format', function ($name = "username_format", $selected = 
         'firstname.lastname' => trans('general.firstname_lastname_format'),
         'firstname' => trans('general.first_name_format'),
         'filastname' => trans('general.filastname_format'),
+        'lastnamefirstinitial' => trans('general.lastnamefirstinitial_format'),
+        'firstname_lastname' => trans('general.firstname_lastname_underscore_format'),
 
     );
 
@@ -478,7 +481,7 @@ Form::macro('two_factor_options', function ($name = "two_factor_enabled", $selec
 
     );
 
-    $select = '<select name="'.$name.'" class="'.$class.'" style="width: 500px">';
+    $select = '<select name="'.$name.'" class="'.$class.'">';
     foreach ($formats as $format => $label) {
         $select .= '<option value="'.$format.'"'.($selected == $format ? ' selected="selected"' : '').'>'.$label.'</option> '."\n";
     }
@@ -506,6 +509,27 @@ Form::macro('customfield_elements', function ($name = "customfield_elements", $s
 
     $select .= '</select>';
 
+    return $select;
+
+});
+
+
+
+Form::macro('skin', function ($name = "skin", $selected = null, $class = null) {
+
+    $formats = array(
+        '' => 'Default Blue',
+        'green-dark' => 'Green Dark',
+        'red-dark' => 'Red Dark',
+        'orange-dark' => 'Orange Dark',
+    );
+
+    $select = '<select name="'.$name.'" class="'.$class.'" style="width: 250px">';
+    foreach ($formats as $format => $label) {
+        $select .= '<option value="'.$format.'"'.($selected == $format ? ' selected="selected"' : '').'>'.$label.'</option> '."\n";
+    }
+
+    $select .= '</select>';
     return $select;
 
 });

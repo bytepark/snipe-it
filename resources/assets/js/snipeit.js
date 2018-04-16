@@ -180,6 +180,196 @@ $(document).ready(function () {
      }
      $('.datepicker').datepicker();
 
+    var datepicker = $.fn.datepicker.noConflict(); // return $.fn.datepicker to previously assigned value
+    $.fn.bootstrapDP = datepicker;
+    $('.datepicker').datepicker();
+
+
+    // Crazy select2 rich dropdowns with images!
+    $('.js-data-ajax').each( function (i,item) {
+        var link = $(item);
+        var endpoint = link.data("endpoint");
+        var select = link.data("select");
+
+        link.select2({
+
+            ajax: {
+
+                // the baseUrl includes a trailing slash
+                url: baseUrl + 'api/v1/' + endpoint + '/selectlist',
+                dataType: 'json',
+                delay: 250,
+                headers: {
+                    "X-Requested-With": 'XMLHttpRequest',
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
+                },
+                data: function (params) {
+                    var data = {
+                        search: params.term,
+                        page: params.page || 1
+                    };
+                    return data;
+                },
+                processResults: function (data, params) {
+
+                    params.page = params.page || 1;
+
+                    var answer =  {
+                        results: data.items,
+                        pagination: {
+                            more: "true" //(params.page  < data.page_count)
+                        }
+                    };
+
+                    return answer;
+                },
+                cache: true
+            },
+            escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+            templateResult: formatDatalist,
+            templateSelection: formatDataSelection
+        });
+
+    });
+
+    function formatDatalist (datalist) {
+        var loading_markup = '<i class="fa fa-spinner fa-spin" aria-hidden="true"></i> Loading...';
+        if (datalist.loading) {
+            return loading_markup;
+        }
+
+        var markup = "<div class='clearfix'>" ;
+        markup +="<div class='pull-left' style='padding-right: 10px;'>";
+        if (datalist.image) {
+            markup += "<div style='width: 30px;'><img src='" + datalist.image + "' style='max-height: 20px; max-width: 30px;'></div>";
+        } else {
+            markup += "<div style='height: 20px; width: 30px;'></div>";
+        }
+
+        markup += "</div><div>" + datalist.text + "</div>";
+        markup += "</div>";
+        return markup;
+    }
+
+    function formatDataSelection (datalist) {
+        return datalist.text;
+    }
+
+    // This handles the radio button selectors for the checkout-to-foo options
+    // on asset checkout and also on asset edit
+    $(function() {
+        $('input[name=checkout_to_type]').on("change",function () {
+            var assignto_type = $('input[name=checkout_to_type]:checked').val();
+            var userid = $('#assigned_user option:selected').val();
+
+            if (assignto_type == 'asset') {
+                $('#current_assets_box').fadeOut();
+                $('#assigned_asset').show();
+                $('#assigned_user').hide();
+                $('#assigned_location').hide();
+                $('.notification-callout').fadeOut();
+
+            } else if (assignto_type == 'location') {
+                $('#current_assets_box').fadeOut();
+                $('#assigned_asset').hide();
+                $('#assigned_user').hide();
+                $('#assigned_location').show();
+                $('.notification-callout').fadeOut();
+            } else  {
+
+                $('#assigned_asset').hide();
+                $('#assigned_user').show();
+                $('#assigned_location').hide();
+                if (userid) {
+                    $('#current_assets_box').fadeIn();
+                }
+                $('.notification-callout').fadeIn();
+
+            }
+        });
+    });
+
+
+    // ------------------------------------------------
+    // Deep linking for Bootstrap tabs
+    // ------------------------------------------------
+    var taburl = document.location.toString();
+
+    // Allow full page URL to activate a tab's ID
+    // ------------------------------------------------
+    // This allows linking to a tab on page load via the address bar.
+    // So a URL such as, http://snipe-it.local/hardware/2/#my_tab will
+    // cause the tab on that page with an ID of “my_tab” to be active.
+    if (taburl.match('#') ) {
+        $('.nav-tabs a[href="#'+taburl.split('#')[1]+'"]').tab('show');
+    }
+
+    // Allow internal page links to activate a tab's ID.
+    // ------------------------------------------------
+    // This allows you to link to a tab from anywhere on the page
+    // including from within another tab. Also note that internal page
+    // links either inside or out of the tabs need to include data-toggle="tab"
+    // Ex: <a href="#my_tab" data-toggle="tab">Click me</a>
+    $('a[data-toggle="tab"]').click(function (e) {
+        var href = $(this).attr("href");
+        history.pushState(null, null, href);
+        e.preventDefault();
+        $('a[href="' + $(this).attr('href') + '"]').tab('show');
+    });
+
+    // ------------------------------------------------
+    // End Deep Linking for Bootstrap tabs
+    // ------------------------------------------------
+
+
+
+    // Image preview
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('#imagePreview').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function formatBytes(bytes) {
+        if(bytes < 1024) return bytes + " Bytes";
+        else if(bytes < 1048576) return(bytes / 1024).toFixed(3) + " KB";
+        else if(bytes < 1073741824) return(bytes / 1048576).toFixed(3) + " MB";
+        else return(bytes / 1073741824).toFixed(3) + " GB";
+    };
+
+     // File size validation
+    $('#uploadFile').bind('change', function() {
+        $('#upload-file-status').removeClass('text-success').removeClass('text-danger');
+        $('.goodfile').remove();
+        $('.badfile').remove();
+        $('.badfile').remove();
+        $('.previewSize').hide();
+
+        var max_size = $('#uploadFile').data('maxsize');
+        var actual_size = this.files[0].size;
+
+        if (actual_size > max_size) {
+            $('#upload-file-status').addClass('text-danger').removeClass('help-block').prepend('<i class="badfile fa fa-times"></i> ').append('<span class="previewSize">This file is ' + formatBytes(actual_size) + '.</span>');
+        } else {
+            $('#upload-file-status').addClass('text-success').removeClass('help-block').prepend('<i class="goodfile fa fa-check"></i> ');
+            readURL(this);
+            $('#imagePreview').fadeIn();
+        }
+        $('#upload-file-info').html(this.files[0].name);
+
+    });
+
+
+
+
+
+
+
+
 
 
 });

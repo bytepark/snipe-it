@@ -67,6 +67,7 @@ return array(
     'not_in'               => 'התכונה שנבחרה: אינה חוקית.',
     'numeric'              => 'התכונה: חייבת להיות מספר.',
     'present'              => 'שדה התכונה: חייב להיות נוכח.',
+    'valid_regex'          => 'That is not a valid regex. ',
     'regex'                => 'תבנית התכונה: אינה חוקית.',
     'required'             => 'שדה התכונה: נדרש.',
     'required_if'          => 'שדה התכונה: נדרש כאשר: other is: value.',
@@ -87,6 +88,7 @@ return array(
     'unique'               => 'התכונה: כבר נלקחה.',
     'uploaded'             => 'התכונה: נכשלה.',
     'url'                  => 'תבנית התכונה: אינה חוקית.',
+    "unique_undeleted"     => "The :attribute must be unique.",
 
     /*
     |--------------------------------------------------------------------------
@@ -117,7 +119,6 @@ return array(
         "hashed_pass"      => "הסיסמה הנוכחית שלך שגויה",
         'dumbpwd'          => 'סיסמה זו נפוצה מדי.',
         "statuslabel_type" => "עליך לבחור סוג תווית סטטוס חוקי",
-        "unique_undeleted" => "התכונה: חייבת להיות ייחודית.",
     ],
 
     /*

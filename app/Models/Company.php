@@ -55,7 +55,7 @@ final class Company extends SnipeModel
         }
     }
 
-    private static function scopeCompanyablesDirectly($query, $column = 'company_id')
+    private static function scopeCompanyablesDirectly($query, $column = 'company_id', $table_name = null )
     {
         if (Auth::user()) {
             $company_id = Auth::user()->company_id;
@@ -63,7 +63,8 @@ final class Company extends SnipeModel
             $company_id = null;
         }
 
-        return $query->where($column, '=', $company_id);
+        $table = ($table_name) ? DB::getTablePrefix().$table_name."." : '';
+        return $query->where($table.$column, '=', $company_id); 
     }
 
     public static function getIdFromInput($unescaped_input)
@@ -131,13 +132,13 @@ final class Company extends SnipeModel
         }
     }
 
-    public static function scopeCompanyables($query, $column = 'company_id')
+    public static function scopeCompanyables($query, $column = 'company_id', $table_name = null )
     {
         // If not logged in and hitting this, assume we are on the command line and don't scope?'
         if (!static::isFullMultipleCompanySupportEnabled() || (Auth::check() && Auth::user()->isSuperUser()) || (!Auth::check())) {
             return $query;
         } else {
-            return static::scopeCompanyablesDirectly($query, $column);
+            return static::scopeCompanyablesDirectly($query, $column, $table_name);
         }
     }
 
@@ -149,7 +150,6 @@ final class Company extends SnipeModel
             return $query;
         } else {
             $f = function ($q) {
-
                 static::scopeCompanyablesDirectly($q);
             };
 
@@ -166,30 +166,46 @@ final class Company extends SnipeModel
 
     public function users()
     {
-        return $this->hasMany(User::class);
+        return $this->hasMany(User::class, 'company_id');
     }
 
     public function assets()
     {
-        return $this->hasMany(Asset::class);
+        return $this->hasMany(Asset::class, 'company_id');
     }
 
     public function licenses()
     {
-        return $this->hasMany(License::class);
+        return $this->hasMany(License::class, 'company_id');
     }
     public function accessories()
     {
-        return $this->hasMany(Accessory::class);
+        return $this->hasMany(Accessory::class, 'company_id');
     }
 
     public function consumables()
     {
-        return $this->hasMany(Consumable::class);
+        return $this->hasMany(Consumable::class, 'company_id');
     }
 
     public function components()
     {
-        return $this->hasMany(Component::class);
+        return $this->hasMany(Component::class, 'company_id');
+    }
+
+    /**
+     * Query builder scope to search on text
+     *
+     * @param  Illuminate\Database\Query\Builder  $query  Query builder instance
+     * @param  text                              $search      Search term
+     *
+     * @return Illuminate\Database\Query\Builder          Modified query builder
+     */
+    public function scopeTextSearch($query, $search)
+    {
+
+        return $query->where(function ($query) use ($search) {
+            $query->where('name', 'LIKE', '%'.$search.'%');
+        });
     }
 }

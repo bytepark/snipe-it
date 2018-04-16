@@ -67,6 +67,7 @@ return array(
     'not_in'               => 'L\' :attribute selezionato è invalido.',
     'numeric'              => 'L\' :attribute deve essere un numero.',
     'present'              => 'Il campo attributo deve essere presente.',
+    'valid_regex'          => 'Questa non è una regex valida. ',
     'regex'                => 'Il formato dell\' :attribute è invalido.',
     'required'             => 'Il campo :attribute è obblogatorio.',
     'required_if'          => 'L\' :attribute è richiesto quando :other è :value.',
@@ -87,6 +88,7 @@ return array(
     'unique'               => 'L\' :attribute è già stato preso.',
     'uploaded'             => 'L\'attributo: non è riuscito a caricare.',
     'url'                  => 'Il formato dell\' :attribute è invalido.',
+    "unique_undeleted"     => "L'attributo deve essere univoco.",
 
     /*
     |--------------------------------------------------------------------------
@@ -117,7 +119,6 @@ return array(
         "hashed_pass"      => "La tua password corrente non è corretta",
         'dumbpwd'          => 'Quella password è troppo comune.',
         "statuslabel_type" => "È necessario selezionare un tipo di etichetta di stato valido",
-        "unique_undeleted" => "L'attributo: deve essere univoco.",
     ],
 
     /*

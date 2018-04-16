@@ -67,6 +67,7 @@ return array(
     'not_in'               => ':attribute selectat nu e valid.',
     'numeric'              => ':attribute trebuie sa fie un numar.',
     'present'              => 'Câmpul atributului trebuie să fie prezent.',
+    'valid_regex'          => 'That is not a valid regex. ',
     'regex'                => 'Formatul :attribute nu este valid.',
     'required'             => 'Campul :attribute este obligatoriu.',
     'required_if'          => ':attribute este obligatoriu atunci cand :other este :value.',
@@ -87,6 +88,7 @@ return array(
     'unique'               => ':attribute este deja folosit.',
     'uploaded'             => 'Atributul: nu a reușit să se încarce.',
     'url'                  => 'Formatul :attribute nu este valid.',
+    "unique_undeleted"     => "The :attribute must be unique.",
 
     /*
     |--------------------------------------------------------------------------
@@ -117,7 +119,6 @@ return array(
         "hashed_pass"      => "Parola curentă este incorectă",
         'dumbpwd'          => 'Această parolă este prea obișnuită.',
         "statuslabel_type" => "Trebuie să selectați un tip de etichetă de stare validă",
-        "unique_undeleted" => "Atributul: trebuie să fie unic.",
     ],
 
     /*

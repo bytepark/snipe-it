@@ -8,6 +8,7 @@ use App\Http\Traits\UniqueUndeletedTrait;
 use ForceUTF8\Encoding;
 use EasySlugger\Utf8Slugger;
 use Patchwork\Utf8;
+use Illuminate\Validation\Rule;
 
 class CustomField extends Model
 {
@@ -16,39 +17,83 @@ class CustomField extends Model
     public static $PredefinedFormats=[
         "ANY" => "",
         "ALPHA" => "alpha",
+        "ALPHA-DASH" => "alpha_dash",
+        "NUMERIC" => "numeric",
+        "ALPHA-NUMERIC" => "alpha_num",
         "EMAIL" => "email",
         "DATE" => "date",
         "URL" => "url",
-        "NUMERIC" => "numeric",
-        "MAC" => "regex:/^[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}$/",
         "IP" => "ip",
+        "IPV4" => "ipv4",
+        "IPV6" => "ipv6",
+        "MAC" => "regex:/^[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}$/",
+        "BOOLEAN" => "boolean",
     ];
 
-    public $rules = [
-      "name" => "required|unique:custom_fields"
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name',
+        'element',
+        'format',
+        'field_values',
+        'field_encrypted',
+        'help_text'
     ];
 
-    public static $table_name="assets";
+    // This is confusing, since it's actually the custom fields table that
+    // we're usually modifying, but since we alter the assets table, we have to
+    // say that here, otherwise the new fields get added onto the custom fields
+    // table instead of the assets table.
+    public static $table_name = "assets";
 
+
+    /**
+     * Convert the custom field's name property to a db-safe string.
+     *
+     * We could probably have used str_slug() here but not sure what it would
+     * do with previously existing values. - @snipe
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @since [v3.4]
+     * @return String
+     */
     public static function name_to_db_name($name)
     {
         return "_snipeit_" . preg_replace("/[^a-zA-Z0-9]/", "_", strtolower($name));
     }
 
+    /**
+     * Set some boot methods for creating and updating.
+     *
+     * There is never ever a time when we wouldn't want to be updating those asset
+     * column names and the values of the db column name in the custom fields table
+     * if they have changed, so we handle that here so that we don't have to remember
+     * to do it in the controllers.
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @since [v3.4]
+     * @return Boolean
+     */
     public static function boot()
     {
         self::created(function ($custom_field) {
 
-
-            // column exists - nothing to do here
+            // Column already exists on the assets table - nothing to do here.
+            // This *shouldn't* happen in the wild.
             if (Schema::hasColumn(CustomField::$table_name, $custom_field->convertUnicodeDbSlug())) {
                 return false;
             }
 
+            // Update the column name in the assets table
             Schema::table(CustomField::$table_name, function ($table) use ($custom_field) {
                 $table->text($custom_field->convertUnicodeDbSlug())->nullable();
             });
 
+            // Update the db_column property in the custom fields table
             $custom_field->db_column = $custom_field->convertUnicodeDbSlug();
             $custom_field->save();
         });
@@ -56,20 +101,24 @@ class CustomField extends Model
 
         self::updating(function ($custom_field) {
 
-             // Column already exists. Nothing to update.
+            // Column already exists on the assets table - nothing to do here.
             if ($custom_field->isDirty("name")) {
+
                 if (Schema::hasColumn(CustomField::$table_name, $custom_field->convertUnicodeDbSlug())) {
                     return true;
                 }
 
+                // This is just a dumb thing we have to include because Laraval/Doctrine doesn't
+                // play well with enums or a table that EVER had enums. :(
                 $platform = Schema::getConnection()->getDoctrineSchemaManager()->getDatabasePlatform();
                 $platform->registerDoctrineTypeMapping('enum', 'string');
-                
+
+                // Rename the field if the name has changed
                 Schema::table(CustomField::$table_name, function ($table) use ($custom_field) {
                     $table->renameColumn($custom_field->convertUnicodeDbSlug($custom_field->getOriginal("name")), $custom_field->convertUnicodeDbSlug());
                 });
 
-
+                // Save the updated column name to the custom fields table
                 $custom_field->db_column = $custom_field->convertUnicodeDbSlug();
                 $custom_field->save();
 
@@ -78,6 +127,8 @@ class CustomField extends Model
             return true;
         });
 
+
+        // Drop the assets column if we've deleted it from custom fields
         self::deleting(function ($custom_field) {
             return Schema::table(CustomField::$table_name, function ($table) use ($custom_field) {
                 $table->dropColumn($custom_field->convertUnicodeDbSlug());
@@ -106,11 +157,21 @@ class CustomField extends Model
         return $this->db_column;
     }
 
-    // mutators for 'format' attribute
+    /**
+     * Mutator for the 'format' attribute.
+     *
+     * This is used by the dropdown to store the laravel-specific
+     * validator strings in the database but still return the
+     * user-friendly text in the dropdowns, and in the custom fields display.
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @since [v3.4]
+     * @return Array
+     */
     public function getFormatAttribute($value)
     {
         foreach (self::$PredefinedFormats as $name => $pattern) {
-            if ($pattern===$value) {
+            if ($pattern === $value || $name === $value) {
                 return $name;
             }
         }
@@ -161,6 +222,13 @@ class CustomField extends Model
         return $result;
     }
 
+    /**
+     * Check whether the field is encrypted
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @since [v3.4]
+     * @return Boolean
+     */
     public function isFieldDecryptable($string)
     {
         if (($this->field_encrypted=='1') && ($string!='')) {
@@ -170,6 +238,14 @@ class CustomField extends Model
     }
 
 
+    /**
+     * Convert non-UTF-8 or weirdly encoded text into something that
+     * won't break the database.
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @since [v3.4]
+     * @return Boolean
+     */
     public function convertUnicodeDbSlug($original = null)
     {
         $name = $original ? $original : $this->name;
@@ -182,5 +258,27 @@ class CustomField extends Model
         }
 
         return substr($long_slug, 0, 50) . '_' . $id;
+    }
+
+    /**
+    * Get validation rules for custom fields to use with Validator
+    * @author [V. Cordes] [<volker@fdatek.de>]
+    * @param int $id
+    * @since [v4.1.10]
+    * @return Array
+    */
+    public function validationRules()
+    {
+        return [
+            "name" => "required|unique:custom_fields",
+            "element" => [
+                "required",
+                Rule::in(['text', 'listbox'])
+            ],
+            'format' => [
+                Rule::in(array_merge(array_keys(CustomField::$PredefinedFormats), CustomField::$PredefinedFormats))
+            ],
+            'field_encrypted' => "nullable|boolean"
+        ];
     }
 }

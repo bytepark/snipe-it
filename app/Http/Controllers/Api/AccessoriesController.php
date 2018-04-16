@@ -34,6 +34,10 @@ class AccessoriesController extends Controller
             $accessories->where('company_id','=',$request->input('company_id'));
         }
 
+        if ($request->has('category_id')) {
+            $accessories->where('category_id','=',$request->input('category_id'));
+        }
+
         if ($request->has('manufacturer_id')) {
             $accessories->where('manufacturer_id','=',$request->input('manufacturer_id'));
         }
@@ -100,8 +104,6 @@ class AccessoriesController extends Controller
     {
         $this->authorize('view', Accessory::class);
         $accessory = Accessory::findOrFail($id);
-        $accessory_users = $accessory->users;
-
         return (new AccessoriesTransformer)->transformAccessory($accessory);
     }
 

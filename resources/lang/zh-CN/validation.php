@@ -67,6 +67,7 @@ return array(
     'not_in'               => '选择的 :attribute 无效',
     'numeric'              => ':attribute 必须是数字',
     'present'              => '：属性字段必须存在。',
+    'valid_regex'          => '这不是一个有效的正则表达式。 ',
     'regex'                => ':attribute 格式不对',
     'required'             => ':attribute 字段必填',
     'required_if'          => ':attribute 字段在 :other 是 :value 时是必须的',
@@ -87,6 +88,7 @@ return array(
     'unique'               => ':attribute 已经被采用',
     'uploaded'             => '：属性无法上传。',
     'url'                  => ':attribute 格式无效',
+    "unique_undeleted"     => ":attribute 属性必须唯一。",
 
     /*
     |--------------------------------------------------------------------------
@@ -117,7 +119,6 @@ return array(
         "hashed_pass"      => "您当前的密码不正确",
         'dumbpwd'          => '那个密码太常见了。',
         "statuslabel_type" => "您必须选择有效的状态标签类型",
-        "unique_undeleted" => "：属性必须是唯一的。",
     ],
 
     /*

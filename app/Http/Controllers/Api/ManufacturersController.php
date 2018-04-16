@@ -8,6 +8,7 @@ use App\Helpers\Helper;
 use App\Models\Manufacturer;
 use App\Http\Transformers\DatatablesTransformer;
 use App\Http\Transformers\ManufacturersTransformer;
+use App\Http\Transformers\SelectlistTransformer;
 
 class ManufacturersController extends Controller
 {
@@ -21,16 +22,22 @@ class ManufacturersController extends Controller
     public function index(Request $request)
     {
         $this->authorize('view', Manufacturer::class);
-        $allowed_columns = ['id','name','url','support_url','support_email','support_phone','created_at','updated_at'];
+        $allowed_columns = ['id','name','url','support_url','support_email','support_phone','created_at','updated_at','image', 'assets_count', 'consumables_count', 'components_count', 'licenses_count'];
 
         $manufacturers = Manufacturer::select(
-            array('id','name','url','support_url','support_email','support_phone','created_at','updated_at')
+            array('id','name','url','support_url','support_email','support_phone','created_at','updated_at','image', 'deleted_at')
         )->withCount('assets')->withCount('licenses')->withCount('consumables')->withCount('accessories');
 
+        if ($request->input('deleted')=='true') {
+            $manufacturers->onlyTrashed();
+        }
 
         if ($request->has('search')) {
             $manufacturers = $manufacturers->TextSearch($request->input('search'));
         }
+
+
+
 
         $offset = request('offset', 0);
         $limit = $request->input('limit', 50);
@@ -118,6 +125,41 @@ class ManufacturersController extends Controller
         $this->authorize('delete', $manufacturer);
         $manufacturer->delete();
         return response()->json(Helper::formatStandardApiResponse('success', null,  trans('admin/manufacturers/message.delete.success')));
+
+    }
+
+    /**
+     * Gets a paginated collection for the select2 menus
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @since [v4.0.16]
+     * @see \App\Http\Transformers\SelectlistTransformer
+     *
+     */
+    public function selectlist(Request $request)
+    {
+
+        $manufacturers = Manufacturer::select([
+            'id',
+            'name',
+            'image',
+        ]);
+
+        if ($request->has('search')) {
+            $manufacturers = $manufacturers->where('name', 'LIKE', '%'.$request->get('search').'%');
+        }
+
+        $manufacturers = $manufacturers->orderBy('name', 'ASC')->paginate(50);
+
+        // Loop through and set some custom properties for the transformer to use.
+        // This lets us have more flexibility in special cases like assets, where
+        // they may not have a ->name value but we want to display something anyway
+        foreach ($manufacturers as $manufacturer) {
+            $manufacturer->use_text = $manufacturer->name;
+            $manufacturer->use_image = ($manufacturer->image) ? url('/').'/uploads/manufacturers/'.$manufacturer->image : null;
+        }
+
+        return (new SelectlistTransformer)->transformSelectlist($manufacturers);
 
     }
 }

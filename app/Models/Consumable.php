@@ -4,6 +4,7 @@ namespace App\Models;
 use App\Presenters\Presentable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Watson\Validating\ValidatingTrait;
+use App\Notifications\CheckoutConsumableNotification;
 
 class Consumable extends SnipeModel
 {
@@ -12,11 +13,17 @@ class Consumable extends SnipeModel
     use Loggable, Presentable;
     use SoftDeletes;
 
-    protected $dates = ['deleted_at'];
+    protected $dates = ['deleted_at', 'purchase_date'];
     protected $table = 'consumables';
     protected $casts = [
         'requestable' => 'boolean'
     ];
+
+    /**
+     * Set static properties to determine which checkout/checkin handlers we should use
+     */
+    public static $checkoutClass = CheckoutConsumableNotification::class;
+    public static $checkinClass = null;
 
 
     /**
@@ -49,10 +56,12 @@ class Consumable extends SnipeModel
     protected $fillable = [
         'category_id',
         'company_id',
+        'item_no',
         'location_id',
         'manufacturer_id',
         'name',
         'order_number',
+        'model_number',
         'purchase_cost',
         'purchase_date',
         'qty',
@@ -104,6 +113,14 @@ class Consumable extends SnipeModel
     public function assetlog()
     {
         return $this->hasMany('\App\Models\Actionlog', 'item_id')->where('item_type', Consumable::class)->orderBy('created_at', 'desc')->withTrashed();
+    }
+
+    public function getImageUrl() {
+        if ($this->image) {
+            return url('/').'/uploads/consumables/'.$this->image;
+        }
+        return false;
+
     }
 
 
@@ -185,8 +202,7 @@ class Consumable extends SnipeModel
                         });
                     })->orWhere('consumables.name', 'LIKE', '%'.$search.'%')
                             ->orWhere('consumables.order_number', 'LIKE', '%'.$search.'%')
-                            ->orWhere('consumables.purchase_cost', 'LIKE', '%'.$search.'%')
-                            ->orWhere('consumables.purchase_date', 'LIKE', '%'.$search.'%');
+                            ->orWhere('consumables.purchase_cost', 'LIKE', '%'.$search.'%');
             }
         });
     }

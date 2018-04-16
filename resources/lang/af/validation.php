@@ -67,6 +67,7 @@ return array(
     'not_in'               => 'Die gekose: attribuut is ongeldig.',
     'numeric'              => 'Die: Attribuut moet \'n nommer wees.',
     'present'              => 'Die: attribuut veld moet teenwoordig wees.',
+    'valid_regex'          => 'That is not a valid regex. ',
     'regex'                => 'Die: Attribuutformaat is ongeldig.',
     'required'             => 'Die: attribuut veld is nodig.',
     'required_if'          => 'Die: attribuut veld is nodig wanneer: ander is: waarde.',
@@ -87,6 +88,7 @@ return array(
     'unique'               => 'Die: Attribuut is reeds geneem.',
     'uploaded'             => 'Die: kenmerk kon nie opgelaai word nie.',
     'url'                  => 'Die: Attribuutformaat is ongeldig.',
+    "unique_undeleted"     => "The :attribute must be unique.",
 
     /*
     |--------------------------------------------------------------------------
@@ -117,7 +119,6 @@ return array(
         "hashed_pass"      => "Jou huidige wagwoord is verkeerd",
         'dumbpwd'          => 'Daardie wagwoord is te algemeen.',
         "statuslabel_type" => "U moet 'n geldige statusetiket tipe kies",
-        "unique_undeleted" => "Die: Attribuut moet uniek wees.",
     ],
 
     /*

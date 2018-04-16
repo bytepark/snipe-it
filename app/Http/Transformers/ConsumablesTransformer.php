@@ -22,14 +22,15 @@ class ConsumablesTransformer
     {
         $array = [
             'id'            => (int) $consumable->id,
+            'name'          => e($consumable->name),
+            'image' =>   ($consumable->image) ? e(url('/').'/uploads/consumables/'.e($consumable->image)) : null,
             'category'      => ($consumable->category) ? ['id' => $consumable->category->id, 'name' => e($consumable->category->name)] : null,
             'company'   => ($consumable->company) ? ['id' => (int) $consumable->company->id, 'name' => e($consumable->company->name)] : null,
             'item_no'       => e($consumable->item_no),
             'location'      => ($consumable->location) ? ['id' => (int) $consumable->location->id, 'name' => e($consumable->location->name)] : null,
             'manufacturer'  => ($consumable->manufacturer) ? ['id' => (int) $consumable->manufacturer->id, 'name' => e($consumable->manufacturer->name)] : null,
             'min_amt'       => (int) $consumable->min_amt,
-            'model_number'  => e($consumable->model_number),
-            'name'          => e($consumable->name),
+            'model_number'  => ($consumable->model_number!='') ? e($consumable->model_number) : null,
             'remaining'  => $consumable->numRemaining(),
             'order_number'  => e($consumable->order_number),
             'purchase_cost'  => Helper::formatCurrencyOutput($consumable->purchase_cost),

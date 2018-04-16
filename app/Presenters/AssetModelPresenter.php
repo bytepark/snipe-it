@@ -45,9 +45,14 @@ class AssetModelPresenter extends Presenter
      */
     public function modelName()
     {
-        $name = $this->model->manufacturer->name.' '.$this->name;
+        $name = '';
+        if ($this->model->manufacturer) {
+            $name .= $this->model->manufacturer->name.' ';
+        }
+        $name .= $this->name;
+
         if ($this->model_number) {
-            $name .=" / ".$this->model_number;
+            $name .=" (#".$this->model_number.')';
         }
         return $name;
     }
@@ -69,6 +74,18 @@ class AssetModelPresenter extends Presenter
     {
         if (!empty($this->image)) {
             return '<img src="' . url('/') . '/uploads/models/' . $this->image . '" height=50 width=50>';
+        }
+        return '';
+    }
+
+    /**
+     * Generate img tag to this models image.
+     * @return string
+     */
+    public function imageSrc()
+    {
+        if (!empty($this->image)) {
+            return url('/') . '/uploads/models/' . $this->image;
         }
         return '';
     }

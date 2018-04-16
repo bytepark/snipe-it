@@ -7,6 +7,7 @@ use App\Models\Actionlog;
 use App\Models\Asset;
 use App\Models\AssetMaintenance;
 use App\Models\CustomField;
+use App\Models\Depreciation;
 use App\Models\License;
 use App\Models\Setting;
 use Carbon\Carbon;
@@ -114,7 +115,7 @@ class ReportsController extends Controller
             // Open output stream
             $handle = fopen('php://output', 'w');
 
-            $assets = Asset::with('assignedTo', 'assetLoc','defaultLoc','assignedTo','model','supplier','assetstatus','model.manufacturer');
+            $assets = Asset::with('assignedTo', 'location','defaultLoc','assignedTo','model','supplier','assetstatus','model.manufacturer');
 
                 // This is used by the sidenav, mostly
             switch ($request->input('status')) {
@@ -141,48 +142,55 @@ class ReportsController extends Controller
                     break;
             }
 
+            $headers=[
+                trans('general.company'),
+                trans('admin/hardware/table.asset_tag'),
+                trans('admin/hardware/form.manufacturer'),
+                trans('general.category'),
+                trans('admin/hardware/form.model'),
+                trans('general.model_no'),
+                trans('general.name'),
+                trans('admin/hardware/table.serial'),
+                trans('general.status'),
+                trans('admin/hardware/table.purchase_date'),
+                trans('admin/hardware/table.purchase_cost'),
+                trans('admin/hardware/form.order'),
+                trans('general.supplier'),
+                trans('admin/hardware/table.checkoutto'),
+                trans('general.type'),
+                trans('admin/hardware/table.checkout_date'),
+                trans('admin/hardware/table.location'),
+                trans('general.notes'),
+            ];
+            foreach ($customfields as $field) {
+                $headers[]=$field->name;
+            }
+            fputcsv($handle, $headers);
+
             $assets->orderBy('created_at', 'DESC')->chunk(500, function($assets) use($handle, $customfields) {
-                $headers=[
-                    trans('general.company'),
-                    trans('admin/hardware/table.asset_tag'),
-                    trans('admin/hardware/form.manufacturer'),
-                    trans('admin/hardware/form.model'),
-                    trans('general.model_no'),
-                    trans('general.name'),
-                    trans('admin/hardware/table.serial'),
-                    trans('general.status'),
-                    trans('admin/hardware/table.purchase_date'),
-                    trans('admin/hardware/table.purchase_cost'),
-                    trans('admin/hardware/form.order'),
-                    trans('general.supplier'),
-                    trans('admin/hardware/table.checkoutto'),
-                    trans('admin/hardware/table.checkout_date'),
-                    trans('admin/hardware/table.location'),
-                    trans('general.notes'),
-                ];
-                foreach ($customfields as $field) {
-                    $headers[]=$field->name;
-                }
-                fputcsv($handle, $headers);
+
 
                 foreach ($assets as $asset) {
+
                     // Add a new row with data
                     $values=[
                         ($asset->company) ? $asset->company->name : '',
                         $asset->asset_tag,
                         ($asset->model->manufacturer) ? $asset->model->manufacturer->name : '',
+                        ($asset->model->category) ? $asset->model->category->name : '',
                         ($asset->model) ? $asset->model->name : '',
                         ($asset->model->model_number) ? $asset->model->model_number : '',
                         ($asset->name) ? $asset->name : '',
                         ($asset->serial) ? $asset->serial : '',
-                        ($asset->assetstatus) ? e($asset->assetstatus->name) : '',
+                        ($asset->assetstatus) ? e($asset->present()->statusText) : '',
                         ($asset->purchase_date) ? e($asset->purchase_date) : '',
                         ($asset->purchase_cost > 0) ? Helper::formatCurrencyOutput($asset->purchase_cost) : '',
                         ($asset->order_number) ? e($asset->order_number) : '',
                         ($asset->supplier) ? e($asset->supplier->name) : '',
-                        ($asset->assignedTo) ? e($asset->assignedTo->present()->name()) : '',
+                        ($asset->checkedOutToUser() && $asset->assigned) ? e($asset->assigned->getFullNameAttribute()) : ($asset->assigned ? e($asset->assigned->display_name) : ''),
+                        ($asset->checkedOutToUser() && $asset->assigned) ? 'user' : e($asset->assignedType()),
                         ($asset->last_checkout!='') ? e($asset->last_checkout) : '',
-                        ($asset->assetLoc) ? e($asset->assetLoc->present()->name()) : '',
+                        ($asset->location) ? e($asset->location->name) : '',
                         ($asset->notes) ? e($asset->notes) : '',
                     ];
                     foreach ($customfields as $field) {
@@ -214,11 +222,12 @@ class ReportsController extends Controller
     public function getDeprecationReport()
     {
 
+        $depreciations = Depreciation::get();
         // Grab all the assets
-        $assets = Asset::with( 'assignedTo', 'assetstatus', 'defaultLoc', 'assetloc', 'assetlog', 'company', 'model.category', 'model.depreciation')
+        $assets = Asset::with( 'assignedTo', 'assetstatus', 'defaultLoc', 'location', 'assetlog', 'company', 'model.category', 'model.depreciation')
                        ->orderBy('created_at', 'DESC')->get();
 
-        return view('reports/depreciation', compact('assets'));
+        return view('reports/depreciation', compact('assets'))->with('depreciations',$depreciations);
     }
 
     /**
@@ -270,7 +279,7 @@ class ReportsController extends Controller
                 $row[] = ''; // Empty string if unassigned
             }
 
-            if (( $asset->assigned_to > 0 ) && ( $location = $asset->assetLoc )) {
+            if (( $asset->assigned_to > 0 ) && ( $location = $asset->location )) {
                 if ($location->city) {
                     $row[] = e($location->city) . ', ' . e($location->state);
                 } elseif ($location->name) {
@@ -282,8 +291,8 @@ class ReportsController extends Controller
                 $row[] = '';  // Empty string if location is not set
             }
 
-            if ($asset->assetloc) {
-                $currency = e($asset->assetloc->currency);
+            if ($asset->location) {
+                $currency = e($asset->location->currency);
             } else {
                 $currency = e(Setting::first()->default_currency);
             }
@@ -417,251 +426,350 @@ class ReportsController extends Controller
      * @since [v1.0]
      * @return \Illuminate\Http\Response
      */
-    public function postCustom()
+    public function postCustom(Request $request)
     {
-        $assets = Asset::orderBy('created_at', 'DESC')->with('company', 'assignedTo', 'assetloc', 'defaultLoc', 'model', 'supplier', 'assetstatus', 'model.manufacturer')->get();
+
+        \Debugbar::disable();
         $customfields = CustomField::get();
+        $response = new StreamedResponse(function () use ($customfields, $request) {
 
-        $rows   = [ ];
-        $header = [ ];
-
-        if (e(Input::get('company')) == '1') {
-            $header[] = 'Company Name';
-        }
-
-        if (e(Input::get('asset_name')) == '1') {
-            $header[] = 'Asset Name';
-        }
-        if (e(Input::get('asset_tag')) == '1') {
-            $header[] = 'Asset Tag';
-        }
-        if (e(Input::get('manufacturer')) == '1') {
-            $header[] = 'Manufacturer';
-        }
-        if (e(Input::get('model')) == '1') {
-            $header[] = 'Model';
-            $header[] = 'Model Number';
-        }
-        if (e(Input::get('category')) == '1') {
-            $header[] = 'Category';
-        }
-        if (e(Input::get('serial')) == '1') {
-            $header[] = 'Serial';
-        }
-        if (e(Input::get('purchase_date')) == '1') {
-            $header[] = 'Purchase Date';
-        }
-        if (( e(Input::get('purchase_cost')) == '1' ) && ( e(Input::get('depreciation')) != '1' )) {
-            $header[] = 'Purchase Cost';
-        }
-        if (e(Input::get('eol')) == '1') {
-            $header[] = 'EOL';
-        }
-        if (e(Input::get('order')) == '1') {
-            $header[] = 'Order Number';
-        }
-        if (e(Input::get('supplier')) == '1') {
-            $header[] = 'Supplier';
-        }
-        if (e(Input::get('location')) == '1') {
-            $header[] = 'Location';
-        }
-        if (e(Input::get('assigned_to')) == '1') {
-            $header[] = 'Assigned To';
-        }
-        if (e(Input::get('username')) == '1') {
-            $header[] = 'Username';
-        }
-        if (e(Input::get('employee_num')) == '1') {
-            $header[] = 'Employee No.';
-        }
-        if (e(Input::get('status')) == '1') {
-            $header[] = 'Status';
-        }
-        if (e(Input::get('warranty')) == '1') {
-            $header[] = 'Warranty';
-            $header[] = 'Warranty Expires';
-        }
-        if (e(Input::get('depreciation')) == '1') {
-            $header[] = 'Purchase Cost';
-            $header[] = 'Value';
-            $header[] = 'Diff';
-        }
-        if (e(Input::get('expected_checkin')) == '1') {
-            $header[] = trans('admin/hardware/form.expected_checkin');
-        }
-
-        if (e(Input::get('notes')) == '1') {
-            $header[] = trans('general.notes');
-        }
-
-
-        foreach ($customfields as $customfield) {
-            if (e(Input::get($customfield->db_column_name())) == '1') {
-                $header[] = $customfield->name;
-            }
-        }
-
-
-        $header = array_map('trim', $header);
-        $rows[] = implode($header, ',');
-
-        foreach ($assets as $asset) {
-            $row = [ ];
-
-            if (e(Input::get('company')) == '1') {
-                $row[] = is_null($asset->company) ? '' : '"'.$asset->company->name.'"';
+            // Open output stream
+            $handle = fopen('php://output', 'w');
+            
+            if ($request->has('use_bom')) {
+                fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
             }
 
-            if (e(Input::get('asset_name')) == '1') {
-                $row[] = '"' .e($asset->name) . '"';
-            }
-            if (e(Input::get('asset_tag')) == '1') {
-                $row[] = e($asset->asset_tag);
-            }
-            if (e(Input::get('manufacturer')) == '1') {
-                if ($asset->model->manufacturer) {
-                    $row[] = '"' .e($asset->model->manufacturer->name) . '"';
-                } else {
-                    $row[] = '';
-                }
-            }
-            if (e(Input::get('model')) == '1') {
-                $row[] = '"' . e($asset->model->name) . '"';
-                $row[] = '"' . e($asset->model->model_number) . '"';
-            }
-            if (e(Input::get('category')) == '1') {
-                $row[] = '"' .e($asset->model->category->name) . '"';
-            }
-
-            if (e(Input::get('serial')) == '1') {
-                $row[] = e($asset->serial);
-            }
-            if (e(Input::get('purchase_date')) == '1') {
-                $row[] = e($asset->purchase_date);
-            }
-            if (e(Input::get('purchase_cost')) == '1' && ( e(Input::get('depreciation')) != '1' )) {
-                $row[] = '"' . Helper::formatCurrencyOutput($asset->purchase_cost) . '"';
-            }
-            if (e(Input::get('eol')) == '1') {
-                $row[] = '"' .($asset->present()->eol_date()) ? $asset->present()->eol_date() : ''. '"';
-            }
-            if (e(Input::get('order')) == '1') {
-                if ($asset->order_number) {
-                    $row[] = e($asset->order_number);
-                } else {
-                    $row[] = '';
-                }
-            }
-            if (e(Input::get('supplier')) == '1') {
-                if ($asset->supplier) {
-                    $row[] = '"' .e($asset->supplier->name) . '"';
-                } else {
-                    $row[] = '';
-                }
-            }
-
-            if (e(Input::get('location')) == '1') {
-                if($asset->assetLoc) {
-                    $show_loc = $asset->assetLoc->present()->name();
-                } else {
-                    $show_loc = 'Default location '.$asset->rtd_location_id.' is invalid';
-                }
-                $row[] = $show_loc;
-            }
+            $header = [];
 
 
-            if (e(Input::get('assigned_to')) == '1') {
-                if ($asset->assignedto) {
-                    $row[] = '"' .e($asset->assignedto->present()->name()). '"';
-                } else {
-                    $row[] = ''; // Empty string if unassigned
-                }
+            if ($request->has('company')) {
+                $header[] = trans('general.company');
             }
 
-            if (e(Input::get('username')) == '1') {
-                // Only works if we're checked out to a user, not anything else.
-                if ($asset->checkedOutToUser()) {
-                    $row[] = '"' .e($asset->assignedto->username). '"';
-                } else {
-                    $row[] = ''; // Empty string if unassigned
-                }
+            if ($request->has('asset_name')) {
+                $header[] = trans('admin/hardware/form.name');
             }
 
-            if (e(Input::get('employee_num')) == '1') {
-                // Only works if we're checked out to a user, not anything else.
-                if ($asset->checkedOutToUser()) {
-                    $row[] = '"' .e($asset->assignedto->employee_num). '"';
-                } else {
-                    $row[] = ''; // Empty string if unassigned
-                }
+            if ($request->has('asset_tag')) {
+                $header[] = trans('admin/hardware/table.asset_tag');
             }
 
-            if (e(Input::get('status')) == '1') {
-                if (( $asset->status_id == '0' ) && ( $asset->assigned_to == '0' )) {
-                    $row[] = trans('general.ready_to_deploy');
-                } elseif (( $asset->status_id == '' ) && ( $asset->assigned_to == '0' )) {
-                    $row[] = trans('general.pending');
-                } elseif ($asset->assetstatus) {
-                    $row[] = '"' .e($asset->assetstatus->name). '"';
-                } else {
-                    $row[] = '';
-                }
-            }
-            if (e(Input::get('warranty')) == '1') {
-                if ($asset->warranty_months) {
-                    $row[] = $asset->warranty_months;
-                    $row[] = $asset->present()->warrantee_expires();
-                } else {
-                    $row[] = '';
-                    $row[] = '';
-                }
-            }
-            if (e(Input::get('depreciation')) == '1') {
-                $depreciation = $asset->getDepreciatedValue();
-                $row[]        = '"' . Helper::formatCurrencyOutput($asset->purchase_cost) . '"';
-                $row[]        = '"' . Helper::formatCurrencyOutput($depreciation) . '"';
-                $row[]        = '"' . Helper::formatCurrencyOutput($asset->purchase_cost) . '"';
-            }
-            if (e(Input::get('expected_checkin')) == '1') {
-                if ($asset->expected_checkin) {
-                    $row[] = '"' .e($asset->expected_checkin). '"';
-                } else {
-                    $row[] = ''; // Empty string if blankd
-                }
+            if ($request->has('model')) {
+                $header[] = trans('admin/hardware/form.model');
+                $header[] = trans('general.model_no');
             }
 
-            if (e(Input::get('notes')) == '1') {
-                if ($asset->notes) {
-                    $row[] = '"' .$asset->notes . '"';
-                } else {
-                    $row[] = '';
-                }
+            if ($request->has('category')) {
+                $header[] = trans('general.category');
             }
+
+            if ($request->has('manufacturer')) {
+                $header[] = trans('admin/hardware/form.manufacturer');
+            }
+
+            if ($request->has('serial')) {
+                $header[] = trans('admin/hardware/table.serial');
+            }
+            if ($request->has('purchase_date')) {
+                $header[] = trans('admin/hardware/table.purchase_date');
+            }
+
+            if (($request->has('purchase_cost'))  || ($request->has('depreciation'))) {
+                $header[] = trans('admin/hardware/table.purchase_cost');
+            }
+
+            if ($request->has('eol')) {
+                $header[] = trans('admin/hardware/table.eol');
+            }
+
+            if ($request->has('order')) {
+                $header[] = trans('admin/hardware/form.order');
+            }
+
+            if ($request->has('supplier')) {
+                $header[] = trans('general.supplier');
+            }
+
+            if ($request->has('location')) {
+                $header[] = trans('admin/hardware/table.location');
+            }
+            if ($request->has('location_address')) {
+                $header[] = trans('general.address');
+                $header[] = trans('general.address');
+                $header[] = trans('general.city');
+                $header[] = trans('general.state');
+                $header[] = trans('general.country');
+                $header[] = trans('general.zip');
+            }
+
+            if ($request->has('assigned_to')) {
+                $header[] = trans('admin/hardware/table.checkoutto');
+                $header[] = trans('general.type');
+            }
+
+            if ($request->has('username')) {
+                $header[] = 'Username';
+            }
+
+            if ($request->has('employee_num')) {
+                $header[] = 'Employee No.';
+            }
+
+            if ($request->has('status')) {
+                $header[] = trans('general.status');
+            }
+
+            if ($request->has('warranty')) {
+                $header[] = 'Warranty';
+                $header[] = 'Warranty Expires';
+            }
+            if ($request->has('depreciation')) {
+                $header[] = 'Value';
+                $header[] = 'Diff';
+            }
+
+            if ($request->has('checkout_date')) {
+                $header[] = trans('admin/hardware/table.checkout_date');
+            }
+
+            if ($request->has('expected_checkin')) {
+                $header[] = trans('admin/hardware/form.expected_checkin');
+            }
+
+            if ($request->has('created_at')) {
+                $header[] = trans('general.created_at');
+            }
+
+            if ($request->has('updated_at')) {
+                $header[] = trans('general.updated_at');
+            }
+
+            if ($request->has('last_audit_date')) {
+                $header[] = trans('general.last_audit');
+            }
+
+            if ($request->has('next_audit_date')) {
+                $header[] = trans('general.next_audit_date');
+            }
+
+            if ($request->has('notes')) {
+                $header[] = trans('general.notes');
+            }
+
 
             foreach ($customfields as $customfield) {
-                $column_name = $customfield->db_column_name();
                 if (e(Input::get($customfield->db_column_name())) == '1') {
-                    $row[] = str_replace(",", "\,", $asset->$column_name);
+                    $header[] = $customfield->name;
                 }
             }
 
 
-            $rows[] = implode($row, ',');
-        }
+            fputcsv($handle, $header);
 
-        // spit out a csv
-        if (array_filter($rows)) {
-            $csv      = implode($rows, "\n");
-            $response = Response::make($csv, 200);
-            $response->header('Content-Type', 'text/csv');
-            $response->header('Content-disposition', 'attachment;filename='.date('Y-m-d-His').'-custom-asset-report.csv');
+            $assets = \App\Models\Company::scopeCompanyables(Asset::select('assets.*'))->with(
+                'location', 'assetstatus', 'assetlog', 'company', 'defaultLoc','assignedTo',
+                'model.category', 'model.manufacturer','supplier');
+            
+            if ($request->has('by_location_id')) {
+                $assets->where('assets.location_id', $request->input('by_location_id'));
+            }
 
-            return $response;
-        } else {
-            return redirect()->to("reports/custom")
-                ->with('error', trans('admin/reports/message.error'));
-        }
+            if ($request->has('by_supplier_id')) {
+                $assets->where('assets.supplier_id', $request->input('by_supplier_id'));
+            }
+
+            if ($request->has('by_company_id')) {
+                $assets->where('assets.company_id', $request->input('by_company_id'));
+            }
+
+            if ($request->has('by_model_id')) {
+                $assets->where('assets.model_id', $request->input('by_model_id'));
+            }
+
+            if ($request->has('by_category_id')) {
+                $assets->InCategory($request->input('by_category_id'));
+            }
+
+            if ($request->has('by_manufacturer_id')) {
+                $assets->ByManufacturer($request->input('by_manufacturer_id'));
+            }
+
+            if ($request->has('by_order_number')) {
+                $assets->where('assets.order_number', $request->input('by_order_number'));
+            }
+
+            if ($request->has('by_status_id')) {
+                $assets->where('assets.status_id', $request->input('by_status_id'));
+            }
+
+            if (($request->has('purchase_start')) && ($request->has('purchase_end'))) {
+                $assets->whereBetween('assets.purchase_date', [$request->input('purchase_start'), $request->input('purchase_end')]);
+            }
+
+            if (($request->has('created_start')) && ($request->has('created_end'))) {
+                $assets->whereBetween('assets.created_at', [$request->input('created_start'), $request->input('created_end')]);
+            }
+            
+            $assets->orderBy('assets.created_at', 'ASC')->chunk(500, function($assets) use($handle, $customfields, $request) {
+
+                foreach ($assets as $asset) {
+                    $row = [];
+                    
+                    if ($request->has('company')) {
+                        $row[] = ($asset->company) ? $asset->company->name : '';
+                    }
+
+                    if ($request->has('asset_name')) {
+                        $row[] = ($asset->name) ? $asset->name : '';
+                    }
+
+                    if ($request->has('asset_tag')) {
+                        $row[] = ($asset->asset_tag) ? $asset->asset_tag : '';
+                    }
+
+                    if ($request->has('model')) {
+                        $row[] = ($asset->model) ? $asset->model->name : '';
+                        $row[] = ($asset->model) ? $asset->model->model_number : '';
+                    }
+
+                    if ($request->has('category')) {
+                        $row[] = (($asset->model) && ($asset->model->category)) ? $asset->model->category->name : '';
+                    }
+
+                    if ($request->has('manufacturer')) {
+                        $row[] = ($asset->model && $asset->model->manufacturer) ? $asset->model->manufacturer->name : '';
+                    }
+
+                    if ($request->has('serial')) {
+                        $row[] = ($asset->serial) ? $asset->serial : '';
+                    }
+
+                    if ($request->has('purchase_date')) {
+                        $row[] = ($asset->purchase_date) ? $asset->purchase_date : '';
+                    }
+
+                    if ($request->has('purchase_cost')) {
+                        $row[] = ($asset->purchase_cost) ? Helper::formatCurrencyOutput($asset->purchase_cost) : '';
+                    }
+
+                    if ($request->has('eol')) {
+                        $row[] = ($asset->purchase_date!='') ? $asset->present()->eol_date() : '';
+                    }
+
+                    if ($request->has('order')) {
+                        $row[] = ($asset->order_number) ? $asset->order_number : '';
+                    }
+
+                    if ($request->has('supplier')) {
+                        $row[] = ($asset->supplier) ? $asset->supplier->name : '';
+                    }
+                    
+
+                    if ($request->has('location')) {
+                        $row[] = ($asset->location) ? $asset->location->present()->name() : '';
+                    }
+
+                    if ($request->has('location_address')) {
+                        $row[] = ($asset->location) ? $asset->location->address : '';
+                        $row[] = ($asset->location) ? $asset->location->address2 : '';
+                        $row[] = ($asset->location) ? $asset->location->city : '';
+                        $row[] = ($asset->location) ? $asset->location->state : '';
+                        $row[] = ($asset->location) ? $asset->location->country : '';
+                        $row[] = ($asset->location) ? $asset->location->zip : '';
+                    }
+
+
+                    if ($request->has('assigned_to')) {
+                        $row[] = ($asset->checkedOutToUser() && $asset->assigned) ? e($asset->assigned->getFullNameAttribute()) : ($asset->assigned ? e($asset->assigned->display_name) : '');
+                        $row[] = ($asset->checkedOutToUser() && $asset->assigned) ? 'user' : e($asset->assignedType());
+                    }
+
+                    if ($request->has('username')) {
+                        // Only works if we're checked out to a user, not anything else.
+                        if ($asset->checkedOutToUser()) {
+                            $row[] = ($asset->assignedto) ? $asset->assignedto->username : '';
+                        } else {
+                            $row[] = ''; // Empty string if unassigned
+                        }
+                    }
+
+                    if ($request->has('employee_num')) {
+                        // Only works if we're checked out to a user, not anything else.
+                        if ($asset->checkedOutToUser()) {
+                            $row[] = ($asset->assignedto) ? $asset->assignedto->employee_num : '';
+                        } else {
+                            $row[] = ''; // Empty string if unassigned
+                        }
+                    }
+
+                    if ($request->has('status')) {
+                        $row[] = ($asset->assetstatus) ? $asset->assetstatus->name.' ('.$asset->present()->statusMeta.')' : '';
+                    }
+
+
+                    if ($request->has('warranty')) {
+                        $row[] = ($asset->warranty_months) ? $asset->warranty_months : '';
+                        $row[] = $asset->present()->warrantee_expires();
+                    }
+
+
+                    if ($request->has('depreciation')) {
+                            $depreciation = $asset->getDepreciatedValue();
+                            $diff = ($asset->purchase_cost - $depreciation);
+                            $row[]        = Helper::formatCurrencyOutput($depreciation);
+                            $row[]        = Helper::formatCurrencyOutput($diff);
+                    }
+
+                    if ($request->has('checkout_date')) {
+                        $row[] = ($asset->last_checkout) ? $asset->last_checkout : '';
+                    }
+
+                    if ($request->has('expected_checkin')) {
+                        $row[] = ($asset->expected_checkin) ? $asset->expected_checkin : '';
+                    }
+
+                    if ($request->has('created_at')) {
+                        $row[] = ($asset->created_at) ? $asset->created_at : '';
+                    }
+
+                    if ($request->has('updated_at')) {
+                        $row[] = ($asset->updated_at) ? $asset->updated_at : '';
+                    }
+
+                    if ($request->has('last_audit_date')) {
+                        $row[] = ($asset->last_audit_date) ? $asset->last_audit_date : '';
+                    }
+
+                    if ($request->has('next_audit_date')) {
+                        $row[] = ($asset->next_audit_date) ? $asset->next_audit_date : '';
+                    }
+
+                    if ($request->has('notes')) {
+                        $row[] = ($asset->notes) ? $asset->notes : '';
+                    }
+
+                    foreach ($customfields as $customfield) {
+                        $column_name = $customfield->db_column_name();
+                        if ($request->has($customfield->db_column_name())) {
+                            $row[] = $asset->$column_name;
+                        }
+                    }
+                    fputcsv($handle, $row);
+                }
+            });
+
+            // Close the output stream
+            fclose($handle);
+        }, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition'
+            => 'attachment; filename="custom-assets-report-'.date('Y-m-d-his').'.csv"',
+        ]);
+
+        return $response;
+
+
     }
 
 

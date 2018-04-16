@@ -61,7 +61,8 @@ return array(
         'error'   		=> '资产未被借出，请重试',
         'success' 		=> '资产借出成功。',
         'user_does_not_exist' => '无效用户，请重试。',
-        'not_available' => '此资产无法借出'
+        'not_available' => '此资产无法借出',
+        'no_assets_selected' => '您必须在这个列表中选择至少一项资产'
     ),
 
     'checkin' => array(

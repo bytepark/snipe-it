@@ -22,7 +22,8 @@ class ComponentsTransformer
         $array = [
             'id' => (int) $component->id,
             'name' => e($component->name),
-            'serial_number' => e($component->serial),
+            'image' =>   ($component->image) ? e(url('/').'/uploads/components/'.e($component->image)) : null,
+            'serial' => ($component->serial) ? e($component->serial) : null,
             'location' => ($component->location) ? [
                 'id' => (int) $component->location->id,
                 'name' => e($component->location->name)
@@ -32,6 +33,10 @@ class ComponentsTransformer
             'category' => ($component->category) ? [
                 'id' => (int) $component->category->id,
                 'name' => e($component->category->name)
+            ] : null,
+            'location' => ($component->location) ? [
+                'id' => (int) $component->location->id,
+                'name' => e($component->location->name)
             ] : null,
             'order_number'  => e($component->order_number),
             'purchase_date' =>  Helper::getFormattedDateObject($component->purchase_date, 'date'),

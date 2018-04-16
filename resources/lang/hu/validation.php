@@ -67,6 +67,7 @@ return array(
     'not_in'               => 'A kiválasztott :attribute étvénytelen.',
     'numeric'              => 'A :attribute csak szám lehet.',
     'present'              => 'A: attribútum mezőnek jelen kell lennie.',
+    'valid_regex'          => 'That is not a valid regex. ',
     'regex'                => 'Az :attribute formátuma érvénytelen.',
     'required'             => 'A :attribute mező kötelező.',
     'required_if'          => 'A :attribute mező kötelező ha :other egy :value.',
@@ -87,6 +88,7 @@ return array(
     'unique'               => 'A :attribute már foglalt.',
     'uploaded'             => 'A: attribútum nem sikerült feltölteni.',
     'url'                  => 'Az :attribute formátuma érvénytelen.',
+    "unique_undeleted"     => "The :attribute must be unique.",
 
     /*
     |--------------------------------------------------------------------------
@@ -117,7 +119,6 @@ return array(
         "hashed_pass"      => "A jelenlegi jelszava helytelen",
         'dumbpwd'          => 'Ez a jelszó túl gyakori.',
         "statuslabel_type" => "Meg kell határoznia egy érvényes állapotcímke típust",
-        "unique_undeleted" => "A: attribútumnak egyedinek kell lennie.",
     ],
 
     /*

@@ -10,8 +10,10 @@
   <?php
     $settings->labels_width = $settings->labels_width - $settings->labels_display_sgutter;
     $settings->labels_height = $settings->labels_height - $settings->labels_display_bgutter;
-    $qr_size = ($settings->labels_height - .25);
-    $qr_txt_size = $settings->labels_width - $qr_size - $settings->labels_display_sgutter - .1;
+    // Leave space on bottom for 1D barcode if necessary
+    $qr_size = ($settings->alt_barcode_enabled=='1') && ($settings->alt_barcode!='') ? $settings->labels_height - .25 : $settings->labels_height;
+    // Leave space on left for QR code if necessary
+    $qr_txt_size = ($settings->qr_code=='1' ? $settings->labels_width - $qr_size - .1: $settings->labels_width);
     ?>
 
   <style>
@@ -110,28 +112,32 @@
       @endif
 
     <div class="qr_text">
-        <div class="pull-left">
         @if ($settings->qr_text!='')
+        <div class="pull-left">
             <strong>{{ $settings->qr_text }}</strong>
             <br>
-        @endif
         </div>
+        @endif
+        @if (($settings->labels_display_company_name=='1') && ($asset->company))
         <div class="pull-left">
+        	C: {{ $asset->company->name }}
+        </div>
+        @endif
         @if (($settings->labels_display_name=='1') && ($asset->name!=''))
+        <div class="pull-left">
             N: {{ $asset->name }}
-        @endif
         </div>
-        <div class="pull-left">
+        @endif
         @if (($settings->labels_display_tag=='1') && ($asset->asset_tag!=''))
-            T: {{ $asset->asset_tag }}
-        @endif
-        </div>
         <div class="pull-left">
-        @if (($settings->labels_display_serial=='1') && ($asset->serial!=''))
-            S: {{ $asset->serial }}
+            T: {{ $asset->asset_tag }}
+        </div>
         @endif
-         </div>
-
+        @if (($settings->labels_display_serial=='1') && ($asset->serial!=''))
+        <div class="pull-left">
+            S: {{ $asset->serial }}
+        </div>
+        @endif
     </div>
 
     @if ((($settings->alt_barcode_enabled=='1') && $settings->alt_barcode!=''))

@@ -62,7 +62,8 @@ return array(
         'error'   		=> 'Equipo no asignado, intentalo de nuevo',
         'success' 		=> 'Equipo asignado.',
         'user_does_not_exist' => 'Este usuario no es correcto. Intentalo de nuevo.',
-        'not_available' => '¡Ese artículo no está disponible para retirada!'
+        'not_available' => '¡Ese artículo no está disponible para retirada!',
+        'no_assets_selected' => 'Debes seleccionar al menos un elemento de la lista'
     ),
 
     'checkin' => array(

@@ -67,6 +67,7 @@ return array(
     'not_in'               => ':attribute geçersiz.',
     'numeric'              => ':attribute sayı olmalıdır.',
     'present'              => ': Attribute alanı bulunmalıdır.',
+    'valid_regex'          => 'Bu geçerli bir regex değildir.',
     'regex'                => ':attribute formatı geçersiz.',
     'required'             => ':attribute alanı zorunludur.',
     'required_if'          => ':attribute :other :value geçersiz.',
@@ -87,6 +88,7 @@ return array(
     'unique'               => ':attribute zaten alınmış.',
     'uploaded'             => ': Özniteliği yüklenemedi.',
     'url'                  => ':attribute biçim geçersiz.',
+    "unique_undeleted"     => ":attribute benzersiz olmalıdır.",
 
     /*
     |--------------------------------------------------------------------------
@@ -117,7 +119,6 @@ return array(
         "hashed_pass"      => "Geçerli şifre yanlış",
         'dumbpwd'          => 'Bu şifre çok yaygındır.',
         "statuslabel_type" => "Geçerli bir durum etiketi türü seçmelisiniz",
-        "unique_undeleted" => ": Özniteliği benzersiz olmalıdır.",
     ],
 
     /*

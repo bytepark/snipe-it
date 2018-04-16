@@ -67,6 +67,7 @@ return array(
     'not_in'               => 'Odabrani: atribut nije važeći.',
     'numeric'              => 'Atribut mora biti broj.',
     'present'              => 'Polje atributa mora biti prisutno.',
+    'valid_regex'          => 'That is not a valid regex. ',
     'regex'                => 'Format atributa nije važeći.',
     'required'             => 'Potrebno je: polje atributa.',
     'required_if'          => 'Polje atributa je obavezno kada: druga vrijednost: vrijednost.',
@@ -87,6 +88,7 @@ return array(
     'unique'               => 'The: atribut je već snimljen.',
     'uploaded'             => 'Atribut nije prenesen.',
     'url'                  => 'Format atributa nije važeći.',
+    "unique_undeleted"     => "The :attribute must be unique.",
 
     /*
     |--------------------------------------------------------------------------
@@ -117,7 +119,6 @@ return array(
         "hashed_pass"      => "Vaša trenutačna zaporka nije točna",
         'dumbpwd'          => 'Ta je lozinka prečestna.',
         "statuslabel_type" => "Morate odabrati valjanu vrstu oznake statusa",
-        "unique_undeleted" => "Atribut mora biti jedinstven.",
     ],
 
     /*

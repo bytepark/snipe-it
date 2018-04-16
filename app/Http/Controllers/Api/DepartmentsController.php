@@ -8,6 +8,7 @@ use App\Models\Department;
 use App\Http\Transformers\DepartmentsTransformer;
 use App\Helpers\Helper;
 use Auth;
+use App\Http\Transformers\SelectlistTransformer;
 
 class DepartmentsController extends Controller
 {
@@ -21,16 +22,17 @@ class DepartmentsController extends Controller
     public function index(Request $request)
     {
         $this->authorize('view', Department::class);
-        $allowed_columns = ['id','name'];
+        $allowed_columns = ['id','name','image','users_count'];
 
         $departments = Department::select([
-            'id',
-            'name',
-            'location_id',
-            'company_id',
-            'manager_id',
-            'created_at',
-            'updated_at'
+            'departments.id',
+            'departments.name',
+            'departments.location_id',
+            'departments.company_id',
+            'departments.manager_id',
+            'departments.created_at',
+            'departments.updated_at',
+            'departments.image'
         ])->with('users')->with('location')->with('manager')->with('company')->withCount('users');
 
         if ($request->has('search')) {
@@ -41,7 +43,18 @@ class DepartmentsController extends Controller
         $limit = $request->input('limit', 50);
         $order = $request->input('order') === 'asc' ? 'asc' : 'desc';
         $sort = in_array($request->input('sort'), $allowed_columns) ? $request->input('sort') : 'created_at';
-        $departments->orderBy($sort, $order);
+
+        switch ($request->input('sort')) {
+            case 'location':
+                $departments->OrderLocation($order);
+                break;
+            case 'manager':
+                $departments->OrderManager($order);
+                break;
+            default:
+                $departments->orderBy($sort, $order);
+                break;
+        }
 
         $total = $departments->count();
         $departments = $departments->skip($offset)->take($limit)->get();
@@ -107,6 +120,40 @@ class DepartmentsController extends Controller
 
         $department->delete();
         return response()->json(Helper::formatStandardApiResponse('success', null, trans('admin/departments/message.delete.success')));
+
+    }
+
+    /**
+     * Gets a paginated collection for the select2 menus
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @since [v4.0.16]
+     * @see \App\Http\Transformers\SelectlistTransformer
+     *
+     */
+    public function selectlist(Request $request)
+    {
+
+        $departments = Department::select([
+            'id',
+            'name',
+            'image',
+        ]);
+
+        if ($request->has('search')) {
+            $departments = $departments->where('name', 'LIKE', '%'.$request->get('search').'%');
+        }
+
+        $departments = $departments->orderBy('name', 'ASC')->paginate(50);
+
+        // Loop through and set some custom properties for the transformer to use.
+        // This lets us have more flexibility in special cases like assets, where
+        // they may not have a ->name value but we want to display something anyway
+        foreach ($departments as $department) {
+            $department->use_image = ($department->image) ? url('/').'/uploads/departments/'.$department->image : null;
+        }
+
+        return (new SelectlistTransformer)->transformSelectlist($departments);
 
     }
 

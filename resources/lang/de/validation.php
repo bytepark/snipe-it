@@ -67,6 +67,7 @@ return array(
     'not_in'               => 'Auswahl :attribute ist ungültig.',
     'numeric'              => ':attribute muss eine Zahl sein.',
     'present'              => 'Das Attributfeld muss vorhanden sein.',
+    'valid_regex'          => 'Dies ist kein gültiger Regex-Ausdruck. ',
     'regex'                => ':attribute Format ungültig.',
     'required'             => ':attribute Feld muss ausgefüllt sein.',
     'required_if'          => ':attribute wird benötigt wenn :other :value entspricht.',
@@ -87,6 +88,7 @@ return array(
     'unique'               => ':attribute schon benutzt.',
     'uploaded'             => ':attribute konnte nicht hochgeladen werden.',
     'url'                  => ':attribute Format ist ungültig.',
+    "unique_undeleted"     => "Die Variable :attribute muss eindeutig sein.",
 
     /*
     |--------------------------------------------------------------------------
@@ -117,7 +119,6 @@ return array(
         "hashed_pass"      => "Ihr derzeitiges Passwort ist nicht korrekt",
         'dumbpwd'          => 'Das Passwort ist zu gebräuchlich.',
         "statuslabel_type" => "Sie müssen einen gültigen Statuslabel-Typ auswählen",
-        "unique_undeleted" => ":attribute muss eindeutig sein.",
     ],
 
     /*

@@ -67,6 +67,7 @@ return array(
     'not_in'               => 'ویژگی انتخاب شده نامعتبر است.',
     'numeric'              => 'ویژگی باید عدد باشد.',
     'present'              => 'فیلد attribute باید باشد.',
+    'valid_regex'          => 'That is not a valid regex. ',
     'regex'                => 'شکل ویژگی نامعتبر است.',
     'required'             => 'فیلد ویژگی ضروری است.',
     'required_if'          => 'فیلد ویژگی ضروری است، وقتی که دیگری ارزش است.',
@@ -87,6 +88,7 @@ return array(
     'unique'               => 'ویژگی در حال حاضر گرفته شده است.',
     'uploaded'             => 'ویژگی: attribute failed to upload.',
     'url'                  => 'شکل ویژگی نامعتبر است.',
+    "unique_undeleted"     => "The :attribute must be unique.",
 
     /*
     |--------------------------------------------------------------------------
@@ -117,7 +119,6 @@ return array(
         "hashed_pass"      => "رمز عبور فعلی شما اشتباه است",
         'dumbpwd'          => 'این رمز عبور خیلی رایج است',
         "statuslabel_type" => "شما باید نوع برچسب معتبر را انتخاب کنید",
-        "unique_undeleted" => ": attribute باید منحصر به فرد باشد.",
     ],
 
     /*

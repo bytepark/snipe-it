@@ -40,7 +40,7 @@
       margin-top: 0px;
     }
     .permissions.table > tbody+tbody {
-      margin: 15px;
+
     }
     .header-row {
       border-bottom: 1px solid #ccc;
@@ -57,9 +57,6 @@
     .table > tbody > tr > td.permissions-item {
       padding: 1px;
       padding-left: 8px;
-    }
-    table, tbody {
-      border: 1px solid #ccc;
     }
 
     .header-name {
@@ -150,8 +147,7 @@
                         autocomplete="off"
                         readonly
                         onfocus="this.removeAttribute('readonly');"
-                        {{ ((config('app.lock_passwords') && ($user->id)) ? ' disabled' : '') }}
-                      >
+                        {{ ((config('app.lock_passwords') && ($user->id)) ? ' disabled' : '') }}>
                     @else
                       (Managed via LDAP)
                     @endif
@@ -179,6 +175,8 @@
                     class="form-control"
                     value=""
                     autocomplete="off"
+                    readonly
+                    onfocus="this.removeAttribute('readonly');"
                     {{ ((config('app.lock_passwords') && ($user->id)) ? ' disabled' : '') }}
                     >
                     @if (config('app.lock_passwords') && ($user->id))
@@ -202,8 +200,7 @@
                       {{ ((config('app.lock_passwords') && ($user->id)) ? ' disabled' : '') }}
                       autocomplete="off"
                       readonly
-                      onfocus="this.removeAttribute('readonly');"
-                    >
+                      onfocus="this.removeAttribute('readonly');">
                     @if (config('app.lock_passwords') && ($user->id))
                     <p class="help-block">{{ trans('admin/users/table.lock_passwords') }}</p>
                     @endif
@@ -213,16 +210,7 @@
 
                 <!-- Company -->
                 @if (\App\Models\Company::canManageUsersCompanies())
-                <!-- Company -->
-                <div class="form-group {{ $errors->has('company_id') ? 'has-error' : '' }}">
-                  <div class="col-md-3 control-label">
-                    {{ Form::label('company_id', trans('general.company')) }}
-                  </div>
-                  <div class="col-md-8">
-                    {{ Form::select('company_id', $company_list , Input::old('company_id', $user->company_id), array('class'=>'select2', 'style'=>'width:350px')) }}
-                    {!! $errors->first('company_id', '<span class="alert-msg">:message</span>') !!}
-                  </div>
-                </div>
+                    @include ('partials.forms.edit.company-select', ['translated_name' => trans('general.select_company'), 'fieldname' => 'company_id'])
                 @endif
 
                 <!-- language -->
@@ -267,35 +255,14 @@
 
 
                 <!-- Manager -->
-                <div class="form-group {{ $errors->has('manager_id') ? 'has-error' : '' }}">
-                  <label class="col-md-3 control-label" for="manager_id">{{ trans('admin/users/table.manager') }}</label>
-                  <div class="col-md-8">
-                    {{ Form::select('manager_id', $manager_list , Input::old('manager_id', $user->manager_id), array('class'=>'select2', 'style'=>'width:350px')) }}
-                    {!! $errors->first('manager_id', '<span class="alert-msg">:message</span>') !!}
-                  </div>
-                </div>
+              @include ('partials.forms.edit.user-select', ['translated_name' => trans('admin/users/table.manager'), 'fieldname' => 'manager_id'])
 
                   <!--  Department -->
-                  <div class="form-group {{ $errors->has('department_id') ? ' has-error' : '' }}">
-                      <label for="status_id" class="col-md-3 control-label">
-                          {{ trans('general.department') }}
-                      </label>
-                      <div class="col-md-7">
-                          {{ Form::select('department_id', $department_list , Input::old('department_id', $user->department_id), array('class'=>'select2', 'style'=>'width:350px')) }}
-                          {!! $errors->first('department_id', '<span class="alert-msg"><i class="fa fa-times"></i> :message</span>') !!}
-                      </div>
-                  </div>
+              @include ('partials.forms.edit.department-select', ['translated_name' => trans('general.department'), 'fieldname' => 'department_id'])
 
 
                   <!-- Location -->
-                <div class="form-group {{ $errors->has('location_id') ? 'has-error' : '' }}">
-                  <label class="col-md-3 control-label" for="location_id">{{ trans('admin/users/table.location') }}
-                  </label>
-                  <div class="col-md-8">
-                    {{ Form::select('location_id', $location_list , Input::old('location_id', $user->location_id), array('class'=>'select2', 'style'=>'width:350px')) }}
-                    {!! $errors->first('location_id', '<span class="alert-msg">:message</span>') !!}
-                  </div>
-                </div>
+              @include ('partials.forms.edit.location-select', ['translated_name' => trans('general.location'), 'fieldname' => 'location_id'])
 
                 <!-- Phone -->
                 <div class="form-group {{ $errors->has('phone') ? 'has-error' : '' }}">
@@ -305,6 +272,53 @@
                     {!! $errors->first('phone', '<span class="alert-msg">:message</span>') !!}
                   </div>
                 </div>
+
+                  <!-- Address -->
+                  <div class="form-group{{ $errors->has('address') ? ' has-error' : '' }}">
+                      <label class="col-md-3 control-label" for="address">{{ trans('general.address') }}</label>
+                      <div class="col-md-4">
+                          <input class="form-control" type="text" name="address" id="address" value="{{ Input::old('address', $user->address) }}" />
+                          {!! $errors->first('address', '<span class="alert-msg">:message</span>') !!}
+                      </div>
+                  </div>
+
+                  <!-- City -->
+                  <div class="form-group{{ $errors->has('city') ? ' has-error' : '' }}">
+                      <label class="col-md-3 control-label" for="city">{{ trans('general.city') }}</label>
+                      <div class="col-md-4">
+                          <input class="form-control" type="text" name="city" id="city" value="{{ Input::old('city', $user->city) }}" />
+                          {!! $errors->first('city', '<span class="alert-msg">:message</span>') !!}
+                      </div>
+                  </div>
+
+                  <!-- State -->
+                  <div class="form-group{{ $errors->has('state') ? ' has-error' : '' }}">
+                      <label class="col-md-3 control-label" for="state">{{ trans('general.state') }}</label>
+                      <div class="col-md-4">
+                          <input class="form-control" type="text" name="state" id="state" value="{{ Input::old('state', $user->state) }}" maxlength="3" />
+                          {!! $errors->first('state', '<span class="alert-msg">:message</span>') !!}
+                      </div>
+                  </div>
+
+                  <!-- Country -->
+                  <div class="form-group{{ $errors->has('country') ? ' has-error' : '' }}">
+                      <label class="col-md-3 control-label" for="city">{{ trans('general.country') }}</label>
+                      <div class="col-md-4">
+                          {!! Form::countries('country', Input::old('country', $user->country), 'select2') !!}
+                          {!! $errors->first('country', '<span class="alert-msg">:message</span>') !!}
+                      </div>
+                  </div>
+
+                  <!-- Zip -->
+                  <div class="form-group{{ $errors->has('zip') ? ' has-error' : '' }}">
+                      <label class="col-md-3 control-label" for="zip">{{ trans('general.zip') }}</label>
+                      <div class="col-md-4">
+                          <input class="form-control" type="text" name="zip" id="zip" value="{{ Input::old('zip', $user->zip) }}" maxlength="10" />
+                          {!! $errors->first('zip', '<span class="alert-msg">:message</span>') !!}
+                      </div>
+                  </div>
+
+
 
                 <!-- Activation Status -->
                 <div class="form-group {{ $errors->has('activated') ? 'has-error' : '' }}">
@@ -442,63 +456,62 @@
             <table class="table table-striped permissions">
               <thead>
                 <tr class="permissions-row">
-                  <th class="col-md-5"><span class="line"></span>Permission</th>
-                  <th class="col-md-1"><span class="line"></span>Grant</th>
-                  <th class="col-md-1"><span class="line"></span>Deny</th>
-                  <th class="col-md-1"><span class="line"></span>Inherit</th>
+                  <th class="col-md-5">Permission</th>
+                  <th class="col-md-1">Grant</th>
+                  <th class="col-md-1">Deny</th>
+                  <th class="col-md-1">Inherit</th>
                 </tr>
               </thead>
 
+
               @foreach ($permissions as $area => $permissionsArray)
               @if (count($permissionsArray) == 1)
-              <tbody class="permissions-group">
                 <?php $localPermission = $permissionsArray[0]; ?>
                 <tr class="header-row permissions-row">
                   <td class="col-md-5 tooltip-base permissions-item"
                     data-toggle="tooltip"
                     data-placement="right"
-                    title="{{ $localPermission['note'] }}"
-                  >
+                    title="{{ $localPermission['note'] }}">
                     <h4>{{ $area . ': ' . $localPermission['label'] }}</h4>
                   </td>
 
                   <td class="col-md-1 permissions-item">
                     @if (($localPermission['permission'] == 'superuser') && (!Auth::user()->isSuperUser()))
-                      {{ Form::radio('permission['.$localPermission['permission'].']', '1',$userPermissions[$localPermission['permission'] ] == '1',['disabled'=>"disabled"]) }}
+                      {{ Form::radio('permission['.$localPermission['permission'].']', '1',$userPermissions[$localPermission['permission'] ] == '1',['disabled'=>"disabled", 'class'=>'minimal']) }}
                     @else
-                      {{ Form::radio('permission['.$localPermission['permission'].']', '1',$userPermissions[$localPermission['permission'] ] == '1',['value'=>"grant"]) }}
+                      {{ Form::radio('permission['.$localPermission['permission'].']', '1',$userPermissions[$localPermission['permission'] ] == '1',['value'=>"grant", 'class'=>'minimal']) }}
                     @endif
                   </td>
                   <td class="col-md-1 permissions-item">
                     @if (($localPermission['permission'] == 'superuser') && (!Auth::user()->isSuperUser()))
-                      {{ Form::radio('permission['.$localPermission['permission'].']', '-1',$userPermissions[$localPermission['permission'] ] == '-1',['disabled'=>"disabled"]) }}
+                      {{ Form::radio('permission['.$localPermission['permission'].']', '-1',$userPermissions[$localPermission['permission'] ] == '-1',['disabled'=>"disabled", 'class'=>'minimal']) }}
                     @else
-                      {{ Form::radio('permission['.$localPermission['permission'].']', '-1',$userPermissions[$localPermission['permission'] ] == '-1',['value'=>"deny"]) }}
+                      {{ Form::radio('permission['.$localPermission['permission'].']', '-1',$userPermissions[$localPermission['permission'] ] == '-1',['value'=>"deny", 'class'=>'minimal']) }}
                     @endif
                   </td>
                   <td class="col-md-1 permissions-item">
                     @if (($localPermission['permission'] == 'superuser') && (!Auth::user()->isSuperUser()))
-                      {{ Form::radio('permission['.$localPermission['permission'].']','0',$userPermissions[$localPermission['permission'] ] == '0',['disabled'=>"disabled"] ) }}
+                      {{ Form::radio('permission['.$localPermission['permission'].']','0',$userPermissions[$localPermission['permission'] ] == '0',['disabled'=>"disabled",'class'=>'minimal'] ) }}
                     @else
-                      {{ Form::radio('permission['.$localPermission['permission'].']','0',$userPermissions[$localPermission['permission'] ] == '0',['value'=>"inherit"] ) }}
+                      {{ Form::radio('permission['.$localPermission['permission'].']','0',$userPermissions[$localPermission['permission'] ] == '0',['value'=>"inherit", 'class'=>'minimal'] ) }}
                     @endif
                   </td>
                 </tr>
-              </tbody>
+
               @else
-              <tbody class="permissions-group">
+
                 <tr class="header-row permissions-row">
                   <td class="col-md-5 header-name">
                     <h3>{{ $area }}</h3>
                   </td>
                   <td class="col-md-1 permissions-item">
-                    {{ Form::radio("$area", '1',false,['value'=>"grant"]) }}
+                    {{ Form::radio("$area", '1',false,['value'=>"grant", 'class'=>'minimal', 'data-checker-group' => str_slug($area)]) }}
                   </td>
                   <td class="col-md-1 permissions-item">
-                    {{ Form::radio("$area", '-1',false,['value'=>"deny"]) }}
+                    {{ Form::radio("$area", '-1',false,['value'=>"deny", 'class'=>'minimal', 'data-checker-group' => str_slug($area)]) }}
                   </td>
                   <td class="col-md-1 permissions-item">
-                    {{ Form::radio("$area", '0',false,['value'=>"inherit"] ) }}
+                    {{ Form::radio("$area", '0',false,['value'=>"inherit", 'class'=>'minimal', 'data-checker-group' => str_slug($area)] ) }}
                   </td>
                 </tr>
 
@@ -509,37 +522,37 @@
                       class="col-md-5 tooltip-base permissions-item"
                       data-toggle="tooltip"
                       data-placement="right"
-                      title="{{ $permission['note'] }}"
-                    >
+                      title="{{ $permission['note'] }}">
                       {{ $permission['label'] }}
                     </td>
                     <td class="col-md-1 permissions-item">
                       @if (($permission['permission'] == 'superuser') && (!Auth::user()->isSuperUser()))
-                      {{ Form::radio('permission['.$permission['permission'].']', '1', $userPermissions[$permission['permission'] ] == '1', ["value"=>"grant", 'disabled'=>'disabled']) }}
+                      {{ Form::radio('permission['.$permission['permission'].']', '1', $userPermissions[$permission['permission'] ] == '1', ["value"=>"grant", 'disabled'=>'disabled', 'class'=>'minimal radiochecker-'.str_slug($area)]) }}
                       @else
-                      {{ Form::radio('permission['.$permission['permission'].']', '1', $userPermissions[ $permission['permission'] ] == '1', ["value"=>"grant"]) }}
+                      {{ Form::radio('permission['.$permission['permission'].']', '1', $userPermissions[ $permission['permission'] ] == '1', ["value"=>"grant",'class'=>'minimal radiochecker-'.str_slug($area)]) }}
                       @endif
                     </td>
                     <td class="col-md-1 permissions-item">
                       @if (($permission['permission'] == 'superuser') && (!Auth::user()->isSuperUser()))
-                      {{ Form::radio('permission['.$permission['permission'].']', '-1', $userPermissions[$permission['permission'] ] == '-1', ["value"=>"deny", 'disabled'=>'disabled']) }}
+                      {{ Form::radio('permission['.$permission['permission'].']', '-1', $userPermissions[$permission['permission'] ] == '-1', ["value"=>"deny", 'disabled'=>'disabled', 'class'=>'minimal radiochecker-'.str_slug($area)]) }}
                       @else
-                      {{ Form::radio('permission['.$permission['permission'].']', '-1', $userPermissions[$permission['permission'] ] == '-1', ["value"=>"deny"]) }}
+                      {{ Form::radio('permission['.$permission['permission'].']', '-1', $userPermissions[$permission['permission'] ] == '-1', ["value"=>"deny",'class'=>'minimal radiochecker-'.str_slug($area)]) }}
                       @endif
                     </td>
                     <td class="col-md-1 permissions-item">
                       @if (($permission['permission'] == 'superuser') && (!Auth::user()->isSuperUser()))
-                      {{ Form::radio('permission['.$permission['permission'].']', '0', $userPermissions[$permission['permission']] =='0', ["value"=>"inherit", 'disabled'=>'disabled']) }}
+                      {{ Form::radio('permission['.$permission['permission'].']', '0', $userPermissions[$permission['permission']] =='0', ["value"=>"inherit", 'disabled'=>'disabled', 'class'=>'minimal radiochecker-'.str_slug($area)]) }}
                       @else
-                      {{ Form::radio('permission['.$permission['permission'].']', '0', $userPermissions[$permission['permission']] =='0', ["value"=>"inherit"]) }}
+                      {{ Form::radio('permission['.$permission['permission'].']', '0', $userPermissions[$permission['permission']] =='0', ["value"=>"inherit", 'class'=>'minimal radiochecker-'.str_slug($area)]) }}
                       @endif
                     </td>
                   @endif
                 </tr>
                 @endforeach
-              </tbody>
+
               @endif
               @endforeach
+              </tbody>
             </table>
           </div><!-- /.tab-pane -->
         </div><!-- /.tab-content -->
@@ -553,6 +566,8 @@
 @stop
 
 @section('moar_scripts')
+<script src="{{ asset('js/pGenerator.jquery.js') }}"></script>
+
 <script nonce="{{ csrf_token() }}">
 $(document).ready(function() {
 
@@ -567,28 +582,17 @@ $(document).ready(function() {
 	    }
 
 	});
-});
-</script>
 
-<script nonce="{{ csrf_token() }}">
-$('tr.header-row input:radio').click(function() {
-  value = $(this).attr('value');
-  $(this).parent().parent().siblings().each(function() {
-    $(this).find('td input:radio[value='+value+']').prop("checked", true);
-  })
-});
+	// Check/Uncheck all radio buttons in the group
+    $('tr.header-row input:radio').on('ifClicked', function () {
+        value = $(this).attr('value');
+        area = $(this).data('checker-group');
+        $('.radiochecker-'+area+'[value='+value+']').iCheck('check');
+    });
 
-$('.header-name').click(function() {
-  $(this).parent().nextUntil('tr.header-row').slideToggle(500);
-})
-</script>
-
-<script src="{{ asset('js/pGenerator.jquery.js') }}"></script>
-
-<script nonce="{{ csrf_token() }}">
-
-
-$(document).ready(function(){
+    $('.header-name').click(function() {
+        $(this).parent().nextUntil('tr.header-row').slideToggle(500);
+    });
 
     $('.tooltip-base').tooltip({container: 'body'})
     $(".superuser").change(function() {
@@ -610,10 +614,9 @@ $(document).ready(function(){
         'numbers':   true,
         'specialChars': true,
         'onPasswordGenerated': function(generatedPassword) {
-			 $('#password_confirm').val($('#password').val());
+            $('#password_confirm').val($('#password').val());
         }
     });
-});
 
     $("#two_factor_reset").click(function(){
         $("#two_factor_resetrow").removeClass('success');
@@ -624,6 +627,10 @@ $(document).ready(function(){
             url: '{{ route('api.users.two_factor_reset', ['id'=> $user->id]) }}',
             type: 'POST',
             data: {},
+            headers: {
+                "X-Requested-With": 'XMLHttpRequest',
+                 "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
+            },
             dataType: 'json',
 
             success: function (data) {
@@ -642,6 +649,8 @@ $(document).ready(function(){
     });
 
 
-
+});
 </script>
+
+
 @stop

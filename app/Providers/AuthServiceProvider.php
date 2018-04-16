@@ -3,22 +3,38 @@
 namespace App\Providers;
 
 use App\Models\Accessory;
-use Carbon\Carbon;
 use App\Models\Asset;
-use App\Models\Location;
-use App\Models\Component;
+use App\Models\AssetModel;
 use App\Models\Category;
+use App\Models\Component;
 use App\Models\Consumable;
+use App\Models\CustomField;
+use App\Models\Department;
 use App\Models\License;
+use App\Models\Location;
+use App\Models\Depreciation;
+use App\Models\Statuslabel;
+use App\Models\Supplier;
+use App\Models\Manufacturer;
+use App\Models\Company;
 use App\Models\User;
 use App\Policies\AccessoryPolicy;
+use App\Policies\AssetModelPolicy;
 use App\Policies\AssetPolicy;
+use App\Policies\CategoryPolicy;
 use App\Policies\ComponentPolicy;
 use App\Policies\ConsumablePolicy;
+use App\Policies\CustomFieldPolicy;
+use App\Policies\DepartmentPolicy;
+use App\Policies\DepreciationPolicy;
 use App\Policies\LicensePolicy;
 use App\Policies\LocationPolicy;
-use App\Policies\CategoryPolicy;
+use App\Policies\StatuslabelPolicy;
+use App\Policies\SupplierPolicy;
 use App\Policies\UserPolicy;
+use App\Policies\ManufacturerPolicy;
+use App\Policies\CompanyPolicy;
+use Carbon\Carbon;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Passport\Passport;
@@ -28,17 +44,27 @@ class AuthServiceProvider extends ServiceProvider
     /**
      * The policy mappings for the application.
      *
+     * See SnipePermissionsPolicy for additional information.
+     *
      * @var array
      */
     protected $policies = [
-        Asset::class => AssetPolicy::class,
         Accessory::class => AccessoryPolicy::class,
+        Asset::class => AssetPolicy::class,
+        AssetModel::class => AssetModelPolicy::class,
+        Category::class => CategoryPolicy::class,
         Component::class => ComponentPolicy::class,
         Consumable::class => ConsumablePolicy::class,
+        CustomField::class => CustomFieldPolicy::class,
+        Department::class => DepartmentPolicy::class,
+        Depreciation::class => DepreciationPolicy::class,
         License::class => LicensePolicy::class,
-        User::class => UserPolicy::class,
         Location::class => LocationPolicy::class,
-        Category::class => CategoryPolicy::class,
+        Statuslabel::class => StatuslabelPolicy::class,
+        Supplier::class => SupplierPolicy::class,
+        User::class => UserPolicy::class,
+        Manufacturer::class => ManufacturerPolicy::class,
+        Company::class => CompanyPolicy::class,
     ];
 
     /**
@@ -54,7 +80,7 @@ class AuthServiceProvider extends ServiceProvider
             \Laravel\Passport\Console\ClientCommand::class,
             \Laravel\Passport\Console\KeysCommand::class,
         ]);
-        
+
 
         $this->registerPolicies();
         Passport::routes();
@@ -100,6 +126,24 @@ class AuthServiceProvider extends ServiceProvider
             if (($user->hasAccess('self.two_factor')) || ($user->hasAccess('admin'))) {
                 return true;
             }
+        });
+
+        Gate::define('self.api', function($user) {
+            return $user->hasAccess('self.api');
+        });
+
+        Gate::define('backend.interact', function ($user) {
+            return $user->can('view', Statuslabel::class)
+                || $user->can('view', AssetModel::class)
+                || $user->can('view', Category::class)
+                || $user->can('view', Manufacturer::class)
+                || $user->can('view', Supplier::class)
+                || $user->can('view', Department::class)
+                || $user->can('view', Location::class)
+                || $user->can('view', Company::class)
+                || $user->can('view', Manufacturer::class)
+                || $user->can('view', CustomField::class)
+                || $user->can('view', Depreciation::class);
         });
     }
 }

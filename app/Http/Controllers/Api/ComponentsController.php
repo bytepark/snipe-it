@@ -31,10 +31,14 @@ class ComponentsController extends Controller
             $components = $components->TextSearch($request->input('search'));
         }
 
+        if ($request->has('company_id')) {
+            $components->where('company_id','=',$request->input('company_id'));
+        }
+
         $offset = request('offset', 0);
         $limit = request('limit', 50);
 
-        $allowed_columns = ['id','name','min_amt','order_number','serial','purchase_date','purchase_cost','company','category','qty','location'];
+        $allowed_columns = ['id','name','min_amt','order_number','serial','purchase_date','purchase_cost','company','category','qty','location','image'];
         $order = $request->input('order') === 'asc' ? 'asc' : 'desc';
         $sort = in_array($request->input('sort'), $allowed_columns) ? $request->input('sort') : 'created_at';
 
@@ -89,13 +93,11 @@ class ComponentsController extends Controller
     public function show($id)
     {
         $this->authorize('view', Component::class);
-        $component = Component::find($id);
+        $component = Component::findOrFail($id);
 
         if ($component) {
             return (new ComponentsTransformer)->transformComponent($component);
         }
-        
-        return response()->json(Helper::formatStandardApiResponse('error', null, trans('admin/components/message.does_not_exist')));
     }
 
 
@@ -149,7 +151,7 @@ class ComponentsController extends Controller
     */
     public function getAssets(Request $request, $id)
     {
-        $this->authorize('index', Asset::class);
+        $this->authorize('view', \App\Models\Asset::class);
         
         $component = Component::findOrFail($id);
         $assets = $component->assets();

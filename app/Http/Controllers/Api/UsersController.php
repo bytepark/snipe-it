@@ -10,6 +10,8 @@ use App\Models\User;
 use App\Helpers\Helper;
 use App\Http\Requests\SaveUserRequest;
 use App\Models\Asset;
+use App\Http\Transformers\AssetsTransformer;
+use App\Http\Transformers\SelectlistTransformer;
 
 class UsersController extends Controller
 {
@@ -26,31 +28,36 @@ class UsersController extends Controller
         $this->authorize('view', User::class);
 
         $users = User::select([
-            'users.id',
-            'users.employee_num',
-            'users.two_factor_enrolled',
-            'users.jobtitle',
-            'users.email',
-            'users.username',
-            'users.location_id',
-            'users.manager_id',
-            'users.first_name',
-            'users.last_name',
-            'users.created_at',
-            'users.notes',
+            'users.activated',
+            'users.address',
+            'users.avatar',
+            'users.city',
             'users.company_id',
-            'users.last_login',
+            'users.country',
+            'users.created_at',
             'users.deleted_at',
             'users.department_id',
-            'users.activated'
-        ])->with('manager', 'groups', 'userloc', 'company', 'department','throttle','assets','licenses','accessories','consumables')
+            'users.email',
+            'users.employee_num',
+            'users.first_name',
+            'users.id',
+            'users.jobtitle',
+            'users.last_login',
+            'users.last_name',
+            'users.location_id',
+            'users.manager_id',
+            'users.notes',
+            'users.permissions',
+            'users.phone',
+            'users.state',
+            'users.two_factor_enrolled',
+            'users.updated_at',
+            'users.username',
+            'users.zip',
+
+        ])->with('manager', 'groups', 'userloc', 'company', 'department','assets','licenses','accessories','consumables')
             ->withCount('assets','licenses','accessories','consumables');
         $users = Company::scopeCompanyables($users);
-
-
-        if ($request->has('search')) {
-            $users = $users->TextSearch($request->input('search'));
-        }
 
 
         if (($request->has('deleted')) && ($request->input('deleted')=='true')) {
@@ -58,24 +65,28 @@ class UsersController extends Controller
         }
 
         if ($request->has('company_id')) {
-            $users = $users->where('company_id', '=', $request->input('company_id'));
+            $users = $users->where('users.company_id', '=', $request->input('company_id'));
         }
 
         if ($request->has('location_id')) {
-            $users = $users->where('location_id', '=', $request->input('location_id'));
+            $users = $users->where('users.location_id', '=', $request->input('location_id'));
         }
-        
+
         if ($request->has('group_id')) {
-            $users = $users->ByGroup($request->has('group_id'));
+            $users = $users->ByGroup($request->get('group_id'));
         }
 
         if ($request->has('department_id')) {
-            $users = $users->where('department_id','=',$request->input('department_id'));
+            $users = $users->where('users.department_id','=',$request->input('department_id'));
+        }
+
+        if ($request->has('search')) {
+            $users = $users->TextSearch($request->input('search'));
         }
 
         $order = $request->input('order') === 'asc' ? 'asc' : 'desc';
         $offset = request('offset', 0);
-        $limit = request('limit', 50);
+        $limit = request('limit',  20);
 
         switch ($request->input('sort')) {
             case 'manager':
@@ -93,17 +104,81 @@ class UsersController extends Controller
                         'last_name','first_name','email','jobtitle','username','employee_num',
                         'assets','accessories', 'consumables','licenses','groups','activated','created_at',
                         'two_factor_enrolled','two_factor_optin','last_login', 'assets_count', 'licenses_count',
-                        'consumables_count', 'accessories_count'
+                        'consumables_count', 'accessories_count', 'phone', 'address', 'city', 'state',
+                        'country', 'zip'
                     ];
 
                 $sort = in_array($request->get('sort'), $allowed_columns) ? $request->get('sort') : 'first_name';
                 $users = $users->orderBy($sort, $order);
                 break;
         }
+
+
         $total = $users->count();
         $users = $users->skip($offset)->take($limit)->get();
         return (new UsersTransformer)->transformUsers($users, $total);
     }
+
+
+    /**
+     * Gets a paginated collection for the select2 menus
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @since [v4.0.16]
+     * @see \App\Http\Transformers\SelectlistTransformer
+     *
+     */
+    public function selectlist(Request $request)
+    {
+
+        $users = User::select(
+            [
+                'users.id',
+                'users.username',
+                'users.employee_num',
+                'users.first_name',
+                'users.last_name',
+                'users.gravatar',
+                'users.avatar',
+                'users.email',
+            ]
+            );
+
+        $users = Company::scopeCompanyables($users);
+
+        if ($request->has('search')) {
+            $users = $users->where('first_name', 'LIKE', '%'.$request->get('search').'%')
+                ->orWhere('last_name', 'LIKE', '%'.$request->get('search').'%')
+                ->orWhere('username', 'LIKE', '%'.$request->get('search').'%')
+                ->orWhere('employee_num', 'LIKE', '%'.$request->get('search').'%');
+        }
+
+        $users = $users->orderBy('last_name', 'asc')->orderBy('first_name', 'asc');
+        $users = $users->paginate(50);
+
+        foreach ($users as $user) {
+            $name_str = '';
+            if ($user->last_name!='') {
+                $name_str .= e($user->last_name).', ';
+            }
+            $name_str .= e($user->first_name);
+
+            if ($user->username!='') {
+                $name_str .= ' ('.e($user->username).')';
+            }
+
+            if ($user->employee_num!='') {
+                $name_str .= ' - #'.e($user->employee_num);
+            }
+
+            $user->use_text = $name_str;
+            $user->use_image = ($user->present()->gravatar) ? $user->present()->gravatar : null;
+        }
+
+        return (new SelectlistTransformer)->transformSelectlist($users);
+
+    }
+
 
 
     /**
@@ -122,7 +197,7 @@ class UsersController extends Controller
         $user->password = bcrypt($request->input('password'));
 
         if ($user->save()) {
-            return response()->json(Helper::formatStandardApiResponse('success', (new UsersTransformer)->transformUser($user), trans('admin/users/message.create.success')));
+            return response()->json(Helper::formatStandardApiResponse('success', (new UsersTransformer)->transformUser($user), trans('admin/users/message.success.create')));
         }
         return response()->json(Helper::formatStandardApiResponse('error', null, $user->getErrors()));
     }
@@ -157,10 +232,17 @@ class UsersController extends Controller
         $user = User::findOrFail($id);
         $user->fill($request->all());
 
+        if ($user->id == $request->input('manager_id')) {
+            return response()->json(Helper::formatStandardApiResponse('error', null, 'You cannot be your own manager'));
+        }
+
         if ($request->has('password')) {
             $user->password = bcrypt($request->input('password'));
         }
 
+        // Update the location of any assets checked out to this user
+        Asset::where('assigned_type', User::class)
+            ->where('assigned_to', $user->id)->update(['location_id' => $request->input('location_id', null)]);
 
         if ($user->save()) {
             return response()->json(Helper::formatStandardApiResponse('success', (new UsersTransformer)->transformUser($user), trans('admin/users/message.success.update')));
@@ -206,6 +288,34 @@ class UsersController extends Controller
     {
         $this->authorize('view', User::class);
         $assets = Asset::where('assigned_to', '=', $id)->with('model')->get();
-        return response()->json($assets);
+        return (new AssetsTransformer)->transformAssets($assets, $assets->count());
+    }
+
+    /**
+     * Reset the user's two-factor status
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @since [v3.0]
+     * @param $userId
+     * @return string JSON
+     */
+    public function postTwoFactorReset(Request $request)
+    {
+
+        $this->authorize('edit', User::class);
+
+        if ($request->has('id')) {
+            try {
+                $user = User::find($request->get('id'));
+                $user->two_factor_secret = null;
+                $user->two_factor_enrolled = 0;
+                $user->save();
+                return response()->json(['message' => trans('admin/settings/general.two_factor_reset_success')], 200);
+            } catch (\Exception $e) {
+                return response()->json(['message' => trans('admin/settings/general.two_factor_reset_error')], 500);
+            }
+        }
+        return response()->json(['message' => 'No ID provided'], 500);
+
     }
 }

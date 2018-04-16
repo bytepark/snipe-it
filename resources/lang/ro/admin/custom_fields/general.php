@@ -20,6 +20,7 @@ return array(
     'field_element_short'     => 'Element',
     'field_format'            => 'Format',
     'field_custom_format'     => 'Format personalizat',
+    'field_custom_format_help'     => 'Acest câmp vă permite să utilizați o expresie de tip regex pentru validare. Ar trebui să înceapă cu "regex:" - de exemplu, pentru a valida că o valoare de câmp conține un IMEI valid (15 cifre numerice), veti folosi <code>regex: / ^[0-9]{15}$ /</code>.',
     'required'   		          => 'Necesar',
     'req'   		              => 'Req.',
     'used_by_models'   		    => 'Folosit de modele',

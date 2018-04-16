@@ -67,10 +67,7 @@ class LicensesController extends Controller
         return view('licenses/edit')
             //->with('license_options',$license_options)
             ->with('depreciation_list', Helper::depreciationList())
-            ->with('supplier_list', Helper::suppliersList())
             ->with('maintained_list', $maintained_list)
-            ->with('company_list', Helper::companyList())
-            ->with('manufacturer_list', Helper::manufacturerList())
             ->with('item', new License);
 
     }
@@ -144,10 +141,7 @@ class LicensesController extends Controller
 
         return view('licenses/edit', compact('item'))
             ->with('depreciation_list', Helper::depreciationList())
-            ->with('supplier_list', Helper::suppliersList())
-            ->with('company_list', Helper::companyList())
-            ->with('maintained_list', $maintained_list)
-            ->with('manufacturer_list', Helper::manufacturerList());
+            ->with('maintained_list', $maintained_list);
     }
 
 
@@ -245,18 +239,19 @@ class LicensesController extends Controller
     * @param int $seatId
     * @return \Illuminate\Contracts\View\View
      */
-    public function getCheckout($seatId)
+    public function getCheckout($licenceId)
     {
-        // Check if the license seat exists
-        if (is_null($licenseSeat = LicenseSeat::find($seatId))) {
-            // Redirect to the asset management page with error
-            return redirect()->route('licenses.index')->with('error', trans('admin/licenses/message.not_found'));
+        // Check that the license is valid
+        if ($license = License::where('id',$licenceId)->first()) {
+
+            // If the license is valid, check that there is an available seat
+            if ($license->getAvailSeatsCountAttribute() < 1) {
+                return redirect()->route('licenses.index')->with('error', 'There are no available seats for this license');
+            }
         }
 
-        $this->authorize('checkout', $licenseSeat);
-        return view('licenses/checkout', compact('licenseSeat'))
-            ->with('users_list', Helper::usersList())
-            ->with('asset_list', Helper::detailedAssetList());
+        $this->authorize('checkout', $license);
+        return view('licenses/checkout', compact('license'));
     }
 
 
@@ -270,78 +265,83 @@ class LicensesController extends Controller
      * @param int $seatId
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function postCheckout(Request $request, $seatId)
+    public function postCheckout(Request $request, $licenseId)
     {
-        $licenseSeat = LicenseSeat::find($seatId);
-        $assigned_to = e($request->input('assigned_to'));
-        $asset_id = e($request->input('asset_id'));
 
-        $this->authorize('checkout', $licenseSeat);
+        // Check that the license is valid
+        if ($license = License::where('id',$licenseId)->first()) {
 
-        // Declare the rules for the form validation
-        $rules = [
-            'note'   => 'string|nullable',
-            'asset_id'  => 'required_without:assigned_to',
-        ];
-
-        // Create a new validator instance from our validation rules
-        $validator = Validator::make(Input::all(), $rules);
-
-        // If validation fails, we'll exit the operation now.
-        if ($validator->fails()) {
-            // Ooops.. something went wrong
-            return redirect()->back()->withInput()->withErrors($validator);
-        }
-        $target = null;
-        if ($assigned_to!='') {
-        // Check if the user exists
-            if (is_null($target = User::find($assigned_to))) {
-                // Redirect to the asset management page with error
-                return redirect()->route('licenses.index')->with('error', trans('admin/licenses/message.user_does_not_exist'));
-            }
-        }
-
-        if ($asset_id!='') {
-            if (is_null($target = Asset::find($asset_id))) {
-                // Redirect to the asset management page with error
-                return redirect()->route('licenses.index')->with('error', trans('admin/licenses/message.asset_does_not_exist'));
+            // If the license is valid, check that there is an available seat
+            if ($license->getAvailSeatsCountAttribute() < 1) {
+                return redirect()->route('licenses.index')->with('error', 'There are no available seats for this license');
             }
 
-            if (($request->has('assigned_to')) && ($request->has('asset_id'))) {
-                return redirect()->back()->withInput()->with('error', trans('admin/licenses/message.select_asset_or_person'));
+            // Get the next available seat for this license
+            $next = $license->freeSeat();
+
+            if (!$next) {
+                return redirect()->route('licenses.index')->with('error', 'There are no available seats for this license');
             }
+
+            if (!$licenseSeat = LicenseSeat::where('id', '=', $next->id)->first()) {
+                return redirect()->route('licenses.index')->with('error', 'There are no available seats for this license');
+            }
+
+
+            $this->authorize('checkout', $license);
+
+            // Declare the rules for the form validation
+            $rules = [
+                'note'   => 'string|nullable',
+                'asset_id'  => 'required_without:assigned_to',
+            ];
+
+            // Create a new validator instance from our validation rules
+            $validator = Validator::make(Input::all(), $rules);
+
+            // If validation fails, we'll exit the operation now.
+            if ($validator->fails()) {
+                // Ooops.. something went wrong
+                return redirect()->back()->withInput()->withErrors($validator);
+            }
+            $target = null;
+
+
+            // This item is checked out to a an asset
+            if (request('checkout_to_type')=='asset') {
+                if (is_null($target = Asset::find(request('asset_id')))) {
+                    return redirect()->route('licenses.index')->with('error', trans('admin/licenses/message.asset_does_not_exist'));
+                }
+                $licenseSeat->asset_id = $request->input('asset_id');
+
+                // Override asset's assigned user if available
+                if ($target->checkedOutToUser()) {
+                    $licenseSeat->assigned_to =  $target->assigned_to;
+                }
+
+            } else {
+
+                // Fetch the target and set the license user
+                if (is_null($target = User::find(request('assigned_to')))) {
+                    return redirect()->route('licenses.index')->with('error', trans('admin/licenses/message.user_does_not_exist'));
+                }
+                $licenseSeat->assigned_to = request('assigned_to');
+            }
+
+            $licenseSeat->user_id = Auth::user()->id;
+
+
+            if ($licenseSeat->save()) {
+                $licenseSeat->logCheckout($request->input('note'), $target);
+                return redirect()->route("licenses.index")->with('success', trans('admin/licenses/message.checkout.success'));
+            }
+
         }
+        return redirect()->route('licenses.index')->with('error', trans('admin/licenses/message.not_found'));
 
-        // Check if the asset exists
-        if (is_null($licenseSeat)) {
-            // Redirect to the asset management page with error
-            return redirect()->route('licenses.index')->with('error', trans('admin/licenses/message.not_found'));
-        }
 
-        if ($request->input('asset_id') == '') {
-            $licenseSeat->asset_id = null;
-        } else {
-            $licenseSeat->asset_id = $request->input('asset_id');
-        }
 
-        // Update the asset data
-        if ($request->input('assigned_to') == '') {
-                $licenseSeat->assigned_to =  null;
-        } else {
-                $licenseSeat->assigned_to = $request->input('assigned_to');
-        }
 
-        // Was the asset updated?
-        if ($licenseSeat->save()) {
-            $licenseSeat->logCheckout($request->input('note'), $target);
-
-            $data['license_id'] = $licenseSeat->license_id;
-            $data['note'] = $request->input('note');
-
-            // Redirect to the new asset page
-            return redirect()->route("licenses.index")->with('success', trans('admin/licenses/message.checkout.success'));
-        }
-        
         return redirect()->route("licenses.index")->with('error', trans('admin/licenses/message.checkout.error'));
     }
 
@@ -362,7 +362,14 @@ class LicensesController extends Controller
             // Redirect to the asset management page with error
             return redirect()->route('licenses.index')->with('error', trans('admin/licenses/message.not_found'));
         }
-        $this->authorize('checkin', $licenseSeat);
+
+        if (is_null($license = License::find($licenseSeat->license_id))) {
+            // Redirect to the asset management page with error
+            return redirect()->route('licenses.index')->with('error', trans('admin/licenses/message.not_found'));
+        }
+
+
+        $this->authorize('checkout', $license);
         return view('licenses/checkin', compact('licenseSeat'))->with('backto', $backTo);
     }
 
@@ -386,8 +393,7 @@ class LicensesController extends Controller
         }
 
         $license = License::find($licenseSeat->license_id);
-
-        $this->authorize('checkin', $licenseSeat);
+        $this->authorize('checkout', $license);
 
         if (!$license->reassignable) {
             // Not allowed to checkin
@@ -413,6 +419,8 @@ class LicensesController extends Controller
         if (!$return_to) {
             $return_to = Asset::find($licenseSeat->asset_id);
         }
+
+        \Log::debug($licenseSeat->assigned_to);
         // Update the asset data
         $licenseSeat->assigned_to                   = null;
         $licenseSeat->asset_id                      = null;
@@ -472,11 +480,8 @@ class LicensesController extends Controller
         // Show the page
         return view('licenses/edit')
         ->with('depreciation_list', Helper::depreciationList())
-        ->with('supplier_list', Helper::suppliersList())
         ->with('item', $license)
-        ->with('maintained_list', $maintained_list)
-        ->with('company_list', Helper::companyList())
-        ->with('manufacturer_list', Helper::manufacturerList());
+        ->with('maintained_list', $maintained_list);
     }
 
 
